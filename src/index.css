@@ -8,8 +8,8 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #000000;
-    color: #F0ECE8;
+    background-color: #FAF8F5;
+    color: #1E1714;
     overflow-x: hidden;
   }
 
@@ -18,18 +18,18 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar with warm luxury tones */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #F3EFEA;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: #D4C9BD;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #444444;
+  background: #B6A797;
 }
 

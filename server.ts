@@ -48,7 +48,7 @@ function generateToken(userId: string): string {
 // API ROUTES
 // ----------------------------------------------------
 
-// 1. AUTHENTICATION
+// 1. AUTHENTICATION & USER PROFILE
 app.post('/api/auth/register', (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
@@ -72,6 +72,24 @@ app.post('/api/auth/register', (req, res) => {
     role: 'CUSTOMER',
     accountStatus: 'ACTIVE',
     addresses: [],
+    loyaltyPoints: 500,
+    loyaltyTier: 'NOIR',
+    loyaltyHistory: [
+      {
+        id: `ly_${Date.now()}`,
+        date: new Date().toISOString().split('T')[0],
+        description: 'Welcome Sanctuary Inscription Bonus',
+        points: 500,
+        type: 'EARNED'
+      }
+    ],
+    favoriteCategories: [],
+    notificationPreferences: {
+      priceDropAlerts: true,
+      backInStockAlerts: true,
+      orderUpdates: true,
+      gazetteNewsletter: true
+    },
     emailVerifiedAt: new Date().toISOString()
   });
 
@@ -109,6 +127,20 @@ app.get('/api/auth/me', (req, res) => {
   return res.json({ user: safeUser });
 });
 
+app.post('/api/user/preferences', (req, res) => {
+  const user = getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthenticated' });
+
+  const { favoriteCategories, notificationPreferences } = req.body;
+  const updates: any = {};
+  if (Array.isArray(favoriteCategories)) updates.favoriteCategories = favoriteCategories;
+  if (notificationPreferences) updates.notificationPreferences = notificationPreferences;
+
+  const updated = db.updateUser(user.id, updates);
+  const { passwordHash: _, ...safeUser } = updated!;
+  return res.json({ user: safeUser });
+});
+
 app.post('/api/auth/add-address', (req, res) => {
   const user = getAuthUser(req);
   if (!user) return res.status(401).json({ error: 'Unauthenticated' });
@@ -124,7 +156,7 @@ app.post('/api/auth/add-address', (req, res) => {
     addressLine1,
     addressLine2,
     city,
-    state: state || 'MH',
+    state: state || 'Maharashtra',
     postalCode,
     country: country || 'India',
     phone,
@@ -141,8 +173,12 @@ app.post('/api/auth/add-address', (req, res) => {
 
 // 2. PRODUCTS & CATEGORIES
 app.get('/api/products', (req, res) => {
-  const { categoryId, search, sort, minPrice, maxPrice } = req.query as Record<string, string>;
-  let products = db.getProducts({ categoryId, search });
+  const { categoryId, search, sort, minPrice, maxPrice, isGiftPick } = req.query as Record<string, string>;
+  let products = db.getProducts({
+    categoryId,
+    search,
+    isGiftPick: isGiftPick === 'true' ? true : undefined
+  });
 
   if (minPrice) {
     products = products.filter(p => p.price >= parseFloat(minPrice));
@@ -159,6 +195,8 @@ app.get('/api/products', (req, res) => {
     products.sort((a, b) => b.averageRating - a.averageRating);
   } else if (sort === 'newest') {
     products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } else if (sort === 'popularity') {
+    products.sort((a, b) => b.reviewCount - a.reviewCount);
   }
 
   return res.json({ products });
@@ -207,7 +245,7 @@ app.post('/api/cart/sync', (req, res) => {
   return res.json({ items: merged });
 });
 
-// 4. WISHLIST
+// 4. WISHLIST & ALERTS
 app.get('/api/wishlist', (req, res) => {
   const user = getAuthUser(req);
   if (!user) return res.json({ productIds: [] });
@@ -224,19 +262,46 @@ app.post('/api/wishlist/toggle', (req, res) => {
   return res.json({ productIds: updated });
 });
 
+app.post('/api/alerts', (req, res) => {
+  const { productId, productName, userEmail, type, targetPrice } = req.body;
+  if (!productId || !userEmail || !type) {
+    return res.status(400).json({ error: 'Product ID, email and alert type are required.' });
+  }
+  const alert = db.addProductAlert({
+    productId,
+    productName: productName || 'Atelier Creation',
+    userEmail: userEmail.trim().toLowerCase(),
+    type,
+    targetPrice: targetPrice ? parseFloat(targetPrice) : undefined
+  });
+  return res.json({ success: true, alert });
+});
+
+app.get('/api/alerts', (req, res) => {
+  const user = getAuthUser(req);
+  const email = user ? user.email : (req.query.email as string);
+  const alerts = db.getProductAlerts(email);
+  return res.json({ alerts });
+});
+
 // 5. COUPONS
+app.get('/api/coupons', (_req, res) => {
+  const coupons = db.getCoupons().filter(c => c.active);
+  return res.json({ coupons });
+});
+
 app.post('/api/coupons/validate', (req, res) => {
   const { code, subtotal } = req.body;
   if (!code) return res.status(400).json({ error: 'Coupon code is required' });
 
   const coupon = db.findCouponByCode(code);
   if (!coupon) {
-    return res.status(404).json({ error: 'Invalid or expired boutique coupon code.' });
+    return res.status(404).json({ error: 'Invalid or expired boutique privilege code.' });
   }
 
   if (subtotal && subtotal < coupon.minOrder) {
     return res.status(400).json({
-      error: `This coupon requires a minimum acquisition order of ₹${coupon.minOrder.toLocaleString('en-IN')}.`
+      error: `This privilege code requires a minimum acquisition order of ₹${coupon.minOrder.toLocaleString('en-IN')}.`
     });
   }
 
@@ -250,15 +315,17 @@ app.post('/api/orders/create', (req, res) => {
     items,
     shippingAddress,
     couponCode,
-    paymentMethod = 'RAZORPAY_UPI'
+    paymentMethod = 'RAZORPAY_UPI',
+    giftOptions,
+    pointsToRedeem = 0
   } = req.body;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: 'Cart items cannot be empty.' });
+    return res.status(400).json({ error: 'Shopping bag items cannot be empty.' });
   }
 
   if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.phone) {
-    return res.status(400).json({ error: 'Valid shipping address is required.' });
+    return res.status(400).json({ error: 'Valid delivery address is required.' });
   }
 
   // Server-side calculation & stock check
@@ -310,10 +377,25 @@ app.post('/api/orders/create', (req, res) => {
     }
   }
 
+  // Loyalty Points discount: ₹1 per point up to max 30% of subtotal
+  let pointsDiscount = 0;
+  let redeemedPoints = 0;
+  if (user && pointsToRedeem > 0) {
+    const maxAllowedPoints = Math.min(user.loyaltyPoints || 0, Math.floor(subtotal * 0.3));
+    redeemedPoints = Math.min(pointsToRedeem, maxAllowedPoints);
+    pointsDiscount = redeemedPoints; // ₹1 per point
+    db.redeemLoyaltyPoints(user.id, redeemedPoints, 'Privilege points redemption on checkout');
+  }
+
+  // Gift wrapping charge: ₹350 if selected
+  const giftWrapFee = giftOptions?.giftWrap ? 350 : 0;
+
   // Shipping policy: complimentary over ₹5,000, otherwise ₹500
-  const shippingFee = (subtotal - discount) >= 5000 ? 0 : 500;
-  // GST calculation (3% on luxury fragrance & apparel)
-  const taxableAmount = Math.max(0, subtotal - discount);
+  const afterDiscount = Math.max(0, subtotal - discount - pointsDiscount);
+  const shippingFee = afterDiscount >= 5000 ? 0 : 500;
+
+  // GST calculation (3% on luxury goods)
+  const taxableAmount = afterDiscount + giftWrapFee;
   const tax = Math.round(taxableAmount * 0.03);
   const totalAmount = taxableAmount + shippingFee + tax;
 
@@ -328,11 +410,15 @@ app.post('/api/orders/create', (req, res) => {
     shippingAddress,
     subtotal,
     discount,
+    pointsDiscount,
+    pointsRedeemed: redeemedPoints,
+    giftWrapFee,
+    giftOptions,
     shippingFee,
     tax,
     totalAmount,
     paymentStatus: paymentMethod === 'COD' ? 'PENDING' : 'PENDING',
-    orderStatus: 'PROCESSING',
+    orderStatus: 'CONFIRMED',
     paymentMethod,
     razorpayOrderId
   });
@@ -364,12 +450,13 @@ app.post('/api/orders/verify-payment', (req, res) => {
     db.decrementProductStock(item.productId, item.quantity);
   }
 
-  // Update order status to PAID
+  // Update order status to CONFIRMED / PROCESSING
   const updatedOrder = db.updateOrder(order.id, {
     paymentStatus: 'PAID',
     paymentReference: razorpayPaymentId || `pay_rzp_${Date.now()}`,
     orderStatus: 'PROCESSING',
-    trackingNumber: `WG-IND-${Math.floor(10000000 + Math.random() * 90000000)}`
+    trackingNumber: `WG-IND-${Math.floor(10000000 + Math.random() * 90000000)}`,
+    trackingCourier: 'Blue Dart Sovereign Air'
   });
 
   // Clear user cart if authenticated
@@ -399,7 +486,7 @@ app.get('/api/orders/track/:orderNumber', (req, res) => {
   return res.json({ order });
 });
 
-// 7. REVIEWS
+// 7. REVIEWS & MODERATION
 app.get('/api/reviews/:productId', (req, res) => {
   const reviews = db.getReviewsForProduct(req.params.productId);
   return res.json({ reviews });
@@ -407,7 +494,7 @@ app.get('/api/reviews/:productId', (req, res) => {
 
 app.post('/api/reviews', (req, res) => {
   const user = getAuthUser(req);
-  const { productId, rating, comment } = req.body;
+  const { productId, rating, comment, images } = req.body;
   if (!productId || !rating || !comment) {
     return res.status(400).json({ error: 'Product ID, rating (1-5), and commentary are required.' });
   }
@@ -415,6 +502,7 @@ app.post('/api/reviews', (req, res) => {
     productId,
     rating: Math.min(5, Math.max(1, parseInt(rating, 10))),
     comment: comment.trim(),
+    images: Array.isArray(images) ? images : [],
     userId: user ? user.id : 'guest_collector',
     userName: user ? user.name : (req.body.userName || 'Anonymous Connoisseur'),
     verifiedPurchase: !!user
@@ -422,9 +510,16 @@ app.post('/api/reviews', (req, res) => {
   return res.json({ review });
 });
 
+app.post('/api/reviews/report', (req, res) => {
+  const { reviewId } = req.body;
+  if (!reviewId) return res.status(400).json({ error: 'reviewId is required' });
+  const reported = db.reportReview(reviewId);
+  return res.json({ success: true, review: reported });
+});
+
 // 8. CONTACT & NEWSLETTER
 app.post('/api/contact', (req, res) => {
-  const { name, email, subject, message } = req.body;
+  const { name, email, subject, message, orderNumber } = req.body;
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Name, email, and message are required.' });
   }
@@ -432,7 +527,8 @@ app.post('/api/contact', (req, res) => {
     name: name.trim(),
     email: email.trim(),
     subject: subject ? subject.trim() : 'General Boutique Inquiry',
-    message: message.trim()
+    message: message.trim(),
+    orderNumber: orderNumber ? orderNumber.trim() : undefined
   });
   return res.json({ success: true, request });
 });
@@ -459,6 +555,7 @@ app.get('/api/admin/metrics', requireAdmin, (_req, res) => {
   const orders = db.getOrders();
   const products = db.getAllProductsAdmin();
   const users = db.getUsers();
+  const reviews = db.getAllReviewsAdmin();
 
   const totalSales = orders
     .filter(o => o.paymentStatus === 'PAID')
@@ -472,7 +569,8 @@ app.get('/api/admin/metrics', requireAdmin, (_req, res) => {
       totalOrders: orders.length,
       totalCustomers: users.filter(u => u.role === 'CUSTOMER').length,
       lowStockProducts,
-      recentOrders: orders.slice(0, 5)
+      totalReviews: reviews.length,
+      recentOrders: orders.slice(0, 8)
     }
   });
 });
@@ -483,10 +581,11 @@ app.get('/api/admin/orders', requireAdmin, (_req, res) => {
 });
 
 app.patch('/api/admin/orders/:id', requireAdmin, (req, res) => {
-  const { orderStatus, trackingNumber, paymentStatus } = req.body;
+  const { orderStatus, trackingNumber, trackingCourier, paymentStatus } = req.body;
   const updated = db.updateOrder(req.params.id, {
     ...(orderStatus && { orderStatus }),
     ...(trackingNumber && { trackingNumber }),
+    ...(trackingCourier && { trackingCourier }),
     ...(paymentStatus && { paymentStatus })
   });
   if (!updated) return res.status(404).json({ error: 'Order not found' });
@@ -499,7 +598,7 @@ app.get('/api/admin/products', requireAdmin, (_req, res) => {
 });
 
 app.post('/api/admin/products', requireAdmin, (req, res) => {
-  const { name, categoryId, price, description, stock, sku, images, notes, details } = req.body;
+  const { name, categoryId, price, description, stock, sku, images, notes, details, isGiftPick } = req.body;
   if (!name || !price || !categoryId) {
     return res.status(400).json({ error: 'Name, category, and price are required.' });
   }
@@ -519,6 +618,7 @@ app.post('/api/admin/products', requireAdmin, (req, res) => {
     status: 'ACTIVE',
     averageRating: 5.0,
     reviewCount: 0,
+    isGiftPick: !!isGiftPick,
     notes: Array.isArray(notes) ? notes : [],
     details: details || {}
   });
@@ -537,6 +637,15 @@ app.delete('/api/admin/products/:id', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+app.get('/api/admin/reviews', requireAdmin, (_req, res) => {
+  res.json({ reviews: db.getAllReviewsAdmin() });
+});
+
+app.patch('/api/admin/reviews/:id', requireAdmin, (req, res) => {
+  const updated = db.updateReviewStatus(req.params.id, req.body.status);
+  res.json({ review: updated });
+});
+
 app.get('/api/admin/customers', requireAdmin, (_req, res) => {
   const users = db.getUsers().map(({ passwordHash: _, ...u }) => u);
   res.json({ customers: users });
@@ -547,7 +656,7 @@ app.get('/api/admin/coupons', requireAdmin, (_req, res) => {
 });
 
 app.post('/api/admin/coupons', requireAdmin, (req, res) => {
-  const { code, discountType, discountValue, minOrder, maxDiscount, expiryDate } = req.body;
+  const { code, discountType, discountValue, minOrder, maxDiscount, expiryDate, description } = req.body;
   if (!code || !discountValue || !minOrder) {
     return res.status(400).json({ error: 'Code, value, and minOrder are required.' });
   }
@@ -557,6 +666,7 @@ app.post('/api/admin/coupons', requireAdmin, (req, res) => {
     discountValue: parseFloat(discountValue),
     minOrder: parseFloat(minOrder),
     maxDiscount: maxDiscount ? parseFloat(maxDiscount) : undefined,
+    description: description || 'Special privilege code',
     expiryDate: expiryDate || '2027-12-31',
     active: true
   });

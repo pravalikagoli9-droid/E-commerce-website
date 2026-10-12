@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User, Product, CartItem, Order, Coupon, Address } from '../types';
+import type { User, Product, CartItem, Order, Coupon, Address, GiftOptions, ProductAlert, Review } from '../types';
 
 export type ActivePage =
   | 'home'
@@ -8,14 +8,16 @@ export type ActivePage =
   | 'cart'
   | 'checkout'
   | 'order-confirmation'
-  | 'order-tracking'
   | 'account'
   | 'admin'
   | 'about'
   | 'faq'
   | 'blog'
   | 'contact'
-  | 'policies';
+  | 'policies'
+  | 'gifting'
+  | 'offers'
+  | 'tracking';
 
 export interface ToastMessage {
   id: string;
@@ -44,6 +46,24 @@ interface StoreContextType {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
+  // Quick View Modal
+  quickViewProduct: Product | null;
+  setQuickViewProduct: (product: Product | null) => void;
+
+  // Product Comparison
+  compareList: Product[];
+  addToCompare: (product: Product) => void;
+  removeFromCompare: (productId: string) => void;
+  clearCompare: () => void;
+  isCompareOpen: boolean;
+  setIsCompareOpen: (open: boolean) => void;
+
+  // Personalization & Recently Viewed
+  recentlyViewedIds: string[];
+  addRecentlyViewed: (productId: string) => void;
+  favoriteCategories: string[];
+  toggleFavoriteCategory: (slug: string) => void;
+
   // Auth
   user: User | null;
   token: string | null;
@@ -51,6 +71,7 @@ interface StoreContextType {
   register: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   addAddress: (addr: Omit<Address, 'id'>) => Promise<boolean>;
+  updatePreferences: (favCats: string[], notifs: any) => Promise<void>;
   quickLoginDemo: (role: 'CUSTOMER' | 'ADMIN') => Promise<void>;
 
   // Products
@@ -67,16 +88,29 @@ interface StoreContextType {
   appliedCoupon: Coupon | null;
   applyCoupon: (code: string) => Promise<{ success: boolean; error?: string }>;
   removeCoupon: () => void;
+
+  // Gifting Experience
+  giftOptions: GiftOptions;
+  setGiftOptions: React.Dispatch<React.SetStateAction<GiftOptions>>;
+  giftWrapFee: number;
+
+  // Loyalty Rewards
+  pointsToRedeem: number;
+  setPointsToRedeem: (points: number) => void;
+  pointsDiscount: number;
+
+  // Financial calculations
   cartSubtotal: number;
   cartDiscount: number;
   cartShippingFee: number;
   cartTax: number;
   cartTotal: number;
 
-  // Wishlist
+  // Wishlist & Alerts
   wishlistIds: string[];
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
+  subscribeAlert: (productId: string, productName: string, email: string, type: 'PRICE_DROP' | 'BACK_IN_STOCK', targetPrice?: number) => Promise<boolean>;
 
   // Toasts
   toasts: ToastMessage[];
@@ -96,6 +130,33 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Quick View
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  // Compare
+  const [compareList, setCompareList] = useState<Product[]>([]);
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
+
+  // Recently Viewed & Personalization
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('elixir_recent');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [favoriteCategories, setFavoriteCategories] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('elixir_fav_cats');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // User Auth
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('elixir_token'));
   const [guestId] = useState<string>(() => {
@@ -109,6 +170,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+  // Cart
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem('elixir_cart');
@@ -119,6 +182,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   });
 
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+
+  // Gifting Options
+  const [giftOptions, setGiftOptions] = useState<GiftOptions>({
+    isGift: false,
+    giftWrap: false,
+    recipientName: '',
+    giftMessage: '',
+    hidePriceOnReceipt: true,
+    occasion: 'Celebration'
+  });
+
+  // Loyalty Points to Redeem
+  const [pointsToRedeem, setPointsToRedeem] = useState<number>(0);
+
+  // Wishlist
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('elixir_wishlist');
@@ -127,6 +205,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       return [];
     }
   });
+
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
@@ -167,6 +246,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         .then(data => {
           if (data?.user) {
             setUser(data.user);
+            if (data.user.favoriteCategories) {
+              setFavoriteCategories(data.user.favoriteCategories);
+            }
           } else {
             setUser(null);
             setToken(null);
@@ -202,6 +284,69 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     localStorage.setItem('elixir_wishlist', JSON.stringify(wishlistIds));
   }, [wishlistIds]);
 
+  // Persist recently viewed
+  useEffect(() => {
+    localStorage.setItem('elixir_recent', JSON.stringify(recentlyViewedIds));
+  }, [recentlyViewedIds]);
+
+  // Persist favorite categories
+  useEffect(() => {
+    localStorage.setItem('elixir_fav_cats', JSON.stringify(favoriteCategories));
+  }, [favoriteCategories]);
+
+  const addRecentlyViewed = (productId: string) => {
+    setRecentlyViewedIds(prev => {
+      const filtered = prev.filter(id => id !== productId);
+      return [productId, ...filtered].slice(0, 8);
+    });
+  };
+
+  const toggleFavoriteCategory = (slug: string) => {
+    setFavoriteCategories(prev => {
+      const exists = prev.includes(slug);
+      const updated = exists ? prev.filter(s => s !== slug) : [...prev, slug];
+      if (token && user) {
+        fetch('/api/user/preferences', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ favoriteCategories: updated })
+        }).catch(console.error);
+      }
+      showToast(
+        exists ? 'Category preference updated.' : 'Category saved to your personal curations.',
+        'info'
+      );
+      return updated;
+    });
+  };
+
+  const addToCompare = (product: Product) => {
+    if (compareList.length >= 3) {
+      showToast('You can compare a maximum of 3 creations simultaneously.', 'info');
+      setIsCompareOpen(true);
+      return;
+    }
+    if (compareList.some(p => p.id === product.id)) {
+      showToast('This creation is already in your comparison salon.', 'info');
+      setIsCompareOpen(true);
+      return;
+    }
+    setCompareList(prev => [...prev, product]);
+    showToast(`Added "${product.name}" to comparison salon.`, 'success');
+    setIsCompareOpen(true);
+  };
+
+  const removeFromCompare = (productId: string) => {
+    setCompareList(prev => prev.filter(p => p.id !== productId));
+  };
+
+  const clearCompare = () => {
+    setCompareList([]);
+  };
+
   const login = async (email: string, pass: string) => {
     try {
       const res = await fetch('/api/auth/login', {
@@ -217,6 +362,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setToken(data.token);
       setUser(data.user);
       localStorage.setItem('elixir_token', data.token);
+
+      if (data.user.favoriteCategories) {
+        setFavoriteCategories(data.user.favoriteCategories);
+      }
 
       // Merge guest cart with user cart
       if (cartItems.length > 0) {
@@ -238,7 +387,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
       }
 
-      showToast(`Welcome back, ${data.user.name}`, 'success');
+      showToast(`Welcome back to the sanctuary, ${data.user.name}.`, 'success');
       return { success: true };
     } catch {
       return { success: false, error: 'Connection error' };
@@ -260,7 +409,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setToken(data.token);
       setUser(data.user);
       localStorage.setItem('elixir_token', data.token);
-      showToast(`Account created. Welcome to ÉLIXIR & NOIR, ${data.user.name}.`, 'success');
+      showToast(`Account created. 500 Welcome Privilege Points awarded to ${data.user.name}.`, 'success');
       return { success: true };
     } catch {
       return { success: false, error: 'Connection error' };
@@ -300,6 +449,30 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       console.error(e);
     }
     return false;
+  };
+
+  const updatePreferences = async (favCats: string[], notifs: any) => {
+    if (!token || !user) return;
+    try {
+      const res = await fetch('/api/user/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          favoriteCategories: favCats,
+          notificationPreferences: notifs
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        showToast('Sanctuary preferences updated.', 'success');
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const quickLoginDemo = async (role: 'CUSTOMER' | 'ADMIN') => {
@@ -346,12 +519,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setCartItems(prev =>
       prev.filter(i => !(i.productId === productId && i.selectedVariant === variant))
     );
-    showToast('Item removed from shopping bag.', 'info');
+    showToast('Creation removed from shopping bag.', 'info');
   };
 
   const clearCart = () => {
     setCartItems([]);
     setAppliedCoupon(null);
+    setPointsToRedeem(0);
   };
 
   const applyCoupon = async (code: string) => {
@@ -363,13 +537,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
       const data = await res.json();
       if (!res.ok) {
-        return { success: false, error: data.error || 'Invalid coupon' };
+        return { success: false, error: data.error || 'Invalid privilege code' };
       }
       setAppliedCoupon(data.coupon);
       showToast(`Privilege code "${data.coupon.code}" applied.`, 'success');
       return { success: true };
     } catch {
-      return { success: false, error: 'Failed to validate coupon' };
+      return { success: false, error: 'Failed to validate privilege code' };
     }
   };
 
@@ -403,6 +577,40 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const isInWishlist = (productId: string) => wishlistIds.includes(productId);
 
+  const subscribeAlert = async (
+    productId: string,
+    productName: string,
+    email: string,
+    type: 'PRICE_DROP' | 'BACK_IN_STOCK',
+    targetPrice?: number
+  ) => {
+    try {
+      const res = await fetch('/api/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId,
+          productName,
+          userEmail: email,
+          type,
+          targetPrice
+        })
+      });
+      if (res.ok) {
+        showToast(
+          type === 'PRICE_DROP'
+            ? `Price drop alert registered for ${productName}.`
+            : `Back in stock notification registered for ${productName}.`,
+          'success'
+        );
+        return true;
+      }
+    } catch {
+      showToast('Failed to set notification.', 'error');
+    }
+    return false;
+  };
+
   // Totals calculations
   const cartSubtotal = cartItems.reduce((acc, item) => {
     let price = item.product.price;
@@ -425,8 +633,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   }
 
-  const taxableAmount = Math.max(0, cartSubtotal - cartDiscount);
-  const cartShippingFee = cartItems.length === 0 ? 0 : taxableAmount >= 5000 ? 0 : 500;
+  // Loyalty Points discount: ₹1 per point up to 30% of subtotal
+  const maxPossiblePoints = user ? Math.min(user.loyaltyPoints || 0, Math.floor(cartSubtotal * 0.3)) : 0;
+  const pointsDiscount = Math.min(pointsToRedeem, maxPossiblePoints);
+
+  const giftWrapFee = giftOptions.giftWrap ? 350 : 0;
+  const discountedSubtotal = Math.max(0, cartSubtotal - cartDiscount - pointsDiscount);
+  const cartShippingFee = cartItems.length === 0 ? 0 : discountedSubtotal >= 5000 ? 0 : 500;
+  const taxableAmount = discountedSubtotal + giftWrapFee;
   const cartTax = cartItems.length === 0 ? 0 : Math.round(taxableAmount * 0.03);
   const cartTotal = taxableAmount + cartShippingFee + cartTax;
 
@@ -449,12 +663,25 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setIsCartDrawerOpen,
         searchQuery,
         setSearchQuery,
+        quickViewProduct,
+        setQuickViewProduct,
+        compareList,
+        addToCompare,
+        removeFromCompare,
+        clearCompare,
+        isCompareOpen,
+        setIsCompareOpen,
+        recentlyViewedIds,
+        addRecentlyViewed,
+        favoriteCategories,
+        toggleFavoriteCategory,
         user,
         token,
         login,
         register,
         logout,
         addAddress,
+        updatePreferences,
         quickLoginDemo,
         products,
         isLoadingProducts,
@@ -467,6 +694,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         appliedCoupon,
         applyCoupon,
         removeCoupon,
+        giftOptions,
+        setGiftOptions,
+        giftWrapFee,
+        pointsToRedeem,
+        setPointsToRedeem,
+        pointsDiscount,
         cartSubtotal,
         cartDiscount,
         cartShippingFee,
@@ -475,6 +708,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         wishlistIds,
         toggleWishlist,
         isInWishlist,
+        subscribeAlert,
         toasts,
         showToast
       }}

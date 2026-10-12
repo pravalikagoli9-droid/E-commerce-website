@@ -1,13 +1,83 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { ProductCard } from '../components/ProductCard';
-import { ArrowRight, Sparkles, Feather, ShieldCheck, Compass } from 'lucide-react';
+import {
+  ArrowRight,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Gift,
+  Coins,
+  ShieldCheck,
+  Star,
+  Eye,
+  Heart
+} from 'lucide-react';
 
 export const HomeView: React.FC = () => {
-  const { products, setCurrentPage, setSelectedCategorySlug } = useStore();
+  const {
+    products,
+    setCurrentPage,
+    setSelectedCategorySlug,
+    recentlyViewedIds,
+    favoriteCategories,
+    toggleFavoriteCategory
+  } = useStore();
+
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  const heroCampaigns = [
+    {
+      title: "L'Art de l'Élixir et du Noir",
+      subtitle: "Maison de Haute Parfumerie · Grasse Macerations",
+      desc: "Cold-macerated wild amber, Somalian frankincense tears, and four-year-aged Florentine orris butter cured in smoked glass flacons.",
+      ctaText: "Explore Haute Parfumerie",
+      categorySlug: "fragrances",
+      image: "/src/assets/images/hero_luxury_boutique_1791824705943.jpg"
+    },
+    {
+      title: "Architectural Drape & Pure Wool",
+      subtitle: "The Sartorial Wardrobe · Winter Atelier Edition",
+      desc: "Hand-tailored double-faced 750gsm virgin wool overcoats and pure Como silk charmeuse robes crafted with floating canvas authority.",
+      ctaText: "Discover Sartorial Pieces",
+      categorySlug: "apparel",
+      image: "/src/assets/images/category_apparel_1791824731775.jpg"
+    },
+    {
+      title: "Cellular Botanical Restoration",
+      subtitle: "Bio-Compatible Skincare · Dermal Rituals",
+      desc: "Nutrient-dense prickly pear seed elixirs and hand-carved volcanic obsidian sculpting stones to nourish your evening sanctuary.",
+      ctaText: "Experience Botanical Care",
+      categorySlug: "skincare",
+      image: "/src/assets/images/category_skincare_1791824742582.jpg"
+    }
+  ];
+
+  // Auto rotate hero campaigns every 7 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % heroCampaigns.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [heroCampaigns.length]);
+
+  const currentCampaign = heroCampaigns[heroIndex];
 
   const featuredProducts = products.filter(p => p.isFeatured).slice(0, 4);
   const bestsellers = products.filter(p => p.isBestseller).slice(0, 4);
+  const giftPicks = products.filter(p => p.isGiftPick).slice(0, 4);
+
+  // Recently viewed products
+  const recentlyViewedProducts = products.filter(p => recentlyViewedIds.includes(p.id));
+
+  // Personalized recommendations based on favorite categories or popular picks
+  const recommendedProducts = products
+    .filter(p =>
+      favoriteCategories.length > 0
+        ? favoriteCategories.includes(p.categoryId.replace('cat_', ''))
+        : p.averageRating >= 4.8
+    )
+    .slice(0, 4);
 
   const categories = [
     {
@@ -31,55 +101,89 @@ export const HomeView: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-24 sm:space-y-32">
-      {/* 1. Large Luxury Hero Section */}
-      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden bg-black">
-        {/* Cinematic Backdrop Image with subtle dark scrim */}
+    <div className="space-y-24 sm:space-y-32 pb-16">
+      {/* 1. Interactive Multi-Campaign Hero Section */}
+      <section className="relative min-h-[82vh] sm:min-h-[88vh] flex items-center justify-center overflow-hidden bg-[#1E1714]">
+        {/* Animated Background Image */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/src/assets/images/hero_luxury_boutique_1791824705943.jpg"
-            alt="ÉLIXIR & NOIR Haute Parfumerie Hero"
+            key={currentCampaign.image}
+            src={currentCampaign.image}
+            alt={currentCampaign.title}
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover object-center scale-100 transition-transform duration-1000 opacity-75"
+            className="w-full h-full object-cover object-center transition-all duration-1000 ease-out opacity-65 animate-in fade-in"
           />
-          {/* Gradients ensuring 4.5:1 text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
-          <div className="absolute inset-0 bg-radial from-transparent via-black/40 to-black" />
+          {/* Subtle Scrim Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1E1714] via-[#1E1714]/40 to-[#1E1714]/30" />
         </div>
 
         {/* Hero Content Frame */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6 pt-12 pb-16">
-          <span className="inline-block text-xs sm:text-sm tracking-[0.3em] uppercase text-[#C5A880] font-medium">
-            Maison de Haute Parfumerie & Sartorial Atelier
+          <span className="inline-block text-xs sm:text-sm tracking-[0.28em] uppercase text-[#BFA175] font-medium animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {currentCampaign.subtitle}
           </span>
 
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-[#FFFFFF] tracking-[0.06em] leading-[1.08] font-normal max-w-4xl mx-auto [text-wrap:balance]">
-            L'Art de l'Élixir et du Noir
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-[#FAF8F5] tracking-[0.05em] leading-[1.08] font-normal max-w-4xl mx-auto [text-wrap:balance]">
+            {currentCampaign.title}
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-[#D6D0C7] max-w-2xl mx-auto font-light leading-relaxed tracking-wide [text-wrap:balance]">
-            An uncompromising sanctuary of rare olfactory macerations, architectural virgin wool draping, and bio-compatible cellular restorations.
+          <p className="text-sm sm:text-base md:text-lg text-[#DCD3C7] max-w-2xl mx-auto font-light leading-relaxed tracking-wide [text-wrap:balance]">
+            {currentCampaign.desc}
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => {
-                setSelectedCategorySlug(null);
+                setSelectedCategorySlug(currentCampaign.categorySlug);
                 setCurrentPage('shop');
               }}
-              className="w-full sm:w-auto px-8 py-3.5 bg-[#F0ECE8] text-[#000000] text-xs font-semibold tracking-[0.22em] uppercase hover:bg-white transition-colors cursor-pointer shadow-xl flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 bg-[#FAF8F5] text-[#1E1714] text-xs font-semibold tracking-[0.22em] uppercase hover:bg-white transition-colors cursor-pointer shadow-xl flex items-center justify-center gap-2"
             >
-              <span>Explore The Collection</span>
+              <span>{currentCampaign.ctaText}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => {
-                setSelectedCategorySlug('fragrances');
+                setSelectedCategorySlug(null);
                 setCurrentPage('shop');
               }}
-              className="w-full sm:w-auto px-8 py-3.5 border border-[#555] hover:border-white text-xs font-medium tracking-[0.22em] uppercase text-[#E0DBD3] hover:text-white transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-8 py-3.5 border border-[#B6A797] hover:border-white text-xs font-medium tracking-[0.22em] uppercase text-[#FAF8F5] hover:text-white transition-colors cursor-pointer"
             >
-              Haute Parfumerie
+              All Atelier Works
+            </button>
+          </div>
+
+          {/* Hero Carousel Navigation Dots & Controls */}
+          <div className="pt-8 flex items-center justify-center gap-6">
+            <button
+              onClick={() =>
+                setHeroIndex(prev => (prev - 1 + heroCampaigns.length) % heroCampaigns.length)
+              }
+              aria-label="Previous Campaign"
+              className="p-1.5 rounded-full text-[#DCD3C7] hover:text-white border border-[#DCD3C7]/30 hover:border-white transition-colors cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div className="flex gap-2">
+              {heroCampaigns.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setHeroIndex(idx)}
+                  className={`h-1.5 transition-all duration-300 rounded-full cursor-pointer ${
+                    heroIndex === idx ? 'w-8 bg-[#FAF8F5]' : 'w-2 bg-[#FAF8F5]/40 hover:bg-[#FAF8F5]/70'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={() => setHeroIndex(prev => (prev + 1) % heroCampaigns.length)}
+              aria-label="Next Campaign"
+              className="p-1.5 rounded-full text-[#DCD3C7] hover:text-white border border-[#DCD3C7]/30 hover:border-white transition-colors cursor-pointer"
+            >
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -87,60 +191,69 @@ export const HomeView: React.FC = () => {
 
       {/* 2. Three Brand Quality Hallmarks */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 border-y border-[#1F1F1F]">
-          <div className="space-y-3 pr-4">
-            <span className="font-mono text-xs text-[#C5A880] tracking-wider block">01</span>
-            <h3 className="font-serif text-xl text-[#F0ECE8]">Rare Botanical Extractions</h3>
-            <p className="text-xs text-[#8A857D] leading-relaxed">
-              Macerated in Grasse over twelve lunar cycles utilizing unrefined wild Moroccan amber, Somalian frankincense tears, and Florentine orris butter.
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 border-y border-[#E7E0D6] bg-white p-6 sm:p-10">
+          <div className="space-y-2 pr-4">
+            <span className="font-mono text-xs text-[#8C7A6B] tracking-wider block font-semibold">01</span>
+            <h3 className="font-serif text-xl text-[#1E1714]">Rare Botanical Maceration</h3>
+            <p className="text-xs text-[#6B5C50] leading-relaxed">
+              Macerated in Grasse over twelve lunar cycles utilizing unrefined wild Moroccan amber, Somalian frankincense tears, and Florentine orris root.
             </p>
           </div>
 
-          <div className="space-y-3 pr-4 md:border-l md:border-[#1F1F1F] md:pl-8">
-            <span className="font-mono text-xs text-[#C5A880] tracking-wider block">02</span>
-            <h3 className="font-serif text-xl text-[#F0ECE8]">Sartorial Architectural Precision</h3>
-            <p className="text-xs text-[#8A857D] leading-relaxed">
-              Hand-finished double-faced virgin wool and 22-momme Como silk garments tailored with internal floating canvas structures.
+          <div className="space-y-2 pr-4 md:border-l md:border-[#E7E0D6] md:pl-8">
+            <span className="font-mono text-xs text-[#8C7A6B] tracking-wider block font-semibold">02</span>
+            <h3 className="font-serif text-xl text-[#1E1714]">Floating Canvas Sartorial Tailoring</h3>
+            <p className="text-xs text-[#6B5C50] leading-relaxed">
+              Hand-finished double-faced virgin wool and 22-momme Como silk garments tailored with internal natural horsehair canvas structures.
             </p>
           </div>
 
-          <div className="space-y-3 pr-4 md:border-l md:border-[#1F1F1F] md:pl-8">
-            <span className="font-mono text-xs text-[#C5A880] tracking-wider block">03</span>
-            <h3 className="font-serif text-xl text-[#F0ECE8]">White Glove Bespoke Presentation</h3>
-            <p className="text-xs text-[#8A857D] leading-relaxed">
-              Every acquisition is enclosed in heavy black lacquered presentation cases, secured with wax seals, and delivered via tracked concierge courier.
+          <div className="space-y-2 pr-4 md:border-l md:border-[#E7E0D6] md:pl-8">
+            <span className="font-mono text-xs text-[#8C7A6B] tracking-wider block font-semibold">03</span>
+            <h3 className="font-serif text-xl text-[#1E1714]">White Glove Courier Presentation</h3>
+            <p className="text-xs text-[#6B5C50] leading-relaxed">
+              Complimentary on acquisitions over ₹5,000. Formally boxed in rigid presentation cases, wax-sealed, and delivered via tracked courier.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 3. Welcome & Atelier Mission Section */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6">
-        <span className="text-xs tracking-[0.3em] uppercase text-[#888] block">
-          The Atelier Manifesto
-        </span>
-        <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#FFFFFF] tracking-wide leading-tight [text-wrap:balance]">
-          "We do not create for the masses. We craft for the individual who views beauty as an intimate ceremony."
-        </h2>
-        <div className="w-12 h-px bg-[#C5A880] mx-auto mt-6" />
-        <p className="text-sm sm:text-base text-[#9E988F] max-w-3xl mx-auto leading-relaxed pt-2 font-light">
-          At ÉLIXIR & NOIR, luxury is defined not by excess, but by the quiet power of exceptional substance. Each formula is limited in production, respecting natural agricultural harvests and true artisanal patience.
-        </p>
-      </section>
+      {/* 3. Personalized Shopping: Recently Viewed Products (if any) */}
+      {recentlyViewedProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex items-end justify-between border-b border-[#E7E0D6] pb-3">
+            <div>
+              <span className="text-xs tracking-[0.25em] uppercase text-[#8C7A6B] font-medium">
+                Personalized History
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl text-[#1E1714]">Recently Viewed Creations</h2>
+            </div>
+            <span className="text-xs text-[#8C7A6B] font-mono">{recentlyViewedProducts.length} Creations</span>
+          </div>
 
-      {/* 4. Category Showcase Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {recentlyViewedProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 4. Three Pillar Disciplines (Category Showcase Cards) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#1A1A1A] pb-4 gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#E7E0D6] pb-4 gap-2">
           <div>
-            <span className="text-xs tracking-[0.25em] uppercase text-[#C5A880]">The Three Disciplines</span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#FFFFFF]">Curated Pillars</h2>
+            <span className="text-xs tracking-[0.25em] uppercase text-[#BFA175] font-medium">
+              The Three Disciplines
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#1E1714]">Curated Pillars</h2>
           </div>
           <button
             onClick={() => {
               setSelectedCategorySlug(null);
               setCurrentPage('shop');
             }}
-            className="text-xs uppercase tracking-[0.18em] text-[#AAA] hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-xs uppercase tracking-[0.18em] text-[#6B5C50] hover:text-[#1E1714] flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <span>View Full Archive</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -155,29 +268,29 @@ export const HomeView: React.FC = () => {
                 setSelectedCategorySlug(cat.slug);
                 setCurrentPage('shop');
               }}
-              className="group relative h-[480px] bg-[#0A0A0A] border border-[#222] overflow-hidden cursor-pointer"
+              className="group relative h-[480px] bg-[#1E1714] border border-[#E7E0D6] overflow-hidden cursor-pointer shadow-md"
             >
               <img
                 src={cat.image}
                 alt={cat.title}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-90"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-85 group-hover:opacity-95"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-              
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1E1714] via-[#1E1714]/40 to-transparent" />
+
               <div className="absolute inset-x-0 bottom-0 p-8 space-y-2">
-                <span className="text-[11px] tracking-[0.2em] uppercase text-[#C5A880] block">
-                  Collection
+                <span className="text-[11px] tracking-[0.2em] uppercase text-[#BFA175] block font-medium">
+                  Collection Pillar
                 </span>
-                <h3 className="font-serif text-2xl text-white group-hover:translate-x-1 transition-transform">
+                <h3 className="font-serif text-2xl text-[#FAF8F5] group-hover:translate-x-1 transition-transform">
                   {cat.title}
                 </h3>
-                <p className="text-xs text-[#AAA] line-clamp-2 leading-relaxed">
+                <p className="text-xs text-[#DCD3C7] line-clamp-2 leading-relaxed">
                   {cat.subtitle}
                 </p>
-                <div className="pt-2 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white font-medium">
+                <div className="pt-2 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[#FAF8F5] font-medium">
                   <span>Explore Formulation</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-[#C5A880]" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-[#BFA175]" />
                 </div>
               </div>
             </div>
@@ -187,19 +300,21 @@ export const HomeView: React.FC = () => {
 
       {/* 5. Featured Creations Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#1A1A1A] pb-4 gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#E7E0D6] pb-4 gap-2">
           <div>
-            <span className="text-xs tracking-[0.25em] uppercase text-[#C5A880]">Curated Icons</span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#FFFFFF]">Featured Formulations</h2>
+            <span className="text-xs tracking-[0.25em] uppercase text-[#BFA175] font-medium">
+              Curated Icons
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#1E1714]">Featured Formulations</h2>
           </div>
           <button
             onClick={() => {
               setSelectedCategorySlug(null);
               setCurrentPage('shop');
             }}
-            className="text-xs uppercase tracking-[0.18em] text-[#AAA] hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-xs uppercase tracking-[0.18em] text-[#6B5C50] hover:text-[#1E1714] flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <span>All Catalog Creations</span>
+            <span>All Catalog Works</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -211,65 +326,94 @@ export const HomeView: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. Editorial Atelier Craft Banner */}
-      <section className="bg-[#080808] border-y border-[#1F1F1F] py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-6 space-y-6">
-              <span className="text-xs tracking-[0.3em] uppercase text-[#C5A880]">
-                Sustainable Sourcing
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#FFFFFF] leading-snug">
-                Extracted with reverence for raw botanical integrity.
-              </h2>
-              <p className="text-sm text-[#9E988F] leading-relaxed">
-                We reject industrial mass compounding. Every bottle of our Haute Parfumerie is hand-poured in numbered small batches. Our skincare elixirs utilize cold-pressed seed oils with zero chemical emulsifiers or synthetic preservatives.
-              </p>
-              <div className="pt-2 flex items-center gap-8 text-xs tracking-wider uppercase text-[#B5B0A8]">
-                <div>
-                  <span className="block font-mono text-lg text-white text-bold">100%</span>
-                  <span>Pure Extractions</span>
-                </div>
-                <div className="h-8 w-px bg-[#262626]" />
-                <div>
-                  <span className="block font-mono text-lg text-white text-bold">24-30%</span>
-                  <span>Maceration Strength</span>
-                </div>
-                <div className="h-8 w-px bg-[#262626]" />
-                <div>
-                  <span className="block font-mono text-lg text-white text-bold">Zero</span>
-                  <span>Synthetic Dyes</span>
-                </div>
-              </div>
+      {/* 6. Gifting Salon Dedicated Teaser Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#F4EFEA] border border-[#E7E0D6] p-8 sm:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-7 space-y-4">
+            <span className="text-xs tracking-[0.28em] uppercase text-[#8C7A6B] font-semibold flex items-center gap-2">
+              <Gift className="w-4 h-4 text-[#BFA175]" />
+              <span>The Gifting Salon</span>
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#1E1714] font-normal leading-tight">
+              Creations of timeless distinction for weddings, executive milestones & anniversaries.
+            </h2>
+            <p className="text-xs sm:text-sm text-[#5C4F44] leading-relaxed max-w-xl">
+              Each gift acquisition can be customized with luxury wax-sealed presentation boxes, personalized calligraphy messages, and concealed invoice pricing.
+            </p>
+            <div className="pt-2">
+              <button
+                onClick={() => setCurrentPage('gifting')}
+                className="px-6 py-3 bg-[#1E1714] hover:bg-[#342721] text-[#FAF8F5] text-xs font-semibold tracking-[0.2em] uppercase transition-colors cursor-pointer inline-flex items-center gap-2 shadow-md"
+              >
+                <span>Enter The Gifting Salon</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
+          </div>
 
-            <div className="lg:col-span-6">
-              <div className="aspect-[4/3] bg-[#141414] border border-[#2B2B2B] overflow-hidden">
-                <img
-                  src="/src/assets/images/category_fragrances_1791824720667.jpg"
-                  alt="Atelier Craftsmanship"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
+          <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+            {giftPicks.slice(0, 2).map(p => (
+              <div key={p.id} className="bg-white border border-[#E7E0D6] p-3 space-y-2">
+                <div className="aspect-[4/5] overflow-hidden bg-[#FAF8F5]">
+                  <img src={p.images[0] || ''} alt="" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-xs text-[#1E1714] font-medium line-clamp-1">{p.name}</h4>
+                  <p className="font-mono text-xs text-[#8C7A6B]">₹{p.price.toLocaleString('en-IN')}</p>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 7. Bestselling Products */}
+      {/* 7. Loyalty & Rewards: The Nocturne Privilège Banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#1E1714] text-[#FAF8F5] p-8 sm:p-12 border border-[#E7E0D6] grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+          <div className="md:col-span-8 space-y-3">
+            <span className="text-xs tracking-[0.28em] uppercase text-[#BFA175] font-medium flex items-center gap-2">
+              <Coins className="w-4 h-4 text-[#BFA175]" />
+              <span>The Nocturne Privilège</span>
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal">
+              Earn rewards on every acquisition.
+            </h2>
+            <p className="text-xs sm:text-sm text-[#DCD3C7] leading-relaxed max-w-xl">
+              Receive 500 bonus points upon maiden registration. Patrons earn 1 point for every ₹100 acquired, unlockable as direct concession on checkout or towards limited harvest releases.
+            </p>
+          </div>
+          <div className="md:col-span-4 flex flex-col sm:flex-row md:flex-col gap-3 justify-center">
+            <button
+              onClick={() => setCurrentPage('account')}
+              className="py-3 px-6 bg-[#FAF8F5] hover:bg-white text-[#1E1714] text-xs font-semibold uppercase tracking-[0.2em] transition-colors cursor-pointer text-center"
+            >
+              Join Or View Points
+            </button>
+            <button
+              onClick={() => setCurrentPage('offers')}
+              className="py-3 px-6 border border-[#B6A797] hover:border-white text-[#FAF8F5] text-xs font-medium uppercase tracking-[0.2em] transition-colors cursor-pointer text-center"
+            >
+              View Active Privileges
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Atelier Bestsellers Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#1A1A1A] pb-4 gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#E7E0D6] pb-4 gap-2">
           <div>
-            <span className="text-xs tracking-[0.25em] uppercase text-[#C5A880]">Permanent Collection</span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#FFFFFF]">Atelier Bestsellers</h2>
+            <span className="text-xs tracking-[0.25em] uppercase text-[#BFA175] font-medium">
+              Permanent Collection
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#1E1714]">Atelier Bestsellers</h2>
           </div>
           <button
             onClick={() => {
               setSelectedCategorySlug(null);
               setCurrentPage('shop');
             }}
-            className="text-xs uppercase tracking-[0.18em] text-[#AAA] hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-xs uppercase tracking-[0.18em] text-[#6B5C50] hover:text-[#1E1714] flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <span>Explore All</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -283,46 +427,61 @@ export const HomeView: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. Connoisseur Endorsements / Customer Reviews */}
+      {/* 9. Connoisseur Endorsements / Customer Reviews */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="border border-[#1F1F1F] bg-[#0A0A0A] p-8 sm:p-14 space-y-10">
+        <div className="border border-[#E7E0D6] bg-white p-8 sm:p-14 space-y-10">
           <div className="text-center space-y-2">
-            <span className="text-xs tracking-[0.25em] uppercase text-[#C5A880]">
+            <span className="text-xs tracking-[0.25em] uppercase text-[#8C7A6B] font-medium">
               The Connoisseur Circle
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl text-white">
+            <h2 className="font-serif text-2xl sm:text-3xl text-[#1E1714]">
               Endorsements of Refinement
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-xs text-[#9E988F]">
-            <div className="space-y-4 p-6 bg-[#0E0E0E] border border-[#1A1A1A]">
-              <p className="font-serif text-base text-[#F0ECE8] italic leading-relaxed">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-xs text-[#5C4F44]">
+            <div className="space-y-4 p-6 bg-[#FAF8F5] border border-[#E7E0D6]">
+              <div className="flex items-center gap-1 text-[#BFA175]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-[#BFA175]" />
+                ))}
+              </div>
+              <p className="font-serif text-base text-[#1E1714] italic leading-relaxed">
                 "Nocturne Ambré represents the pinnacle of contemporary niche fragrance. The smoky plum transition into royal amber lasts indefinitely on cashmere."
               </p>
-              <div className="pt-2 border-t border-[#1F1F1F]">
-                <p className="font-medium text-white">Eleanor Vance</p>
-                <p className="text-[11px] text-[#666]">Collector, Mumbai</p>
+              <div className="pt-2 border-t border-[#E7E0D6]">
+                <p className="font-medium text-[#1E1714]">Eleanor Vance</p>
+                <p className="text-[11px] text-[#8C7A6B]">Collector, Mumbai · Verified Patron</p>
               </div>
             </div>
 
-            <div className="space-y-4 p-6 bg-[#0E0E0E] border border-[#1A1A1A]">
-              <p className="font-serif text-base text-[#F0ECE8] italic leading-relaxed">
+            <div className="space-y-4 p-6 bg-[#FAF8F5] border border-[#E7E0D6]">
+              <div className="flex items-center gap-1 text-[#BFA175]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-[#BFA175]" />
+                ))}
+              </div>
+              <p className="font-serif text-base text-[#1E1714] italic leading-relaxed">
                 "The double-faced obsidian overcoat is sculpted with Savile Row precision yet carries an effortless Parisian ease. An heirloom garment."
               </p>
-              <div className="pt-2 border-t border-[#1F1F1F]">
-                <p className="font-medium text-white">Julian Montagu</p>
-                <p className="text-[11px] text-[#666]">Architectural Critic, London</p>
+              <div className="pt-2 border-t border-[#E7E0D6]">
+                <p className="font-medium text-[#1E1714]">Julian Montagu</p>
+                <p className="text-[11px] text-[#8C7A6B]">Architectural Critic, London · Verified Patron</p>
               </div>
             </div>
 
-            <div className="space-y-4 p-6 bg-[#0E0E0E] border border-[#1A1A1A]">
-              <p className="font-serif text-base text-[#F0ECE8] italic leading-relaxed">
+            <div className="space-y-4 p-6 bg-[#FAF8F5] border border-[#E7E0D6]">
+              <div className="flex items-center gap-1 text-[#BFA175]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-[#BFA175]" />
+                ))}
+              </div>
+              <p className="font-serif text-base text-[#1E1714] italic leading-relaxed">
                 "The botanical restorative serum and obsidian sculpting stone transformed my evening ritual. Deeply hydrating without any residual sheen."
               </p>
-              <div className="pt-2 border-t border-[#1F1F1F]">
-                <p className="font-medium text-white">Aria Thorne</p>
-                <p className="text-[11px] text-[#666]">Creative Director, New Delhi</p>
+              <div className="pt-2 border-t border-[#E7E0D6]">
+                <p className="font-medium text-[#1E1714]">Aria Thorne</p>
+                <p className="text-[11px] text-[#8C7A6B]">Creative Director, New Delhi · Verified Patron</p>
               </div>
             </div>
           </div>

@@ -10,7 +10,10 @@ import type {
   Coupon,
   ContactRequest,
   NewsletterSubscriber,
-  CartItem
+  CartItem,
+  ProductAlert,
+  LoyaltyTier,
+  LoyaltyTransaction
 } from '../types';
 
 interface UserWithAuth extends User {
@@ -26,6 +29,7 @@ interface DatabaseSchema {
   coupons: Coupon[];
   carts: Record<string, { items: CartItem[]; updatedAt: string }>;
   wishlists: Record<string, string[]>;
+  productAlerts: ProductAlert[];
   contactRequests: ContactRequest[];
   subscribers: NewsletterSubscriber[];
 }
@@ -57,6 +61,24 @@ const initialSeedData: DatabaseSchema = {
       role: 'ADMIN',
       accountStatus: 'ACTIVE',
       emailVerifiedAt: '2026-01-01T00:00:00.000Z',
+      loyaltyPoints: 3400,
+      loyaltyTier: 'IMPÉRIAL',
+      loyaltyHistory: [
+        {
+          id: 'ly_adm_1',
+          date: '2026-01-01',
+          description: 'Directeur Founder Privilege Allowance',
+          points: 3400,
+          type: 'EARNED'
+        }
+      ],
+      favoriteCategories: ['fragrances', 'apparel'],
+      notificationPreferences: {
+        priceDropAlerts: true,
+        backInStockAlerts: true,
+        orderUpdates: true,
+        gazetteNewsletter: true
+      },
       addresses: [
         {
           id: 'addr_adm_1',
@@ -80,6 +102,31 @@ const initialSeedData: DatabaseSchema = {
       role: 'CUSTOMER',
       accountStatus: 'ACTIVE',
       emailVerifiedAt: '2026-02-15T12:00:00.000Z',
+      loyaltyPoints: 1250,
+      loyaltyTier: 'OR',
+      loyaltyHistory: [
+        {
+          id: 'ly_cli_1',
+          date: '2026-02-15',
+          description: 'Welcome Sanctuary Inscription Bonus',
+          points: 500,
+          type: 'EARNED'
+        },
+        {
+          id: 'ly_cli_2',
+          date: '2026-10-10',
+          description: 'Acquisition Order EN-84920 Points',
+          points: 750,
+          type: 'EARNED'
+        }
+      ],
+      favoriteCategories: ['fragrances', 'skincare'],
+      notificationPreferences: {
+        priceDropAlerts: true,
+        backInStockAlerts: true,
+        orderUpdates: true,
+        gazetteNewsletter: true
+      },
       addresses: [
         {
           id: 'addr_cli_1',
@@ -144,7 +191,16 @@ const initialSeedData: DatabaseSchema = {
       reviewCount: 18,
       isFeatured: true,
       isBestseller: true,
-      notes: ['Top: Cardamom, Smoked Plum, Bergamot', 'Heart: Moroccan Amber, Orris Root, Cistus', 'Base: Bourbon Vanilla, Atlas Cedar, Dark Musk'],
+      isGiftPick: true,
+      fragranceFamily: 'Smoky Amber & Oriental Woods',
+      sillage: 'Enveloping',
+      longevity: '14-16 hours on skin',
+      occasions: ['Evening Galas', 'Intimate Nocturnal Salons', 'Formal Winter Soirées'],
+      notes: [
+        'Top: Cardamom, Smoked Plum, Bergamot',
+        'Heart: Moroccan Amber, Orris Root, Cistus',
+        'Base: Bourbon Vanilla, Atlas Cedar, Dark Musk'
+      ],
       details: {
         'Concentration': 'Eau de Parfum (24% maceration)',
         'Volume': '100ml / 3.4 FL. OZ.',
@@ -177,7 +233,16 @@ const initialSeedData: DatabaseSchema = {
       reviewCount: 14,
       isFeatured: true,
       isNewArrival: true,
-      notes: ['Top: Black Pepper, Elemi, Bitter Orange', 'Heart: Florentine Orris, Labdanum Resin', 'Base: Benzoin Tears, Vetiver, Birch Tar'],
+      isGiftPick: true,
+      fragranceFamily: 'Balsamic Leather & Sacred Incense',
+      sillage: 'Royal',
+      longevity: '16+ hours on skin',
+      occasions: ['Autumn Evenings', 'Art Openings', 'Black-Tie Gatherings'],
+      notes: [
+        'Top: Black Pepper, Elemi, Bitter Orange',
+        'Heart: Florentine Orris, Labdanum Resin',
+        'Base: Benzoin Tears, Vetiver, Birch Tar'
+      ],
       details: {
         'Concentration': 'Extrait de Parfum (30% maceration)',
         'Volume': '100ml / 3.4 FL. OZ.',
@@ -205,7 +270,16 @@ const initialSeedData: DatabaseSchema = {
       reviewCount: 11,
       isFeatured: false,
       isBestseller: true,
-      notes: ['Top: Bitter Orange Flower, Petitgrain, Bergamot', 'Heart: Tunisian Néroli, White Iris', 'Base: Mysore Sandalwood, Iso E Super, Cashmeran'],
+      isGiftPick: true,
+      fragranceFamily: 'Luminous Citrus & White Woods',
+      sillage: 'Moderate',
+      longevity: '10-12 hours on skin',
+      occasions: ['Executive Boardrooms', 'Summer Escapes', 'Daytime Receptions'],
+      notes: [
+        'Top: Bitter Orange Flower, Petitgrain, Bergamot',
+        'Heart: Tunisian Néroli, White Iris',
+        'Base: Mysore Sandalwood, Iso E Super, Cashmeran'
+      ],
       details: {
         'Volume': '100ml',
         'Origin': 'France',
@@ -230,7 +304,16 @@ const initialSeedData: DatabaseSchema = {
       averageRating: 4.9,
       reviewCount: 9,
       isFeatured: false,
-      notes: ['Top: Saffron, Pink Peppercorn', 'Heart: Centifolia Rose Absolute, Bulgarian Rose', 'Base: Cypriol, Oud Accord, Ambrette'],
+      isGiftPick: true,
+      fragranceFamily: 'Opulent Dark Floral & Saffron Wood',
+      sillage: 'Enveloping',
+      longevity: '18 hours on skin',
+      occasions: ['Anniversaries', 'Intimate Dinners', 'Opera Nights'],
+      notes: [
+        'Top: Saffron, Pink Peppercorn',
+        'Heart: Centifolia Rose Absolute, Bulgarian Rose',
+        'Base: Cypriol, Oud Accord, Ambrette'
+      ],
       details: {
         'Volume': '100ml',
         'Cask Age': '18 Months Aged Maceration',
@@ -257,6 +340,14 @@ const initialSeedData: DatabaseSchema = {
       reviewCount: 7,
       isFeatured: true,
       isBestseller: true,
+      isGiftPick: true,
+      fabricComposition: '100% Virgin Double-Face Wool (750gsm) & 100% Como Silk Faille Drape',
+      careInstructions: 'Specialist ecological dry clean only. Store on wide cedar coat hanger with provided breathable garment cover.',
+      sizeGuide: [
+        { size: '46 / Small', chest: '96 cm / 38 in', waist: '82 cm / 32 in', length: '118 cm / 46 in' },
+        { size: '48 / Medium', chest: '102 cm / 40 in', waist: '88 cm / 35 in', length: '120 cm / 47 in' },
+        { size: '50 / Large', chest: '108 cm / 42.5 in', waist: '94 cm / 37 in', length: '122 cm / 48 in' }
+      ],
       details: {
         'Fabric': '100% Virgin Wool with 100% Mulberry Silk Faille Drape',
         'Tailoring': 'Hand-basted canvas chest piece, horn buttons',
@@ -288,6 +379,13 @@ const initialSeedData: DatabaseSchema = {
       reviewCount: 12,
       isFeatured: false,
       isNewArrival: true,
+      isGiftPick: true,
+      fabricComposition: '100% Grade-6A Mulberry Silk Charmeuse (22 Momme)',
+      careInstructions: 'Hand wash with ph-neutral silk detergent in cold water, or delicate dry clean. Iron damp on reverse.',
+      sizeGuide: [
+        { size: 'Size I (EU 36-40)', chest: '90-100 cm', waist: '70-85 cm', length: '130 cm' },
+        { size: 'Size II (EU 42-46)', chest: '102-114 cm', waist: '86-102 cm', length: '135 cm' }
+      ],
       details: {
         'Fabric': '100% Mulberry Silk Charmeuse (22 Momme)',
         'Finish': 'Matte-sheen liquid luster',
@@ -316,6 +414,13 @@ const initialSeedData: DatabaseSchema = {
       averageRating: 4.8,
       reviewCount: 8,
       isFeatured: false,
+      fabricComposition: '100% Grade-A Mongolian Cashmere (15.2 Micron, 2-Ply)',
+      careInstructions: 'Hand wash cold with cashmere wash; dry flat on towel. Never wring or tumble dry.',
+      sizeGuide: [
+        { size: 'Small', chest: '94 cm', waist: '80 cm', length: '66 cm' },
+        { size: 'Medium', chest: '100 cm', waist: '86 cm', length: '68 cm' },
+        { size: 'Large', chest: '106 cm', waist: '92 cm', length: '70 cm' }
+      ],
       details: {
         'Yarn': '100% Grade-A Mongolian Cashmere (15.2 Micron)',
         'Gauge': '12-Gauge Fine Knit',
@@ -345,6 +450,13 @@ const initialSeedData: DatabaseSchema = {
       status: 'ACTIVE',
       averageRating: 4.9,
       reviewCount: 6,
+      fabricComposition: '100% High-Twist British Wool Twill (340gsm)',
+      careInstructions: 'Dry clean only. Press with cloth barrier to prevent shine.',
+      sizeGuide: [
+        { size: '30 / UK 30', chest: 'N/A', waist: '76 cm', length: '104 cm' },
+        { size: '32 / UK 32', chest: 'N/A', waist: '81 cm', length: '106 cm' },
+        { size: '34 / UK 34', chest: 'N/A', waist: '86 cm', length: '108 cm' }
+      ],
       details: {
         'Fabric': '100% High-Twist Wool Twill (340gsm)',
         'Waist': 'Curved waistband with dual side cinch buckles',
@@ -371,6 +483,10 @@ const initialSeedData: DatabaseSchema = {
       reviewCount: 32,
       isFeatured: true,
       isBestseller: true,
+      isGiftPick: true,
+      skinType: 'All skin types, especially sensitive or barrier-compromised skin',
+      usageRitual: 'Dispense 3-4 drops into warmed palms. Gently press onto face and décolletage after cleansing in the evening.',
+      dermatologicalWarnings: 'For external cosmetic use only. Patch test on inner wrist 24 hours prior to first full application.',
       details: {
         'Volume': '30ml / 1 FL. OZ.',
         'Texture': 'Silken lipid elixir with instantaneous dermal absorption',
@@ -402,6 +518,10 @@ const initialSeedData: DatabaseSchema = {
       reviewCount: 16,
       isFeatured: false,
       isNewArrival: true,
+      isGiftPick: true,
+      skinType: 'Dry, dehydrated, or mature epidermis',
+      usageRitual: 'Warm a pea-sized amount between fingertips to melt the truffle lipid crystal matrix. Smooth upward over neck and jawline.',
+      dermatologicalWarnings: 'Formulated without synthetic fragrance or parabens. Avoid direct ocular contact.',
       details: {
         'Volume': '50ml Net Wt. 1.7 oz.',
         'Pot': 'Double-walled smoked glass jar with magnetic spatula',
@@ -426,6 +546,10 @@ const initialSeedData: DatabaseSchema = {
       averageRating: 5.0,
       reviewCount: 24,
       isFeatured: false,
+      isGiftPick: true,
+      skinType: 'Universal facial sculpting instrument',
+      usageRitual: 'Pair with Aeterna Botanical Serum. Glide stone outward from chin to ear, jawline to temple, using gentle feather-light pressure.',
+      dermatologicalWarnings: 'Natural stone: handle with care. Cleanse with mild botanical soap and dry with microfiber cloth.',
       details: {
         'Material': '100% Genuine Volcanic Black Obsidian',
         'Includes': 'Embossed saddle leather travel pouch & care cloth',
@@ -450,6 +574,10 @@ const initialSeedData: DatabaseSchema = {
       averageRating: 4.7,
       reviewCount: 15,
       isFeatured: false,
+      isGiftPick: true,
+      skinType: 'All skin types; ideal for mid-day revitalization and post-flight hydration',
+      usageRitual: 'Mist liberally over face with eyes closed before serum application or throughout the day.',
+      dermatologicalWarnings: 'Store in cool place shielded from direct sunlight to preserve raw floral hydrosol vitality.',
       details: {
         'Volume': '120ml / 4 FL. OZ.',
         'Sprayer': 'Micro-mist nebulizer nozzle',
@@ -499,12 +627,15 @@ const initialSeedData: DatabaseSchema = {
       shippingFee: 0,
       tax: 1273,
       totalAmount: 26743,
+      pointsEarned: 267,
       paymentStatus: 'PAID',
       orderStatus: 'SHIPPED',
       paymentMethod: 'RAZORPAY_UPI',
       paymentReference: 'pay_rzp_mock_881920',
       razorpayOrderId: 'order_rzp_mock_11029',
       trackingNumber: 'WG-IND-90219482',
+      trackingCourier: 'Blue Dart Apex Sovereign',
+      estimatedDelivery: '14 October 2026',
       createdAt: '2026-10-10T14:22:00.000Z',
       updatedAt: '2026-10-11T09:15:00.000Z'
     }
@@ -518,6 +649,8 @@ const initialSeedData: DatabaseSchema = {
       rating: 5,
       comment: 'An utterly transcendental composition. The smoked plum notes opening into ancient amber are unlike anything in conventional French perfumery. Sillage lasted 14 hours on my cashmere lapel.',
       verifiedPurchase: true,
+      helpfulCount: 14,
+      status: 'APPROVED',
       createdAt: '2026-09-15T18:30:00.000Z'
     },
     {
@@ -528,6 +661,8 @@ const initialSeedData: DatabaseSchema = {
       rating: 5,
       comment: 'The drape of this double-faced wool is architectural perfection. The silk lapel catches the light with subtle restraint. True Savile Row quality with Parisian minimalism.',
       verifiedPurchase: true,
+      helpfulCount: 9,
+      status: 'APPROVED',
       createdAt: '2026-09-22T11:15:00.000Z'
     },
     {
@@ -538,6 +673,8 @@ const initialSeedData: DatabaseSchema = {
       rating: 5,
       comment: 'The prickly pear and frankincense blend calmed my sensitive skin in three nights. Texture is lightweight yet deeply restorative. The obsidian applicator makes evening ritual divine.',
       verifiedPurchase: true,
+      helpfulCount: 18,
+      status: 'APPROVED',
       createdAt: '2026-10-01T20:10:00.000Z'
     }
   ],
@@ -549,6 +686,7 @@ const initialSeedData: DatabaseSchema = {
       discountValue: 10,
       minOrder: 5000,
       maxDiscount: 3000,
+      description: '10% privilege concession on maiden acquisitions over ₹5,000',
       expiryDate: '2027-12-31',
       active: true
     },
@@ -559,6 +697,7 @@ const initialSeedData: DatabaseSchema = {
       discountValue: 20,
       minOrder: 25000,
       maxDiscount: 10000,
+      description: '20% connoisseur concession on acquisitions over ₹25,000',
       expiryDate: '2027-12-31',
       active: true
     },
@@ -569,6 +708,28 @@ const initialSeedData: DatabaseSchema = {
       discountValue: 15,
       minOrder: 10000,
       maxDiscount: 5000,
+      description: '15% concession on boutique collections over ₹10,000',
+      expiryDate: '2027-12-31',
+      active: true
+    },
+    {
+      id: 'coup_04',
+      code: 'FESTIVE25',
+      discountType: 'PERCENT',
+      discountValue: 25,
+      minOrder: 30000,
+      maxDiscount: 12000,
+      description: '25% festive celebration concession for seasonal curations over ₹30,000',
+      expiryDate: '2027-12-31',
+      active: true
+    },
+    {
+      id: 'coup_05',
+      code: 'GIFT500',
+      discountType: 'FIXED',
+      discountValue: 500,
+      minOrder: 4000,
+      description: 'Flat ₹500 complimentary token on luxury gift orders',
       expiryDate: '2027-12-31',
       active: true
     }
@@ -577,6 +738,17 @@ const initialSeedData: DatabaseSchema = {
   wishlists: {
     'usr_client_01': ['prod_nocturne_ambre', 'prod_obsidian_overcoat']
   },
+  productAlerts: [
+    {
+      id: 'alt_01',
+      productId: 'prod_nocturne_ambre',
+      productName: 'Nocturne Ambré Eau de Parfum',
+      userEmail: 'client@elixirnoir.com',
+      type: 'PRICE_DROP',
+      targetPrice: 17000,
+      createdAt: '2026-10-01T10:00:00.000Z'
+    }
+  ],
   contactRequests: [
     {
       id: 'cnt_01',
@@ -622,6 +794,7 @@ class BoutiqueDatabase {
           coupons: parsed.coupons || initialSeedData.coupons,
           carts: parsed.carts || initialSeedData.carts,
           wishlists: parsed.wishlists || initialSeedData.wishlists,
+          productAlerts: parsed.productAlerts || initialSeedData.productAlerts,
           contactRequests: parsed.contactRequests || initialSeedData.contactRequests,
           subscribers: parsed.subscribers || initialSeedData.subscribers,
         };
@@ -662,6 +835,24 @@ class BoutiqueDatabase {
     const newUser: UserWithAuth = {
       ...user,
       id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      loyaltyPoints: 500, // 500 welcome points
+      loyaltyTier: 'NOIR',
+      loyaltyHistory: [
+        {
+          id: `ly_${Date.now()}`,
+          date: new Date().toISOString().split('T')[0],
+          description: 'Welcome Sanctuary Inscription Bonus',
+          points: 500,
+          type: 'EARNED'
+        }
+      ],
+      favoriteCategories: [],
+      notificationPreferences: {
+        priceDropAlerts: true,
+        backInStockAlerts: true,
+        orderUpdates: true,
+        gazetteNewsletter: true
+      },
       createdAt: new Date().toISOString()
     };
     this.data.users.push(newUser);
@@ -677,8 +868,45 @@ class BoutiqueDatabase {
     return this.data.users[idx];
   }
 
+  awardLoyaltyPoints(userId: string, points: number, description: string): boolean {
+    const user = this.findUserById(userId);
+    if (!user) return false;
+    user.loyaltyPoints = (user.loyaltyPoints || 0) + points;
+    if (!user.loyaltyHistory) user.loyaltyHistory = [];
+    user.loyaltyHistory.unshift({
+      id: `ly_${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      description,
+      points,
+      type: 'EARNED'
+    });
+    // Tier calculation
+    if (user.loyaltyPoints >= 3000) user.loyaltyTier = 'IMPÉRIAL';
+    else if (user.loyaltyPoints >= 1000) user.loyaltyTier = 'OR';
+    else user.loyaltyTier = 'NOIR';
+
+    this.persist();
+    return true;
+  }
+
+  redeemLoyaltyPoints(userId: string, points: number, description: string): boolean {
+    const user = this.findUserById(userId);
+    if (!user || user.loyaltyPoints < points) return false;
+    user.loyaltyPoints -= points;
+    if (!user.loyaltyHistory) user.loyaltyHistory = [];
+    user.loyaltyHistory.unshift({
+      id: `ly_${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      description,
+      points,
+      type: 'REDEEMED'
+    });
+    this.persist();
+    return true;
+  }
+
   // --- PRODUCTS ---
-  getProducts(filter?: { categoryId?: string; search?: string; status?: string }) {
+  getProducts(filter?: { categoryId?: string; search?: string; status?: string; occasion?: string; isGiftPick?: boolean }) {
     let list = this.data.products;
     if (filter?.status) {
       list = list.filter(p => p.status === filter.status);
@@ -688,12 +916,16 @@ class BoutiqueDatabase {
     if (filter?.categoryId) {
       list = list.filter(p => p.categoryId === filter.categoryId);
     }
+    if (filter?.isGiftPick) {
+      list = list.filter(p => p.isGiftPick);
+    }
     if (filter?.search) {
       const q = filter.search.toLowerCase();
       list = list.filter(p =>
         p.name.toLowerCase().includes(q) ||
         p.description.toLowerCase().includes(q) ||
         p.categoryName.toLowerCase().includes(q) ||
+        (p.fragranceFamily && p.fragranceFamily.toLowerCase().includes(q)) ||
         (p.notes && p.notes.some(n => n.toLowerCase().includes(q)))
       );
     }
@@ -812,6 +1044,25 @@ class BoutiqueDatabase {
     return updated;
   }
 
+  // --- PRODUCT ALERTS ---
+  addProductAlert(alert: Omit<ProductAlert, 'id' | 'createdAt'>): ProductAlert {
+    const newAlert: ProductAlert = {
+      ...alert,
+      id: `alt_${Date.now()}`,
+      createdAt: new Date().toISOString()
+    };
+    this.data.productAlerts.unshift(newAlert);
+    this.persist();
+    return newAlert;
+  }
+
+  getProductAlerts(email?: string) {
+    if (email) {
+      return this.data.productAlerts.filter(a => a.userEmail.toLowerCase() === email.toLowerCase());
+    }
+    return this.data.productAlerts;
+  }
+
   // --- ORDERS ---
   getOrders(userId?: string) {
     if (userId) {
@@ -831,10 +1082,21 @@ class BoutiqueDatabase {
       ...order,
       id: `ord_${timestamp}`,
       orderNumber: `EN-${randomHex}`,
+      orderStatus: 'PLACED',
+      trackingCourier: 'Blue Dart Sovereign White Glove',
+      estimatedDelivery: 'Within 3-4 Business Days',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
     this.data.orders.unshift(newOrder);
+
+    // Award loyalty points: 1 point per ₹100
+    if (order.userId && order.totalAmount > 0) {
+      const earned = Math.floor(order.totalAmount / 100);
+      newOrder.pointsEarned = earned;
+      this.awardLoyaltyPoints(order.userId, earned, `Acquisition ${newOrder.orderNumber}`);
+    }
+
     this.persist();
     return newOrder;
   }
@@ -853,13 +1115,19 @@ class BoutiqueDatabase {
 
   // --- REVIEWS ---
   getReviewsForProduct(productId: string) {
-    return this.data.reviews.filter(r => r.productId === productId);
+    return this.data.reviews.filter(r => r.productId === productId && r.status !== 'FLAGGED');
+  }
+
+  getAllReviewsAdmin() {
+    return this.data.reviews;
   }
 
   createReview(review: Omit<Review, 'id' | 'createdAt'>): Review {
     const newReview: Review = {
       ...review,
       id: `rev_${Date.now()}`,
+      helpfulCount: 0,
+      status: 'APPROVED',
       createdAt: new Date().toISOString()
     };
     this.data.reviews.unshift(newReview);
@@ -874,6 +1142,25 @@ class BoutiqueDatabase {
 
     this.persist();
     return newReview;
+  }
+
+  reportReview(id: string) {
+    const r = this.data.reviews.find(rev => rev.id === id);
+    if (r) {
+      r.reported = true;
+      r.status = 'FLAGGED';
+      this.persist();
+    }
+    return r;
+  }
+
+  updateReviewStatus(id: string, status: 'APPROVED' | 'PENDING' | 'FLAGGED') {
+    const r = this.data.reviews.find(rev => rev.id === id);
+    if (r) {
+      r.status = status;
+      this.persist();
+    }
+    return r;
   }
 
   // --- COUPONS ---

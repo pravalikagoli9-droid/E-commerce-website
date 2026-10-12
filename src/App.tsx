@@ -4,6 +4,8 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
+import { QuickViewModal } from './components/QuickViewModal';
+import { ProductCompareModal } from './components/ProductCompareModal';
 import { HomeView } from './views/HomeView';
 import { ShopView } from './views/ShopView';
 import { ProductDetailView } from './views/ProductDetailView';
@@ -16,7 +18,10 @@ import { FaqView } from './views/FaqView';
 import { BlogView } from './views/BlogView';
 import { ContactView } from './views/ContactView';
 import { PolicyView } from './views/PolicyView';
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { GiftingView } from './views/GiftingView';
+import { OffersView } from './views/OffersView';
+import { TrackingView } from './views/TrackingView';
+import { CheckCircle2, AlertCircle, Info, Scale } from 'lucide-react';
 
 const ToastContainer: React.FC = () => {
   const { toasts } = useStore();
@@ -28,20 +33,51 @@ const ToastContainer: React.FC = () => {
       {toasts.map(toast => (
         <div
           key={toast.id}
-          className={`pointer-events-auto px-4 py-3 bg-[#0F0F0F] border text-xs shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-2 fade-in duration-200 ${
+          className={`pointer-events-auto px-4 py-3 bg-[#1E1714] border text-xs shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-2 fade-in duration-200 ${
             toast.type === 'success'
-              ? 'border-[#C5A880]/50 text-[#F0ECE8]'
+              ? 'border-[#BFA175]/60 text-[#FAF8F5]'
               : toast.type === 'error'
-              ? 'border-[#A86464]/50 text-[#F5C2C2]'
-              : 'border-[#333] text-[#DDD]'
+              ? 'border-[#A86464] text-[#F5C2C2]'
+              : 'border-[#3E342F] text-[#E5DDD3]'
           }`}
         >
-          {toast.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#C5A880] shrink-0" />}
+          {toast.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#BFA175] shrink-0" />}
           {toast.type === 'error' && <AlertCircle className="w-4 h-4 text-[#A86464] shrink-0" />}
-          {toast.type === 'info' && <Info className="w-4 h-4 text-[#888] shrink-0" />}
+          {toast.type === 'info' && <Info className="w-4 h-4 text-[#BFA175] shrink-0" />}
           <span className="leading-snug">{toast.message}</span>
         </div>
       ))}
+    </div>
+  );
+};
+
+const CompareBottomDock: React.FC = () => {
+  const { compareList, setIsCompareOpen, clearCompare } = useStore();
+  if (compareList.length === 0) return null;
+
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#1E1714] text-[#FAF8F5] border border-[#BFA175]/40 shadow-2xl px-5 py-3 flex items-center gap-4 animate-in slide-in-from-bottom-4 duration-200">
+      <div className="flex items-center gap-2 text-xs">
+        <Scale className="w-4 h-4 text-[#BFA175]" />
+        <span className="font-serif text-sm tracking-wide">Comparison Salon</span>
+        <span className="text-[11px] font-mono bg-[#342721] text-[#E5DDD3] px-1.5 py-0.5 border border-[#4D3C33]">
+          {compareList.length} {compareList.length === 1 ? 'creation' : 'creations'}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setIsCompareOpen(true)}
+          className="px-3 py-1.5 bg-[#FAF8F5] text-[#1E1714] text-[10px] font-semibold uppercase tracking-[0.16em] hover:bg-white transition-colors cursor-pointer"
+        >
+          Review Differences
+        </button>
+        <button
+          onClick={clearCompare}
+          className="text-[10px] text-[#A8988B] hover:text-[#FAF8F5] underline cursor-pointer"
+        >
+          Clear
+        </button>
+      </div>
     </div>
   );
 };
@@ -50,7 +86,7 @@ const MainContent: React.FC = () => {
   const { currentPage } = useStore();
 
   return (
-    <main className="min-h-screen flex flex-col justify-between bg-[#000000] text-[#F0ECE8]">
+    <main className="min-h-screen flex flex-col justify-between bg-[#FAF8F5] text-[#1E1714]">
       <div className="flex-1">
         {currentPage === 'home' && <HomeView />}
         {currentPage === 'shop' && <ShopView />}
@@ -64,6 +100,9 @@ const MainContent: React.FC = () => {
         {currentPage === 'blog' && <BlogView />}
         {currentPage === 'contact' && <ContactView />}
         {currentPage === 'policies' && <PolicyView />}
+        {currentPage === 'gifting' && <GiftingView />}
+        {currentPage === 'offers' && <OffersView />}
+        {currentPage === 'tracking' && <TrackingView />}
       </div>
       <Footer />
     </main>
@@ -73,11 +112,14 @@ const MainContent: React.FC = () => {
 export function App() {
   return (
     <StoreProvider>
-      <div className="min-h-screen bg-[#000000] text-[#F0ECE8] selection:bg-[#E2D9CE] selection:text-[#000000] font-sans">
+      <div className="min-h-screen bg-[#FAF8F5] text-[#1E1714] selection:bg-[#E7E0D6] selection:text-[#1E1714] font-sans">
         <Navbar />
         <MainContent />
         <CartDrawer />
         <SearchModal />
+        <QuickViewModal />
+        <ProductCompareModal />
+        <CompareBottomDock />
         <ToastContainer />
       </div>
     </StoreProvider>
