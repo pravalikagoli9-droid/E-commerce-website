@@ -1,0 +1,737 @@
+{
+  "users": [
+    {
+      "id": "usr_admin_01",
+      "name": "Adrien de Noir (Directeur)",
+      "email": "admin@elixirnoir.com",
+      "passwordHash": "15fcbaa6e2b24a232dfd89dd1646c55acdda8c4c70f239a73f4dc857e9fcecf4",
+      "role": "ADMIN",
+      "accountStatus": "ACTIVE",
+      "emailVerifiedAt": "2026-01-01T00:00:00.000Z",
+      "addresses": [
+        {
+          "id": "addr_adm_1",
+          "fullName": "Adrien de Noir",
+          "addressLine1": "Atelier ÉLIXIR, 18 Rue de la Paix",
+          "city": "Mumbai",
+          "state": "Maharashtra",
+          "postalCode": "400001",
+          "country": "India",
+          "phone": "+91 98200 12345",
+          "isDefault": true
+        }
+      ],
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "usr_client_01",
+      "name": "Eleanor Vance",
+      "email": "client@elixirnoir.com",
+      "passwordHash": "f368b6f98e46fb14b23e368daeba5c1c588a23f9bd9474652c490d6d9954b736",
+      "role": "CUSTOMER",
+      "accountStatus": "ACTIVE",
+      "emailVerifiedAt": "2026-02-15T12:00:00.000Z",
+      "addresses": [
+        {
+          "id": "addr_cli_1",
+          "fullName": "Eleanor Vance",
+          "addressLine1": "Flat 4B, Malabar Hill Crest",
+          "addressLine2": "Ridge Road",
+          "city": "Mumbai",
+          "state": "Maharashtra",
+          "postalCode": "400006",
+          "country": "India",
+          "phone": "+91 98111 87654",
+          "isDefault": true
+        }
+      ],
+      "createdAt": "2026-02-15T12:00:00.000Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat_fragrances",
+      "name": "Haute Parfumerie",
+      "slug": "fragrances",
+      "description": "Rare olfactory formulations extracted in Grasse and cured in smoked French glass flacons.",
+      "image": "/src/assets/images/category_fragrances_1791824720667.jpg",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "cat_apparel",
+      "name": "Sartorial Wardrobe",
+      "slug": "apparel",
+      "description": "Architectural silhouettes handcrafted in pure double-face cashmere, virgin wool, and raw silk.",
+      "image": "/src/assets/images/category_apparel_1791824731775.jpg",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "cat_skincare",
+      "name": "Botanical Skincare",
+      "slug": "skincare",
+      "description": "Cellular restorative elixirs infused with cold-pressed prickly pear seed, obsidian mineral salts, and frankincense.",
+      "image": "/src/assets/images/category_skincare_1791824742582.jpg",
+      "status": "ACTIVE"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod_nocturne_ambre",
+      "name": "Nocturne Ambré Eau de Parfum",
+      "slug": "nocturne-ambre-eau-de-parfum",
+      "description": "An intoxicating, contemplative nocturnal olfactory portrait. Opens with spicy cardamom and smoked plum, deepening into ancient amber resin, roasted tonka bean, and Atlas cedarwood.",
+      "categoryId": "cat_fragrances",
+      "categoryName": "Haute Parfumerie",
+      "price": 18500,
+      "compareAtPrice": 21000,
+      "images": [
+        "/src/assets/images/hero_luxury_boutique_1791824705943.jpg",
+        "/src/assets/images/category_fragrances_1791824720667.jpg"
+      ],
+      "stock": 24,
+      "sku": "EN-FRG-001",
+      "status": "ACTIVE",
+      "averageRating": 4.9,
+      "reviewCount": 18,
+      "isFeatured": true,
+      "isBestseller": true,
+      "notes": [
+        "Top: Cardamom, Smoked Plum, Bergamot",
+        "Heart: Moroccan Amber, Orris Root, Cistus",
+        "Base: Bourbon Vanilla, Atlas Cedar, Dark Musk"
+      ],
+      "details": {
+        "Concentration": "Eau de Parfum (24% maceration)",
+        "Volume": "100ml / 3.4 FL. OZ.",
+        "Origin": "Grasse & Paris, France",
+        "Packaging": "Smoked lead-free crystal with brushed brass talisman cap"
+      },
+      "ingredients": "Alcohol Denat., Parfum (Fragrance), Aqua (Water), Limonene, Linalool, Coumarin, Benzyl Benzoate, Eugenol.",
+      "variants": [
+        {
+          "id": "v_50ml",
+          "name": "50ml Flacon",
+          "type": "volume",
+          "priceDiff": -5000,
+          "stock": 12
+        },
+        {
+          "id": "v_100ml",
+          "name": "100ml Grand Flacon",
+          "type": "volume",
+          "priceDiff": 0,
+          "stock": 12
+        }
+      ],
+      "createdAt": "2026-01-10T10:00:00.000Z"
+    },
+    {
+      "id": "prod_aeterna_noir",
+      "name": "Aeterna Ambre Noir Extrait",
+      "slug": "aeterna-ambre-noir-extrait",
+      "description": "A dark, resinous masterpiece crafted from rare wild labdanum, sacred temple incense, and rare Florentine orris butter. Revered for its mesmerizing sillage and longevity.",
+      "categoryId": "cat_fragrances",
+      "categoryName": "Haute Parfumerie",
+      "price": 16200,
+      "images": [
+        "/src/assets/images/category_fragrances_1791824720667.jpg",
+        "/src/assets/images/hero_luxury_boutique_1791824705943.jpg"
+      ],
+      "stock": 19,
+      "sku": "EN-FRG-002",
+      "status": "ACTIVE",
+      "averageRating": 4.8,
+      "reviewCount": 14,
+      "isFeatured": true,
+      "isNewArrival": true,
+      "notes": [
+        "Top: Black Pepper, Elemi, Bitter Orange",
+        "Heart: Florentine Orris, Labdanum Resin",
+        "Base: Benzoin Tears, Vetiver, Birch Tar"
+      ],
+      "details": {
+        "Concentration": "Extrait de Parfum (30% maceration)",
+        "Volume": "100ml / 3.4 FL. OZ.",
+        "Origin": "Atelier ÉLIXIR, Grasse",
+        "Sillage": "Intense & Enveloping"
+      },
+      "createdAt": "2026-01-15T11:00:00.000Z"
+    },
+    {
+      "id": "prod_santal_neroli",
+      "name": "Santal Blanc & Néroli",
+      "slug": "santal-blanc-neroli",
+      "description": "Luminous solar purity counterpointed with creamed Mysore sandalwood. A clean, architectural fragrance evoking morning light through sheer linen curtains.",
+      "categoryId": "cat_fragrances",
+      "categoryName": "Haute Parfumerie",
+      "price": 19000,
+      "compareAtPrice": 22000,
+      "images": [
+        "/src/assets/images/hero_luxury_boutique_1791824705943.jpg"
+      ],
+      "stock": 14,
+      "sku": "EN-FRG-003",
+      "status": "ACTIVE",
+      "averageRating": 5,
+      "reviewCount": 11,
+      "isFeatured": false,
+      "isBestseller": true,
+      "notes": [
+        "Top: Bitter Orange Flower, Petitgrain, Bergamot",
+        "Heart: Tunisian Néroli, White Iris",
+        "Base: Mysore Sandalwood, Iso E Super, Cashmeran"
+      ],
+      "details": {
+        "Volume": "100ml",
+        "Origin": "France",
+        "Character": "Crisp, Aristocratic, Pure"
+      },
+      "createdAt": "2026-01-20T09:00:00.000Z"
+    },
+    {
+      "id": "prod_rose_minuit",
+      "name": "Rose de Minuit Extrait",
+      "slug": "rose-de-minuit-extrait",
+      "description": "Midnight harvesting of May roses layered over precious Persian saffron, smoky Cypriol oil, and deep velvet musk. Unashamedly opulent and dark.",
+      "categoryId": "cat_fragrances",
+      "categoryName": "Haute Parfumerie",
+      "price": 24500,
+      "images": [
+        "/src/assets/images/category_fragrances_1791824720667.jpg"
+      ],
+      "stock": 8,
+      "sku": "EN-FRG-004",
+      "status": "ACTIVE",
+      "averageRating": 4.9,
+      "reviewCount": 9,
+      "isFeatured": false,
+      "notes": [
+        "Top: Saffron, Pink Peppercorn",
+        "Heart: Centifolia Rose Absolute, Bulgarian Rose",
+        "Base: Cypriol, Oud Accord, Ambrette"
+      ],
+      "details": {
+        "Volume": "100ml",
+        "Cask Age": "18 Months Aged Maceration",
+        "Limited Batch": "Edition of 300 bottles"
+      },
+      "createdAt": "2026-02-01T14:00:00.000Z"
+    },
+    {
+      "id": "prod_obsidian_overcoat",
+      "name": "The Obsidian Architectural Coat",
+      "slug": "the-obsidian-architectural-coat",
+      "description": "Hand-tailored from double-faced 750gsm virgin wool with an asymmetric waterfall silk lapel drape. Structured shoulders and floating canvas construction provide effortless authority.",
+      "categoryId": "cat_apparel",
+      "categoryName": "Sartorial Wardrobe",
+      "price": 64000,
+      "compareAtPrice": 72000,
+      "images": [
+        "/src/assets/images/category_apparel_1791824731775.jpg"
+      ],
+      "stock": 6,
+      "sku": "EN-APP-001",
+      "status": "ACTIVE",
+      "averageRating": 5,
+      "reviewCount": 7,
+      "isFeatured": true,
+      "isBestseller": true,
+      "details": {
+        "Fabric": "100% Virgin Wool with 100% Mulberry Silk Faille Drape",
+        "Tailoring": "Hand-basted canvas chest piece, horn buttons",
+        "Fit": "Contemporary relaxed silhouette with sharp architectural shoulder",
+        "Care": "Specialist dry clean only"
+      },
+      "variants": [
+        {
+          "id": "v_sz_s",
+          "name": "Size 46 / Small",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 2
+        },
+        {
+          "id": "v_sz_m",
+          "name": "Size 48 / Medium",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 3
+        },
+        {
+          "id": "v_sz_l",
+          "name": "Size 50 / Large",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 1
+        }
+      ],
+      "createdAt": "2026-01-12T15:00:00.000Z"
+    },
+    {
+      "id": "prod_charmeuse_robe",
+      "name": "Nocturne Silk Charmeuse Robe",
+      "slug": "nocturne-silk-charmeuse-robe",
+      "description": "Cut from heavyweight 22-momme pure mulberry silk in raven black. French seams throughout with deep patch pockets and a liquid drape that glides across skin.",
+      "categoryId": "cat_apparel",
+      "categoryName": "Sartorial Wardrobe",
+      "price": 38000,
+      "images": [
+        "/src/assets/images/category_apparel_1791824731775.jpg"
+      ],
+      "stock": 15,
+      "sku": "EN-APP-002",
+      "status": "ACTIVE",
+      "averageRating": 4.9,
+      "reviewCount": 12,
+      "isFeatured": false,
+      "isNewArrival": true,
+      "details": {
+        "Fabric": "100% Mulberry Silk Charmeuse (22 Momme)",
+        "Finish": "Matte-sheen liquid luster",
+        "Origin": "Como, Italy"
+      },
+      "variants": [
+        {
+          "id": "v_sz_1",
+          "name": "Size I (EU 36-40)",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 8
+        },
+        {
+          "id": "v_sz_2",
+          "name": "Size II (EU 42-46)",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 7
+        }
+      ],
+      "createdAt": "2026-02-05T16:00:00.000Z"
+    },
+    {
+      "id": "prod_cashmere_turtleneck",
+      "name": "Minimalist Cashmere Turtleneck",
+      "slug": "minimalist-cashmere-turtleneck",
+      "description": "Spun from two-ply Grade-A Mongolian inner fleece cashmere. Seamless body knitting with zero pressure points, featherweight warmth, and enduring shape retention.",
+      "categoryId": "cat_apparel",
+      "categoryName": "Sartorial Wardrobe",
+      "price": 28500,
+      "images": [
+        "/src/assets/images/category_apparel_1791824731775.jpg"
+      ],
+      "stock": 12,
+      "sku": "EN-APP-003",
+      "status": "ACTIVE",
+      "averageRating": 4.8,
+      "reviewCount": 8,
+      "isFeatured": false,
+      "details": {
+        "Yarn": "100% Grade-A Mongolian Cashmere (15.2 Micron)",
+        "Gauge": "12-Gauge Fine Knit",
+        "Color": "Carbon Charcoal"
+      },
+      "variants": [
+        {
+          "id": "v_sz_s",
+          "name": "Small",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 4
+        },
+        {
+          "id": "v_sz_m",
+          "name": "Medium",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 5
+        },
+        {
+          "id": "v_sz_l",
+          "name": "Large",
+          "type": "size",
+          "priceDiff": 0,
+          "stock": 3
+        }
+      ],
+      "createdAt": "2026-02-10T11:00:00.000Z"
+    },
+    {
+      "id": "prod_pleated_trousers",
+      "name": "Sartorial Tailored Pleated Trousers",
+      "slug": "sartorial-tailored-pleated-trousers",
+      "description": "Precision high-rise trousers with deep forward double pleats, side adjusters in matte brass, and a graceful wide-leg break cut in high-twist British wool-twill.",
+      "categoryId": "cat_apparel",
+      "categoryName": "Sartorial Wardrobe",
+      "price": 32000,
+      "compareAtPrice": 36000,
+      "images": [
+        "/src/assets/images/category_apparel_1791824731775.jpg"
+      ],
+      "stock": 10,
+      "sku": "EN-APP-004",
+      "status": "ACTIVE",
+      "averageRating": 4.9,
+      "reviewCount": 6,
+      "details": {
+        "Fabric": "100% High-Twist Wool Twill (340gsm)",
+        "Waist": "Curved waistband with dual side cinch buckles",
+        "Pockets": "Jetted rear pockets with genuine horn buttons"
+      },
+      "createdAt": "2026-02-12T13:00:00.000Z"
+    },
+    {
+      "id": "prod_aeterna_serum",
+      "name": "Aeterna Botanical Restorative Serum",
+      "slug": "aeterna-botanical-restorative-serum",
+      "description": "A transformative, bio-compatible facial concentrate. Formulated with cold-extracted prickly pear seed oil, wild frankincense resin, squalane, and active bakuchiol to nourish cellular matrix overnight.",
+      "categoryId": "cat_skincare",
+      "categoryName": "Botanical Skincare",
+      "price": 9800,
+      "compareAtPrice": 11500,
+      "images": [
+        "/src/assets/images/category_skincare_1791824742582.jpg"
+      ],
+      "stock": 35,
+      "sku": "EN-SKN-001",
+      "status": "ACTIVE",
+      "averageRating": 4.9,
+      "reviewCount": 32,
+      "isFeatured": true,
+      "isBestseller": true,
+      "details": {
+        "Volume": "30ml / 1 FL. OZ.",
+        "Texture": "Silken lipid elixir with instantaneous dermal absorption",
+        "Key Actives": "Prickly Pear Seed Oil (85% Vitamin E content), Frankincense Frereana, Bakuchiol 2%",
+        "Usage": "Apply 3-4 drops onto cleansed skin before nocturnal rest"
+      },
+      "ingredients": "Opuntia Ficus-Indica (Prickly Pear) Seed Oil*, Squalane (Olive-Derived), Boswellia Frereana (Frankincense) Resin Extract, Rosa Damascena Flower Oil, Bakuchiol, Tocopherol (Vitamin E). *Organically cultivated.",
+      "variants": [
+        {
+          "id": "v_30ml",
+          "name": "30ml Dropper",
+          "type": "volume",
+          "priceDiff": 0,
+          "stock": 25
+        },
+        {
+          "id": "v_50ml",
+          "name": "50ml Atelier Size",
+          "type": "volume",
+          "priceDiff": 3800,
+          "stock": 10
+        }
+      ],
+      "createdAt": "2026-01-08T08:00:00.000Z"
+    },
+    {
+      "id": "prod_creme_sublime",
+      "name": "Crème Sublime Nuit Restoratrice",
+      "slug": "creme-sublime-nuit-restoratrice",
+      "description": "An ultra-dense velvet barrier cream powered by fermented black truffle peptides, snow mushroom polysaccharide, and deep sea microalgae. Locks hydration and softens expression lines.",
+      "categoryId": "cat_skincare",
+      "categoryName": "Botanical Skincare",
+      "price": 12400,
+      "images": [
+        "/src/assets/images/category_skincare_1791824742582.jpg"
+      ],
+      "stock": 22,
+      "sku": "EN-SKN-002",
+      "status": "ACTIVE",
+      "averageRating": 4.8,
+      "reviewCount": 16,
+      "isFeatured": false,
+      "isNewArrival": true,
+      "details": {
+        "Volume": "50ml Net Wt. 1.7 oz.",
+        "Pot": "Double-walled smoked glass jar with magnetic spatula",
+        "Aroma": "Subtle naturally occurring neroli and damp moss notes"
+      },
+      "createdAt": "2026-01-18T10:00:00.000Z"
+    },
+    {
+      "id": "prod_obsidian_gua_sha",
+      "name": "Obsidian Facial Sculpting Talisman",
+      "slug": "obsidian-facial-sculpting-talisman",
+      "description": "Carved by master lapidaries from natural volcanic black obsidian stone. Precision ergonomic bevels stimulate lymphatic drainage, define cheekbones, and release jaw tension.",
+      "categoryId": "cat_skincare",
+      "categoryName": "Botanical Skincare",
+      "price": 4200,
+      "images": [
+        "/src/assets/images/category_skincare_1791824742582.jpg"
+      ],
+      "stock": 40,
+      "sku": "EN-SKN-003",
+      "status": "ACTIVE",
+      "averageRating": 5,
+      "reviewCount": 24,
+      "isFeatured": false,
+      "details": {
+        "Material": "100% Genuine Volcanic Black Obsidian",
+        "Includes": "Embossed saddle leather travel pouch & care cloth",
+        "Dimensions": "105mm x 60mm x 8mm"
+      },
+      "createdAt": "2026-01-22T14:00:00.000Z"
+    },
+    {
+      "id": "prod_rosewater_gold",
+      "name": "Rosewater & 24K Colloidal Gold Mist",
+      "slug": "rosewater-colloidal-gold-mist",
+      "description": "Distilled copper alembic rosewater from first-flush Iranian Damask blossoms, infused with pure 24K colloidal gold suspension and mineral electrolytes to restore natural skin pH.",
+      "categoryId": "cat_skincare",
+      "categoryName": "Botanical Skincare",
+      "price": 7600,
+      "images": [
+        "/src/assets/images/category_skincare_1791824742582.jpg"
+      ],
+      "stock": 28,
+      "sku": "EN-SKN-004",
+      "status": "ACTIVE",
+      "averageRating": 4.7,
+      "reviewCount": 15,
+      "isFeatured": false,
+      "details": {
+        "Volume": "120ml / 4 FL. OZ.",
+        "Sprayer": "Micro-mist nebulizer nozzle",
+        "Purity": "100% Hydrosol, Zero synthetic stabilizers"
+      },
+      "createdAt": "2026-01-25T17:00:00.000Z"
+    }
+  ],
+  "orders": [
+    {
+      "userId": "usr_client_01",
+      "customerName": "Test Client",
+      "customerEmail": "test@elixirnoir.com",
+      "items": [
+        {
+          "productId": "prod_nocturne_ambre",
+          "productName": "Nocturne Ambré Eau de Parfum",
+          "productImage": "",
+          "price": 18500,
+          "quantity": 1
+        }
+      ],
+      "shippingAddress": {
+        "id": "addr_test",
+        "fullName": "Test Client",
+        "addressLine1": "Colaba Causeway",
+        "city": "Mumbai",
+        "state": "MH",
+        "postalCode": "400005",
+        "country": "India",
+        "phone": "+91 99999 88888"
+      },
+      "subtotal": 18500,
+      "discount": 1850,
+      "shippingFee": 0,
+      "tax": 500,
+      "totalAmount": 17150,
+      "paymentStatus": "PAID",
+      "orderStatus": "PROCESSING",
+      "paymentMethod": "RAZORPAY_UPI",
+      "id": "ord_1791825895958",
+      "orderNumber": "EN-5057",
+      "createdAt": "2026-10-12T17:24:55.958Z",
+      "updatedAt": "2026-10-12T17:24:55.958Z"
+    },
+    {
+      "id": "ord_1042",
+      "orderNumber": "EN-84920",
+      "userId": "usr_client_01",
+      "customerName": "Eleanor Vance",
+      "customerEmail": "client@elixirnoir.com",
+      "items": [
+        {
+          "productId": "prod_nocturne_ambre",
+          "productName": "Nocturne Ambré Eau de Parfum",
+          "productImage": "/src/assets/images/hero_luxury_boutique_1791824705943.jpg",
+          "price": 18500,
+          "quantity": 1,
+          "selectedVariant": "100ml Grand Flacon"
+        },
+        {
+          "productId": "prod_aeterna_serum",
+          "productName": "Aeterna Botanical Restorative Serum",
+          "productImage": "/src/assets/images/category_skincare_1791824742582.jpg",
+          "price": 9800,
+          "quantity": 1,
+          "selectedVariant": "30ml Dropper"
+        }
+      ],
+      "shippingAddress": {
+        "id": "addr_cli_1",
+        "fullName": "Eleanor Vance",
+        "addressLine1": "Flat 4B, Malabar Hill Crest",
+        "addressLine2": "Ridge Road",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "postalCode": "400006",
+        "country": "India",
+        "phone": "+91 98111 87654"
+      },
+      "subtotal": 28300,
+      "discount": 2830,
+      "shippingFee": 0,
+      "tax": 1273,
+      "totalAmount": 26743,
+      "paymentStatus": "PAID",
+      "orderStatus": "SHIPPED",
+      "paymentMethod": "RAZORPAY_UPI",
+      "paymentReference": "pay_rzp_mock_881920",
+      "razorpayOrderId": "order_rzp_mock_11029",
+      "trackingNumber": "WG-IND-90219482",
+      "createdAt": "2026-10-10T14:22:00.000Z",
+      "updatedAt": "2026-10-11T09:15:00.000Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev_01",
+      "userId": "usr_client_01",
+      "userName": "Eleanor Vance",
+      "productId": "prod_nocturne_ambre",
+      "rating": 5,
+      "comment": "An utterly transcendental composition. The smoked plum notes opening into ancient amber are unlike anything in conventional French perfumery. Sillage lasted 14 hours on my cashmere lapel.",
+      "verifiedPurchase": true,
+      "createdAt": "2026-09-15T18:30:00.000Z"
+    },
+    {
+      "id": "rev_02",
+      "userId": "usr_connoisseur_02",
+      "userName": "Julian Montagu",
+      "productId": "prod_obsidian_overcoat",
+      "rating": 5,
+      "comment": "The drape of this double-faced wool is architectural perfection. The silk lapel catches the light with subtle restraint. True Savile Row quality with Parisian minimalism.",
+      "verifiedPurchase": true,
+      "createdAt": "2026-09-22T11:15:00.000Z"
+    },
+    {
+      "id": "rev_03",
+      "userId": "usr_client_03",
+      "userName": "Aria Thorne",
+      "productId": "prod_aeterna_serum",
+      "rating": 5,
+      "comment": "The prickly pear and frankincense blend calmed my sensitive skin in three nights. Texture is lightweight yet deeply restorative. The obsidian applicator makes evening ritual divine.",
+      "verifiedPurchase": true,
+      "createdAt": "2026-10-01T20:10:00.000Z"
+    }
+  ],
+  "coupons": [
+    {
+      "id": "coup_01",
+      "code": "WELCOME10",
+      "discountType": "PERCENT",
+      "discountValue": 10,
+      "minOrder": 5000,
+      "maxDiscount": 3000,
+      "expiryDate": "2027-12-31",
+      "active": true
+    },
+    {
+      "id": "coup_02",
+      "code": "LUXURY20",
+      "discountType": "PERCENT",
+      "discountValue": 20,
+      "minOrder": 25000,
+      "maxDiscount": 10000,
+      "expiryDate": "2027-12-31",
+      "active": true
+    },
+    {
+      "id": "coup_03",
+      "code": "NOIR15",
+      "discountType": "PERCENT",
+      "discountValue": 15,
+      "minOrder": 10000,
+      "maxDiscount": 5000,
+      "expiryDate": "2027-12-31",
+      "active": true
+    }
+  ],
+  "carts": {
+    "usr_test_user": {
+      "items": [
+        {
+          "productId": "prod_nocturne_ambre",
+          "product": {
+            "id": "prod_nocturne_ambre",
+            "name": "Nocturne Ambré Eau de Parfum",
+            "slug": "nocturne-ambre-eau-de-parfum",
+            "description": "An intoxicating, contemplative nocturnal olfactory portrait. Opens with spicy cardamom and smoked plum, deepening into ancient amber resin, roasted tonka bean, and Atlas cedarwood.",
+            "categoryId": "cat_fragrances",
+            "categoryName": "Haute Parfumerie",
+            "price": 18500,
+            "compareAtPrice": 21000,
+            "images": [
+              "/src/assets/images/hero_luxury_boutique_1791824705943.jpg",
+              "/src/assets/images/category_fragrances_1791824720667.jpg"
+            ],
+            "stock": 23,
+            "sku": "EN-FRG-001",
+            "status": "ACTIVE",
+            "averageRating": 4.9,
+            "reviewCount": 18,
+            "isFeatured": true,
+            "isBestseller": true,
+            "notes": [
+              "Top: Cardamom, Smoked Plum, Bergamot",
+              "Heart: Moroccan Amber, Orris Root, Cistus",
+              "Base: Bourbon Vanilla, Atlas Cedar, Dark Musk"
+            ],
+            "details": {
+              "Concentration": "Eau de Parfum (24% maceration)",
+              "Volume": "100ml / 3.4 FL. OZ.",
+              "Origin": "Grasse & Paris, France",
+              "Packaging": "Smoked lead-free crystal with brushed brass talisman cap"
+            },
+            "ingredients": "Alcohol Denat., Parfum (Fragrance), Aqua (Water), Limonene, Linalool, Coumarin, Benzyl Benzoate, Eugenol.",
+            "variants": [
+              {
+                "id": "v_50ml",
+                "name": "50ml Flacon",
+                "type": "volume",
+                "priceDiff": -5000,
+                "stock": 12
+              },
+              {
+                "id": "v_100ml",
+                "name": "100ml Grand Flacon",
+                "type": "volume",
+                "priceDiff": 0,
+                "stock": 12
+              }
+            ],
+            "createdAt": "2026-01-10T10:00:00.000Z"
+          },
+          "quantity": 2
+        }
+      ],
+      "updatedAt": "2026-10-12T17:24:55.957Z"
+    }
+  },
+  "wishlists": {
+    "usr_client_01": [
+      "prod_nocturne_ambre",
+      "prod_obsidian_overcoat"
+    ]
+  },
+  "contactRequests": [
+    {
+      "id": "cnt_01",
+      "name": "Lord Henry Wotton",
+      "email": "henry@mayfairclub.co.uk",
+      "subject": "Bespoke Private Formulation Inquiry",
+      "message": "Seeking a private consultation for a bespoke sandalwood and leather formulation for an anniversary estate gala.",
+      "status": "RESPONDED",
+      "createdAt": "2026-09-28T16:00:00.000Z"
+    }
+  ],
+  "subscribers": [
+    {
+      "id": "sub_01",
+      "email": "collector@parfumgazette.com",
+      "status": "SUBSCRIBED",
+      "subscribedAt": "2026-08-10T12:00:00.000Z"
+    }
+  ]
+}
