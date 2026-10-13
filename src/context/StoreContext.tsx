@@ -316,7 +316,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }).catch(console.error);
       }
       showToast(
-        exists ? 'Category preference updated.' : 'Category saved to your personal curations.',
+        exists ? 'Category preference updated.' : 'Category saved to your favorites.',
         'info'
       );
       return updated;
@@ -325,17 +325,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const addToCompare = (product: Product) => {
     if (compareList.length >= 3) {
-      showToast('You can compare a maximum of 3 creations simultaneously.', 'info');
+      showToast('You can compare a maximum of 3 items at a time.', 'info');
       setIsCompareOpen(true);
       return;
     }
     if (compareList.some(p => p.id === product.id)) {
-      showToast('This creation is already in your comparison salon.', 'info');
+      showToast('This item is already in your comparison list.', 'info');
       setIsCompareOpen(true);
       return;
     }
     setCompareList(prev => [...prev, product]);
-    showToast(`Added "${product.name}" to comparison salon.`, 'success');
+    showToast(`Added "${product.name}" to product comparison.`, 'success');
     setIsCompareOpen(true);
   };
 
@@ -387,7 +387,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
       }
 
-      showToast(`Welcome back to the sanctuary, ${data.user.name}.`, 'success');
+      showToast(`Welcome back, ${data.user.name}!`, 'success');
       return { success: true };
     } catch {
       return { success: false, error: 'Connection error' };
@@ -409,7 +409,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setToken(data.token);
       setUser(data.user);
       localStorage.setItem('elixir_token', data.token);
-      showToast(`Account created. 500 Welcome Privilege Points awarded to ${data.user.name}.`, 'success');
+      showToast(`Welcome! 500 bonus reward points have been added to your account, ${data.user.name}.`, 'success');
       return { success: true };
     } catch {
       return { success: false, error: 'Connection error' };
@@ -420,7 +420,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setUser(null);
     setToken(null);
     localStorage.removeItem('elixir_token');
-    showToast('You have been signed out from the atelier session.', 'info');
+    showToast('You have successfully signed out.', 'info');
     if (currentPage === 'account' || currentPage === 'admin') {
       setCurrentPage('home');
     }
@@ -442,7 +442,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         if (user) {
           setUser({ ...user, addresses: data.addresses });
         }
-        showToast('Atelier delivery address saved.', 'success');
+        showToast('Shipping address saved.', 'success');
         return true;
       }
     } catch (e) {
@@ -468,7 +468,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
-        showToast('Sanctuary preferences updated.', 'success');
+        showToast('Account preferences updated.', 'success');
       }
     } catch (e) {
       console.error(e);
@@ -496,7 +496,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         return [...prev, { productId: product.id, product, quantity, selectedVariant: variant }];
       }
     });
-    showToast(`Added "${product.name}" to your shopping bag.`, 'success');
+    showToast(`Added "${product.name}" to your shopping cart.`, 'success');
     setIsCartDrawerOpen(true);
   };
 
@@ -519,7 +519,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setCartItems(prev =>
       prev.filter(i => !(i.productId === productId && i.selectedVariant === variant))
     );
-    showToast('Creation removed from shopping bag.', 'info');
+    showToast('Item removed from your cart.', 'info');
   };
 
   const clearCart = () => {
@@ -537,19 +537,19 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
       const data = await res.json();
       if (!res.ok) {
-        return { success: false, error: data.error || 'Invalid privilege code' };
+        return { success: false, error: data.error || 'Invalid promo code' };
       }
       setAppliedCoupon(data.coupon);
-      showToast(`Privilege code "${data.coupon.code}" applied.`, 'success');
+      showToast(`Promo code "${data.coupon.code}" applied.`, 'success');
       return { success: true };
     } catch {
-      return { success: false, error: 'Failed to validate privilege code' };
+      return { success: false, error: 'Failed to validate promo code' };
     }
   };
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
-    showToast('Privilege code removed.', 'info');
+    showToast('Promo code removed.', 'info');
   };
 
   const toggleWishlist = (productId: string) => {
@@ -557,7 +557,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       const exists = prev.includes(productId);
       const next = exists ? prev.filter(id => id !== productId) : [...prev, productId];
       showToast(
-        exists ? 'Removed from your curated wishlist.' : 'Saved to your curated wishlist.',
+        exists ? 'Removed from your wishlist.' : 'Saved to your wishlist.',
         'info'
       );
       return next;
@@ -599,8 +599,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (res.ok) {
         showToast(
           type === 'PRICE_DROP'
-            ? `Price drop alert registered for ${productName}.`
-            : `Back in stock notification registered for ${productName}.`,
+            ? `Price drop alert set for ${productName}.`
+            : `Back in stock notification set for ${productName}.`,
           'success'
         );
         return true;

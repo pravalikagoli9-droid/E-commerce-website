@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { setCurrentPage, setSelectedCategorySlug, setPolicyTab, showToast } = useStore();
@@ -18,13 +18,13 @@ export const Footer: React.FC = () => {
         body: JSON.stringify({ email })
       });
       if (res.ok) {
-        showToast('You are now inscribed into The Nocturne Gazette.', 'success');
+        showToast('You have successfully subscribed to our newsletter.', 'success');
         setEmail('');
       } else {
         showToast('Could not subscribe. Please try again.', 'error');
       }
     } catch {
-      showToast('Connection error.', 'error');
+      showToast('Connection error. Please try again.', 'error');
     } finally {
       setIsSubscribing(false);
     }
@@ -37,31 +37,31 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#050505] text-[#C4BFB8] border-t border-[#1C1C1C] pt-16 pb-12">
+    <footer className="bg-[#392C2A] text-[#E8D8C8] border-t border-[#4A3B39] pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Top Newsletter & Brand Mission Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-14 border-b border-[#1A1A1A]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-14 border-b border-[#4A3B39]">
           {/* Brand Philosophy */}
           <div className="lg:col-span-5 space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-serif tracking-[0.16em] text-[#F0ECE8]">
+            <h2 className="text-2xl sm:text-3xl font-serif tracking-[0.16em] text-[#FAF7F2]">
               ÉLIXIR & NOIR
             </h2>
-            <p className="text-xs tracking-[0.2em] uppercase text-[#888]">
-              Haute Parfumerie · Sartorial Atelier · Botanical Skincare
+            <p className="text-xs tracking-[0.2em] uppercase text-[#D6B77A]">
+              Luxury Fragrances · Lifestyle & Apparel · Botanical Skincare
             </p>
-            <p className="text-sm text-[#8C867E] leading-relaxed max-w-md pt-2">
-              Founded on the reverence of rare natural resins, architectural draping, and bio-compatible cellular elixirs. Crafted in limited editions between Grasse, Como, and Mumbai.
+            <p className="text-sm text-[#E8D8C8]/80 leading-relaxed max-w-md pt-2 font-light">
+              Founded on the reverence of rare natural resins, architectural tailoring, and biocompatible botanical elixirs. Crafted in limited editions with artisanal integrity.
             </p>
           </div>
 
-          {/* Newsletter / Nocturne Gazette */}
+          {/* Newsletter Form */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-4">
             <div>
-              <span className="text-xs tracking-[0.25em] uppercase text-[#C5A880] block mb-1">
-                The Nocturne Gazette
+              <span className="text-xs tracking-[0.25em] uppercase text-[#D6B77A] block mb-1">
+                Newsletter
               </span>
-              <h3 className="font-serif text-xl sm:text-2xl text-[#FFFFFF]">
-                Receive private invitations and private harvest releases.
+              <h3 className="font-serif text-xl sm:text-2xl text-[#FAF7F2]">
+                Receive private invitations and seasonal releases.
               </h3>
             </div>
 
@@ -69,22 +69,22 @@ export const Footer: React.FC = () => {
               <input
                 type="email"
                 required
-                placeholder="Enter your private email address..."
+                placeholder="Enter your email address..."
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="flex-1 bg-[#0F0F0F] border border-[#2B2B2B] px-4 py-3 text-xs text-[#FFFFFF] placeholder-[#666] focus:outline-none focus:border-[#C5A880] transition-colors"
+                className="flex-1 bg-[#2C2120] border border-[#52413F] px-4 py-3 text-xs text-[#FAF7F2] placeholder-[#A89895] focus:outline-none focus:border-[#C9878D] transition-colors rounded-sm"
               />
               <button
                 type="submit"
                 disabled={isSubscribing}
-                className="px-6 py-3 bg-[#F0ECE8] hover:bg-white text-[#000000] text-xs font-semibold tracking-[0.2em] uppercase transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer"
+                className="px-6 py-3 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold tracking-[0.2em] uppercase transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer shadow-sm rounded-sm"
               >
-                <span>Inscribe</span>
+                <span>Subscribe</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </form>
-            <p className="text-[11px] text-[#666]">
-              Zero spam. We respect your digital sanctuary. Unsubscribe at any time.
+            <p className="text-[11px] text-[#A89895]">
+              No spam. We respect your privacy. You may unsubscribe at any time.
             </p>
           </div>
         </div>
@@ -93,17 +93,17 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-xs">
           {/* Collections */}
           <div className="space-y-3">
-            <p className="font-serif text-sm text-[#FFFFFF] tracking-wider uppercase">Collections</p>
-            <ul className="space-y-2 text-[#999]">
+            <p className="font-serif text-sm text-[#FAF7F2] tracking-wider uppercase font-semibold">Collections</p>
+            <ul className="space-y-2 text-[#E8D8C8]/80">
               <li>
                 <button
                   onClick={() => {
                     setSelectedCategorySlug('fragrances');
                     setCurrentPage('shop');
                   }}
-                  className="hover:text-white transition-colors"
+                  className="hover:text-[#FAF7F2] transition-colors text-left"
                 >
-                  Haute Parfumerie
+                  Luxury Fragrances
                 </button>
               </li>
               <li>
@@ -112,9 +112,9 @@ export const Footer: React.FC = () => {
                     setSelectedCategorySlug('apparel');
                     setCurrentPage('shop');
                   }}
-                  className="hover:text-white transition-colors"
+                  className="hover:text-[#FAF7F2] transition-colors text-left"
                 >
-                  Sartorial Wardrobe
+                  Lifestyle & Apparel
                 </button>
               </li>
               <li>
@@ -123,7 +123,7 @@ export const Footer: React.FC = () => {
                     setSelectedCategorySlug('skincare');
                     setCurrentPage('shop');
                   }}
-                  className="hover:text-white transition-colors"
+                  className="hover:text-[#FAF7F2] transition-colors text-left"
                 >
                   Botanical Skincare
                 </button>
@@ -134,90 +134,90 @@ export const Footer: React.FC = () => {
                     setSelectedCategorySlug(null);
                     setCurrentPage('shop');
                   }}
-                  className="hover:text-white transition-colors"
+                  className="hover:text-[#FAF7F2] transition-colors text-left"
                 >
-                  All Archive Creations
+                  All Products
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* The Atelier */}
+          {/* The Atelier / About */}
           <div className="space-y-3">
-            <p className="font-serif text-sm text-[#FFFFFF] tracking-wider uppercase">The Atelier</p>
-            <ul className="space-y-2 text-[#999]">
+            <p className="font-serif text-sm text-[#FAF7F2] tracking-wider uppercase font-semibold">About Us</p>
+            <ul className="space-y-2 text-[#E8D8C8]/80">
               <li>
-                <button onClick={() => setCurrentPage('about')} className="hover:text-white transition-colors">
+                <button onClick={() => setCurrentPage('about')} className="hover:text-[#FAF7F2] transition-colors text-left">
                   Our Philosophy
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentPage('about')} className="hover:text-white transition-colors">
+                <button onClick={() => setCurrentPage('about')} className="hover:text-[#FAF7F2] transition-colors text-left">
                   Artisanal Craftsmanship
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentPage('blog')} className="hover:text-white transition-colors">
-                  Atelier Journal & Notes
+                <button onClick={() => setCurrentPage('blog')} className="hover:text-[#FAF7F2] transition-colors text-left">
+                  Journal & Notes
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentPage('contact')} className="hover:text-white transition-colors">
-                  Private Consultation
+                <button onClick={() => setCurrentPage('contact')} className="hover:text-[#FAF7F2] transition-colors text-left">
+                  Personal Consultation
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Concierge & Care */}
+          {/* Customer Care */}
           <div className="space-y-3">
-            <p className="font-serif text-sm text-[#FFFFFF] tracking-wider uppercase">Concierge</p>
-            <ul className="space-y-2 text-[#999]">
+            <p className="font-serif text-sm text-[#FAF7F2] tracking-wider uppercase font-semibold">Customer Care</p>
+            <ul className="space-y-2 text-[#E8D8C8]/80">
               <li>
-                <button onClick={() => setCurrentPage('account')} className="hover:text-white transition-colors">
-                  Client Sanctuary
+                <button onClick={() => setCurrentPage('account')} className="hover:text-[#FAF7F2] transition-colors text-left">
+                  Your Account
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentPage('faq')} className="hover:text-white transition-colors">
-                  Frequently Answered
+                <button onClick={() => setCurrentPage('faq')} className="hover:text-[#FAF7F2] transition-colors text-left">
+                  Frequently Asked Questions
                 </button>
               </li>
               <li>
-                <button onClick={() => navPolicy('shipping')} className="hover:text-white transition-colors">
-                  White Glove Courier
+                <button onClick={() => navPolicy('shipping')} className="hover:text-[#FAF7F2] transition-colors text-left">
+                  Shipping Information
                 </button>
               </li>
               <li>
-                <button onClick={() => navPolicy('returns')} className="hover:text-white transition-colors">
+                <button onClick={() => navPolicy('returns')} className="hover:text-[#FAF7F2] transition-colors text-left">
                   Returns & Exchanges
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Legal & Standards */}
+          {/* Policies & Legal */}
           <div className="space-y-3">
-            <p className="font-serif text-sm text-[#FFFFFF] tracking-wider uppercase">Governance</p>
-            <ul className="space-y-2 text-[#999]">
+            <p className="font-serif text-sm text-[#FAF7F2] tracking-wider uppercase font-semibold">Policies</p>
+            <ul className="space-y-2 text-[#E8D8C8]/80">
               <li>
-                <button onClick={() => navPolicy('privacy')} className="hover:text-white transition-colors">
+                <button onClick={() => navPolicy('privacy')} className="hover:text-[#FAF7F2] transition-colors text-left">
                   Privacy Policy
                 </button>
               </li>
               <li>
-                <button onClick={() => navPolicy('terms')} className="hover:text-white transition-colors">
-                  Terms of Haute Commerce
+                <button onClick={() => navPolicy('terms')} className="hover:text-[#FAF7F2] transition-colors text-left">
+                  Terms of Service
                 </button>
               </li>
               <li>
-                <button onClick={() => navPolicy('shipping')} className="hover:text-white transition-colors">
+                <button onClick={() => navPolicy('shipping')} className="hover:text-[#FAF7F2] transition-colors text-left">
                   Packaging Standards
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentPage('contact')} className="hover:text-white transition-colors">
-                  Corporate & Bespoke Orders
+                <button onClick={() => setCurrentPage('contact')} className="hover:text-[#FAF7F2] transition-colors text-left">
+                  Corporate & Custom Orders
                 </button>
               </li>
             </ul>
@@ -225,14 +225,14 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar: Copyright & Security */}
-        <div className="pt-8 border-t border-[#141414] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#666]">
-          <p>© {new Date().getFullYear()} ÉLIXIR & NOIR S.A. All international rights reserved.</p>
+        <div className="pt-8 border-t border-[#4A3B39] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#A89895]">
+          <p>© {new Date().getFullYear()} ÉLIXIR & NOIR. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5 text-[#888]">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#C5A880]" />
-              Secure 256-Bit SSL Atelier Commerce
+            <span className="flex items-center gap-1.5 text-[#E8D8C8]/80">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#D6B77A]" />
+              Secure 256-Bit SSL Checkout
             </span>
-            <span>Prices displayed in Indian Rupees (₹ INR) inclusive of duties</span>
+            <span>Prices displayed in Indian Rupees (₹ INR) inclusive of all taxes</span>
           </div>
         </div>
       </div>

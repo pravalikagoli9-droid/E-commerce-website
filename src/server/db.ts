@@ -147,17 +147,17 @@ const initialSeedData: DatabaseSchema = {
   categories: [
     {
       id: 'cat_fragrances',
-      name: 'Haute Parfumerie',
+      name: 'Luxury Fragrances',
       slug: 'fragrances',
-      description: 'Rare olfactory formulations extracted in Grasse and cured in smoked French glass flacons.',
+      description: 'Artisanal niche fragrances crafted with fine natural resins, floral absolutes, and rare aged woods.',
       image: '/src/assets/images/category_fragrances_1791824720667.jpg',
       status: 'ACTIVE'
     },
     {
       id: 'cat_apparel',
-      name: 'Sartorial Wardrobe',
+      name: 'Lifestyle & Apparel',
       slug: 'apparel',
-      description: 'Architectural silhouettes handcrafted in pure double-face cashmere, virgin wool, and raw silk.',
+      description: 'Timeless wardrobe staples and loungewear in pure double-face wool, Mongolian cashmere, and mulberry silk.',
       image: '/src/assets/images/category_apparel_1791824731775.jpg',
       status: 'ACTIVE'
     },
@@ -165,7 +165,7 @@ const initialSeedData: DatabaseSchema = {
       id: 'cat_skincare',
       name: 'Botanical Skincare',
       slug: 'skincare',
-      description: 'Cellular restorative elixirs infused with cold-pressed prickly pear seed, obsidian mineral salts, and frankincense.',
+      description: 'Restorative serums, barrier creams, and facial sculpting tools crafted with clean botanical ingredients.',
       image: '/src/assets/images/category_skincare_1791824742582.jpg',
       status: 'ACTIVE'
     }
@@ -177,7 +177,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'nocturne-ambre-eau-de-parfum',
       description: 'An intoxicating, contemplative nocturnal olfactory portrait. Opens with spicy cardamom and smoked plum, deepening into ancient amber resin, roasted tonka bean, and Atlas cedarwood.',
       categoryId: 'cat_fragrances',
-      categoryName: 'Haute Parfumerie',
+      categoryName: 'Luxury Fragrances',
       price: 18500,
       compareAtPrice: 21000,
       images: [
@@ -194,8 +194,8 @@ const initialSeedData: DatabaseSchema = {
       isGiftPick: true,
       fragranceFamily: 'Smoky Amber & Oriental Woods',
       sillage: 'Enveloping',
-      longevity: '14-16 hours on skin',
-      occasions: ['Evening Galas', 'Intimate Nocturnal Salons', 'Formal Winter Soirées'],
+      longevity: '14-16 hours',
+      occasions: ['Evening Events', 'Intimate Dinners', 'Formal Gatherings'],
       notes: [
         'Top: Cardamom, Smoked Plum, Bergamot',
         'Heart: Moroccan Amber, Orris Root, Cistus',
@@ -205,7 +205,7 @@ const initialSeedData: DatabaseSchema = {
         'Concentration': 'Eau de Parfum (24% maceration)',
         'Volume': '100ml / 3.4 FL. OZ.',
         'Origin': 'Grasse & Paris, France',
-        'Packaging': 'Smoked lead-free crystal with brushed brass talisman cap'
+        'Packaging': 'Smoked glass bottle with brushed brass cap'
       },
       ingredients: 'Alcohol Denat., Parfum (Fragrance), Aqua (Water), Limonene, Linalool, Coumarin, Benzyl Benzoate, Eugenol.',
       variants: [
@@ -220,7 +220,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'aeterna-ambre-noir-extrait',
       description: 'A dark, resinous masterpiece crafted from rare wild labdanum, sacred temple incense, and rare Florentine orris butter. Revered for its mesmerizing sillage and longevity.',
       categoryId: 'cat_fragrances',
-      categoryName: 'Haute Parfumerie',
+      categoryName: 'Luxury Fragrances',
       price: 16200,
       images: [
         '/src/assets/images/category_fragrances_1791824720667.jpg',
@@ -257,7 +257,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'santal-blanc-neroli',
       description: 'Luminous solar purity counterpointed with creamed Mysore sandalwood. A clean, architectural fragrance evoking morning light through sheer linen curtains.',
       categoryId: 'cat_fragrances',
-      categoryName: 'Haute Parfumerie',
+      categoryName: 'Luxury Fragrances',
       price: 19000,
       compareAtPrice: 22000,
       images: [
@@ -293,7 +293,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'rose-de-minuit-extrait',
       description: 'Midnight harvesting of May roses layered over precious Persian saffron, smoky Cypriol oil, and deep velvet musk. Unashamedly opulent and dark.',
       categoryId: 'cat_fragrances',
-      categoryName: 'Haute Parfumerie',
+      categoryName: 'Luxury Fragrances',
       price: 24500,
       images: [
         '/src/assets/images/category_fragrances_1791824720667.jpg'
@@ -327,7 +327,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'the-obsidian-architectural-coat',
       description: 'Hand-tailored from double-faced 750gsm virgin wool with an asymmetric waterfall silk lapel drape. Structured shoulders and floating canvas construction provide effortless authority.',
       categoryId: 'cat_apparel',
-      categoryName: 'Sartorial Wardrobe',
+      categoryName: 'Lifestyle & Apparel',
       price: 64000,
       compareAtPrice: 72000,
       images: [
@@ -367,7 +367,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'nocturne-silk-charmeuse-robe',
       description: 'Cut from heavyweight 22-momme pure mulberry silk in raven black. French seams throughout with deep patch pockets and a liquid drape that glides across skin.',
       categoryId: 'cat_apparel',
-      categoryName: 'Sartorial Wardrobe',
+      categoryName: 'Lifestyle & Apparel',
       price: 38000,
       images: [
         '/src/assets/images/category_apparel_1791824731775.jpg'
@@ -403,7 +403,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'minimalist-cashmere-turtleneck',
       description: 'Spun from two-ply Grade-A Mongolian inner fleece cashmere. Seamless body knitting with zero pressure points, featherweight warmth, and enduring shape retention.',
       categoryId: 'cat_apparel',
-      categoryName: 'Sartorial Wardrobe',
+      categoryName: 'Lifestyle & Apparel',
       price: 28500,
       images: [
         '/src/assets/images/category_apparel_1791824731775.jpg'
@@ -439,7 +439,7 @@ const initialSeedData: DatabaseSchema = {
       slug: 'sartorial-tailored-pleated-trousers',
       description: 'Precision high-rise trousers with deep forward double pleats, side adjusters in matte brass, and a graceful wide-leg break cut in high-twist British wool-twill.',
       categoryId: 'cat_apparel',
-      categoryName: 'Sartorial Wardrobe',
+      categoryName: 'Lifestyle & Apparel',
       price: 32000,
       compareAtPrice: 36000,
       images: [
@@ -686,7 +686,7 @@ const initialSeedData: DatabaseSchema = {
       discountValue: 10,
       minOrder: 5000,
       maxDiscount: 3000,
-      description: '10% privilege concession on maiden acquisitions over ₹5,000',
+      description: '10% off your first order over ₹5,000',
       expiryDate: '2027-12-31',
       active: true
     },
@@ -697,7 +697,7 @@ const initialSeedData: DatabaseSchema = {
       discountValue: 20,
       minOrder: 25000,
       maxDiscount: 10000,
-      description: '20% connoisseur concession on acquisitions over ₹25,000',
+      description: '20% off all orders over ₹25,000',
       expiryDate: '2027-12-31',
       active: true
     },
@@ -708,7 +708,7 @@ const initialSeedData: DatabaseSchema = {
       discountValue: 15,
       minOrder: 10000,
       maxDiscount: 5000,
-      description: '15% concession on boutique collections over ₹10,000',
+      description: '15% off boutique collections over ₹10,000',
       expiryDate: '2027-12-31',
       active: true
     },
@@ -719,7 +719,7 @@ const initialSeedData: DatabaseSchema = {
       discountValue: 25,
       minOrder: 30000,
       maxDiscount: 12000,
-      description: '25% festive celebration concession for seasonal curations over ₹30,000',
+      description: '25% off holiday & seasonal collections over ₹30,000',
       expiryDate: '2027-12-31',
       active: true
     },
@@ -729,7 +729,7 @@ const initialSeedData: DatabaseSchema = {
       discountType: 'FIXED',
       discountValue: 500,
       minOrder: 4000,
-      description: 'Flat ₹500 complimentary token on luxury gift orders',
+      description: 'Flat ₹500 off luxury gift orders over ₹4,000',
       expiryDate: '2027-12-31',
       active: true
     }

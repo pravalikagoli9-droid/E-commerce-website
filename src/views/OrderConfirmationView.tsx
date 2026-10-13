@@ -3,12 +3,8 @@ import { useStore } from '../context/StoreContext';
 import {
   CheckCircle,
   Truck,
-  Package,
-  ShieldCheck,
   ArrowRight,
-  Printer,
-  Calendar,
-  ExternalLink
+  Printer
 } from 'lucide-react';
 
 export const OrderConfirmationView: React.FC = () => {
@@ -17,33 +13,33 @@ export const OrderConfirmationView: React.FC = () => {
   if (!activeOrder) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4">
-        <h2 className="font-serif text-3xl text-white">No Active Order Found</h2>
-        <p className="text-xs text-[#777]">Please check your order history in the Client Sanctuary.</p>
+        <h2 className="font-serif text-3xl text-[#392C2A]">No Active Order Found</h2>
+        <p className="text-xs text-[#7D6B67]">Please check your order history in Your Account.</p>
         <button
           onClick={() => setCurrentPage('account')}
-          className="px-6 py-2.5 bg-[#F0ECE8] text-[#000000] text-xs uppercase tracking-[0.2em] font-medium"
+          className="px-6 py-2.5 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs uppercase tracking-[0.2em] font-semibold rounded-sm shadow-xs cursor-pointer"
         >
-          View Client Sanctuary
+          View Your Account
         </button>
       </div>
     );
   }
 
   const steps = [
-    { title: 'Inscribed in Atelier', desc: 'Order confirmed & paid', completed: true },
+    { title: 'Order Confirmed', desc: 'Order received & paid', completed: true },
     {
-      title: 'Atelier Preparation',
-      desc: 'Wax-sealed & boxed in noir presentation',
+      title: 'Atelier Packaging',
+      desc: 'Hand-packaged in signature gift box',
       completed: ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(activeOrder.orderStatus)
     },
     {
-      title: 'White Glove Courier',
+      title: 'In Transit',
       desc: activeOrder.trackingNumber || 'Tracking assigned',
       completed: ['SHIPPED', 'DELIVERED'].includes(activeOrder.orderStatus)
     },
     {
-      title: 'Sanctuary Arrival',
-      desc: 'Signed delivery',
+      title: 'Delivered',
+      desc: 'Handed over to recipient',
       completed: activeOrder.orderStatus === 'DELIVERED'
     }
   ];
@@ -51,35 +47,35 @@ export const OrderConfirmationView: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Top Banner */}
-      <div className="text-center space-y-4 border-b border-[#1C1C1C] pb-10">
-        <div className="w-12 h-12 bg-[#171717] border border-[#C5A880]/40 rounded-full flex items-center justify-center mx-auto text-[#C5A880]">
-          <CheckCircle className="w-6 h-6" />
+      <div className="text-center space-y-4 border-b border-[#E8DED4] pb-10">
+        <div className="w-12 h-12 bg-[#E8D8C8] border border-[#E8DED4] rounded-full flex items-center justify-center mx-auto text-[#392C2A]">
+          <CheckCircle className="w-6 h-6 text-[#C9878D]" />
         </div>
-        <span className="text-xs tracking-[0.28em] uppercase text-[#C5A880] block font-mono">
-          Acquisition Inscribed
+        <span className="text-xs tracking-[0.28em] uppercase text-[#C9878D] block font-semibold">
+          Order Confirmed
         </span>
-        <h1 className="font-serif text-3xl sm:text-5xl text-white font-normal">
-          Thank you for your acquisition.
+        <h1 className="font-serif text-3xl sm:text-5xl text-[#392C2A] font-normal">
+          Thank you for your order!
         </h1>
-        <p className="text-sm text-[#A8A29A] max-w-lg mx-auto leading-relaxed">
-          Your order has been recorded into the ÉLIXIR & NOIR ledger under reference{' '}
-          <span className="text-white font-mono font-medium">{activeOrder.orderNumber}</span>.
-          A formal receipt has been dispatched to {activeOrder.customerEmail}.
+        <p className="text-sm text-[#7D6B67] max-w-lg mx-auto leading-relaxed">
+          Your order has been recorded under order number{' '}
+          <span className="text-[#392C2A] font-mono font-semibold">{activeOrder.orderNumber}</span>.
+          A confirmation receipt has been sent to {activeOrder.customerEmail}.
         </p>
       </div>
 
       {/* Tracking Progression Timeline */}
-      <div className="p-6 sm:p-8 bg-[#0A0A0A] border border-[#1F1F1F] space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#181818] pb-4">
+      <div className="p-6 sm:p-8 bg-[#FFFDF9] border border-[#E8DED4] space-y-6 rounded-sm shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E8DED4] pb-4">
           <div>
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#888] block">
-              Concierge Tracking
+            <span className="text-[10px] tracking-[0.2em] uppercase text-[#7D6B67] block font-semibold">
+              Delivery Progress
             </span>
-            <p className="font-serif text-lg text-white">White Glove Courier Status</p>
+            <p className="font-serif text-lg text-[#392C2A]">Express Courier Status</p>
           </div>
           {activeOrder.trackingNumber && (
-            <div className="text-xs font-mono text-[#C5A880]">
-              Waybill: {activeOrder.trackingNumber}
+            <div className="text-xs font-mono text-[#C9878D] font-semibold">
+              Tracking Number: {activeOrder.trackingNumber}
             </div>
           )}
         </div>
@@ -89,25 +85,25 @@ export const OrderConfirmationView: React.FC = () => {
             <div key={i} className="relative space-y-2">
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-semibold ${
                     st.completed
-                      ? 'bg-[#C5A880] text-black font-semibold'
-                      : 'bg-[#1C1C1C] text-[#666]'
+                      ? 'bg-[#C9878D] text-white'
+                      : 'bg-[#FAF7F2] text-[#7D6B67] border border-[#E8DED4]'
                   }`}
                 >
                   {i + 1}
                 </div>
                 <div
                   className={`h-0.5 flex-1 hidden sm:block ${
-                    st.completed ? 'bg-[#C5A880]' : 'bg-[#222]'
+                    st.completed ? 'bg-[#C9878D]' : 'bg-[#E8DED4]'
                   }`}
                 />
               </div>
               <div>
-                <p className={`text-xs font-medium ${st.completed ? 'text-white' : 'text-[#666]'}`}>
+                <p className={`text-xs font-semibold ${st.completed ? 'text-[#392C2A]' : 'text-[#7D6B67]'}`}>
                   {st.title}
                 </p>
-                <p className="text-[11px] text-[#777] mt-0.5">{st.desc}</p>
+                <p className="text-[11px] text-[#7D6B67] mt-0.5">{st.desc}</p>
               </div>
             </div>
           ))}
@@ -117,16 +113,16 @@ export const OrderConfirmationView: React.FC = () => {
       {/* Order Itemized Summary Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
         {/* Left: Ordered Items */}
-        <div className="md:col-span-7 bg-[#0A0A0A] border border-[#1F1F1F] p-6 space-y-4">
-          <h2 className="font-serif text-xl text-white pb-3 border-b border-[#181818]">
-            Items in Formulation
+        <div className="md:col-span-7 bg-[#FFFDF9] border border-[#E8DED4] p-6 space-y-4 rounded-sm shadow-xs">
+          <h2 className="font-serif text-xl text-[#392C2A] pb-3 border-b border-[#E8DED4]">
+            Ordered Items
           </h2>
 
-          <div className="divide-y divide-[#181818] space-y-3">
+          <div className="divide-y divide-[#E8DED4] space-y-3">
             {activeOrder.items.map((it, idx) => (
               <div key={idx} className="pt-3 first:pt-0 flex items-center justify-between gap-4 text-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-14 h-16 bg-[#141414] border border-[#222] overflow-hidden shrink-0">
+                  <div className="w-14 h-16 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
                     <img
                       src={it.productImage || ''}
                       alt=""
@@ -135,53 +131,53 @@ export const OrderConfirmationView: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <h3 className="font-serif text-sm text-white">{it.productName}</h3>
+                    <h3 className="font-serif text-sm text-[#392C2A] font-medium">{it.productName}</h3>
                     {it.selectedVariant && (
-                      <p className="text-[#888]">{it.selectedVariant}</p>
+                      <p className="text-[#7D6B67]">{it.selectedVariant}</p>
                     )}
-                    <p className="text-[#666]">Quantity: {it.quantity}</p>
+                    <p className="text-[#7D6B67]">Quantity: {it.quantity}</p>
                   </div>
                 </div>
 
-                <span className="font-mono text-white tabular-nums">
-                  ₹{(it.price * it.quantity).toLocaleString('en-IN')}
+                <span className="font-mono text-[#392C2A] tabular-nums font-semibold">
+                  ₹{(it.price * it.quantity).toLocaleString('en-US')}
                 </span>
               </div>
             ))}
           </div>
 
           {/* Pricing Totals */}
-          <div className="pt-4 border-t border-[#181818] space-y-2 text-xs text-[#888]">
+          <div className="pt-4 border-t border-[#E8DED4] space-y-2 text-xs text-[#7D6B67]">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-mono text-white tabular-nums">
-                ₹{activeOrder.subtotal.toLocaleString('en-IN')}
+              <span className="font-mono text-[#392C2A] tabular-nums font-medium">
+                ₹{activeOrder.subtotal.toLocaleString('en-US')}
               </span>
             </div>
             {activeOrder.discount > 0 && (
-              <div className="flex justify-between text-[#C5A880]">
-                <span>Privilege Code</span>
-                <span className="font-mono tabular-nums">
-                  -₹{activeOrder.discount.toLocaleString('en-IN')}
+              <div className="flex justify-between text-[#C9878D]">
+                <span>Promo Discount</span>
+                <span className="font-mono tabular-nums font-semibold">
+                  -₹{activeOrder.discount.toLocaleString('en-US')}
                 </span>
               </div>
             )}
             <div className="flex justify-between">
-              <span>Delivery</span>
-              <span className="font-mono text-white tabular-nums">
-                {activeOrder.shippingFee === 0 ? 'Complimentary' : `₹${activeOrder.shippingFee}`}
+              <span>Shipping</span>
+              <span className="font-mono text-[#392C2A] tabular-nums">
+                {activeOrder.shippingFee === 0 ? 'Free' : `₹${activeOrder.shippingFee.toLocaleString('en-US')}`}
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Applicable GST (3%)</span>
-              <span className="font-mono text-white tabular-nums">
-                ₹{activeOrder.tax.toLocaleString('en-IN')}
+              <span>Estimated Tax (3%)</span>
+              <span className="font-mono text-[#392C2A] tabular-nums">
+                ₹{activeOrder.tax.toLocaleString('en-US')}
               </span>
             </div>
-            <div className="flex justify-between text-base font-serif text-white pt-2 border-t border-[#181818]">
-              <span>Total Remitted</span>
-              <span className="font-mono text-[#C5A880] tabular-nums text-lg">
-                ₹{activeOrder.totalAmount.toLocaleString('en-IN')}
+            <div className="flex justify-between text-base font-serif text-[#392C2A] pt-2 border-t border-[#E8DED4]">
+              <span>Total Paid</span>
+              <span className="font-mono text-[#392C2A] tabular-nums text-lg font-bold">
+                ₹{activeOrder.totalAmount.toLocaleString('en-US')}
               </span>
             </div>
           </div>
@@ -189,12 +185,12 @@ export const OrderConfirmationView: React.FC = () => {
 
         {/* Right: Delivery Address & Courier Notes */}
         <div className="md:col-span-5 space-y-6">
-          <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 space-y-4 text-xs">
-            <h2 className="font-serif text-lg text-white pb-2 border-b border-[#181818]">
-              Sanctuary Delivery Address
+          <div className="bg-[#FFFDF9] border border-[#E8DED4] p-6 space-y-4 text-xs rounded-sm shadow-xs">
+            <h2 className="font-serif text-lg text-[#392C2A] pb-2 border-b border-[#E8DED4]">
+              Shipping Address
             </h2>
-            <div className="space-y-1 text-[#AAA] leading-relaxed">
-              <p className="text-white font-medium">{activeOrder.shippingAddress.fullName}</p>
+            <div className="space-y-1 text-[#7D6B67] leading-relaxed">
+              <p className="text-[#392C2A] font-semibold">{activeOrder.shippingAddress.fullName}</p>
               <p>{activeOrder.shippingAddress.addressLine1}</p>
               {activeOrder.shippingAddress.addressLine2 && (
                 <p>{activeOrder.shippingAddress.addressLine2}</p>
@@ -206,11 +202,11 @@ export const OrderConfirmationView: React.FC = () => {
               <p>India · {activeOrder.shippingAddress.phone}</p>
             </div>
 
-            <div className="pt-3 border-t border-[#181818] space-y-1 text-[#888]">
-              <span className="block text-white font-medium">Payment Verification</span>
+            <div className="pt-3 border-t border-[#E8DED4] space-y-1 text-[#7D6B67]">
+              <span className="block text-[#392C2A] font-semibold">Payment Details</span>
               <p>Method: {activeOrder.paymentMethod}</p>
               {activeOrder.paymentReference && (
-                <p className="font-mono text-[11px]">Ref: {activeOrder.paymentReference}</p>
+                <p className="font-mono text-[11px]">Reference: {activeOrder.paymentReference}</p>
               )}
             </div>
           </div>
@@ -219,18 +215,18 @@ export const OrderConfirmationView: React.FC = () => {
           <div className="space-y-3">
             <button
               onClick={() => setCurrentPage('shop')}
-              className="w-full py-3.5 bg-[#F0ECE8] hover:bg-white text-[#000000] text-xs font-semibold tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+              className="w-full py-3.5 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md rounded-sm"
             >
-              <span>Continue Exploring Catalog</span>
+              <span>Continue Shopping</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
             <button
               onClick={() => window.print()}
-              className="w-full py-3 border border-[#333] hover:border-[#666] text-xs text-[#AAA] hover:text-white uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 border border-[#E8DED4] hover:border-[#C9878D] text-xs text-[#7D6B67] hover:text-[#392C2A] uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer rounded-sm"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Print Formal Receipt</span>
+              <span>Print Order Receipt</span>
             </button>
           </div>
         </div>

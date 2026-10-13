@@ -4,12 +4,23 @@
   :root {
     --font-serif: 'Cormorant Garamond', Georgia, serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+    /* Dusty Rose & Warm Beige Luxury Beauty Theme Tokens */
+    --color-primary: #C9878D;
+    --color-primary-hover: #B56F75;
+    --color-secondary: #E8D8C8;
+    --color-bg-main: #FAF7F2;
+    --color-card: #FFFDF9;
+    --color-text-main: #392C2A;
+    --color-text-muted: #7D6B67;
+    --color-accent: #D6B77A;
+    --color-border: #E8DED4;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #FAF8F5;
-    color: #1E1714;
+    background-color: #FAF7F2;
+    color: #392C2A;
     overflow-x: hidden;
   }
 
@@ -18,18 +29,33 @@
   }
 }
 
-/* Custom scrollbar with warm luxury tones */
+/* Custom scrollbar with Dusty Rose and Warm Beige tones */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F3EFEA;
+  background: #FAF7F2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4C9BD;
+  background: #E8D8C8;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B6A797;
+  background: #C9878D;
 }
 
+::selection {
+  background-color: #E8D8C8;
+  color: #392C2A;
+}
+
+/* Accessible reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

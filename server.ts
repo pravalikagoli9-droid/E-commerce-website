@@ -78,7 +78,7 @@ app.post('/api/auth/register', (req, res) => {
       {
         id: `ly_${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
-        description: 'Welcome Sanctuary Inscription Bonus',
+        description: 'Welcome Member Bonus Points',
         points: 500,
         type: 'EARNED'
       }
@@ -296,12 +296,12 @@ app.post('/api/coupons/validate', (req, res) => {
 
   const coupon = db.findCouponByCode(code);
   if (!coupon) {
-    return res.status(404).json({ error: 'Invalid or expired boutique privilege code.' });
+    return res.status(404).json({ error: 'Invalid or expired promo code.' });
   }
 
   if (subtotal && subtotal < coupon.minOrder) {
     return res.status(400).json({
-      error: `This privilege code requires a minimum acquisition order of ₹${coupon.minOrder.toLocaleString('en-IN')}.`
+      error: `This promo code requires a minimum order of ₹${coupon.minOrder.toLocaleString('en-US')}.`
     });
   }
 
@@ -321,7 +321,7 @@ app.post('/api/orders/create', (req, res) => {
   } = req.body;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: 'Shopping bag items cannot be empty.' });
+    return res.status(400).json({ error: 'Your shopping cart cannot be empty.' });
   }
 
   if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.phone) {
@@ -384,7 +384,7 @@ app.post('/api/orders/create', (req, res) => {
     const maxAllowedPoints = Math.min(user.loyaltyPoints || 0, Math.floor(subtotal * 0.3));
     redeemedPoints = Math.min(pointsToRedeem, maxAllowedPoints);
     pointsDiscount = redeemedPoints; // ₹1 per point
-    db.redeemLoyaltyPoints(user.id, redeemedPoints, 'Privilege points redemption on checkout');
+    db.redeemLoyaltyPoints(user.id, redeemedPoints, 'Reward points redeemed at checkout');
   }
 
   // Gift wrapping charge: ₹350 if selected
@@ -455,8 +455,8 @@ app.post('/api/orders/verify-payment', (req, res) => {
     paymentStatus: 'PAID',
     paymentReference: razorpayPaymentId || `pay_rzp_${Date.now()}`,
     orderStatus: 'PROCESSING',
-    trackingNumber: `WG-IND-${Math.floor(10000000 + Math.random() * 90000000)}`,
-    trackingCourier: 'Blue Dart Sovereign Air'
+    trackingNumber: `BD-IND-${Math.floor(10000000 + Math.random() * 90000000)}`,
+    trackingCourier: 'Blue Dart Express'
   });
 
   // Clear user cart if authenticated

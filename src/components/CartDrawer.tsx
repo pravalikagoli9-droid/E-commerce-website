@@ -9,10 +9,9 @@ import {
   ShieldCheck,
   Tag,
   Gift,
-  Sparkles,
-  Coins,
-  CheckCircle2
+  Coins
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -21,7 +20,6 @@ export const CartDrawer: React.FC = () => {
     cartItems,
     updateCartQuantity,
     removeFromCart,
-    clearCart,
     appliedCoupon,
     applyCoupon,
     removeCoupon,
@@ -58,7 +56,7 @@ export const CartDrawer: React.FC = () => {
     const res = await applyCoupon(couponCodeInput.trim());
     setIsApplyingCoupon(false);
     if (!res.success) {
-      setCouponError(res.error || 'Invalid privilege code');
+      setCouponError(res.error || 'Invalid promo code');
     } else {
       setCouponCodeInput('');
     }
@@ -68,7 +66,7 @@ export const CartDrawer: React.FC = () => {
   const progressPercent = Math.min(100, Math.round((cartSubtotal / freeShippingThreshold) * 100));
   const remainingForFreeShipping = Math.max(0, freeShippingThreshold - cartSubtotal);
 
-  // Suggested complementary creations not already in bag
+  // Suggested complementary creations not already in cart
   const currentItemIds = cartItems.map(i => i.productId);
   const complementaryProducts = products
     .filter(p => !currentItemIds.includes(p.id))
@@ -81,63 +79,72 @@ export const CartDrawer: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-[#1C1613]/70 backdrop-blur-sm transition-opacity"
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-[#392C2A]/60 backdrop-blur-xs transition-opacity"
         onClick={() => setIsCartDrawerOpen(false)}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#FAF8F5] border-l border-[#E7E0D6] text-[#1E1714] flex flex-col shadow-2xl">
+        <motion.div
+          initial={{ x: '100%' }}
+          animate={{ x: 0 }}
+          exit={{ x: '100%' }}
+          transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+          className="w-screen max-w-md bg-[#FAF7F2] border-l border-[#E8DED4] text-[#392C2A] flex flex-col shadow-2xl"
+        >
           {/* Header */}
-          <div className="p-6 border-b border-[#E7E0D6] flex items-center justify-between bg-white">
+          <div className="p-6 border-b border-[#E8DED4] flex items-center justify-between bg-[#FFFDF9]">
             <div>
-              <h2 className="font-serif text-2xl tracking-wide text-[#1E1714]">Shopping Bag</h2>
-              <p className="text-xs text-[#8C7A6B] tracking-wider uppercase mt-0.5">
-                {cartItems.length} {cartItems.length === 1 ? 'Creation' : 'Creations'} Selected
+              <h2 className="font-serif text-2xl tracking-wide text-[#392C2A]">Shopping Cart</h2>
+              <p className="text-xs text-[#7D6B67] tracking-wider uppercase mt-0.5">
+                {cartItems.length} {cartItems.length === 1 ? 'Item' : 'Items'} Selected
               </p>
             </div>
             <button
               onClick={() => setIsCartDrawerOpen(false)}
-              className="p-2 text-[#8C7A6B] hover:text-[#1E1714] bg-[#F4EFEA] rounded-full transition-colors cursor-pointer"
+              className="p-2 text-[#7D6B67] hover:text-[#392C2A] bg-[#FAF7F2] rounded-full transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Complimentary Courier Progress */}
-          <div className="bg-[#F4EFEA] px-6 py-3 border-b border-[#E7E0D6]">
-            <div className="flex justify-between text-xs tracking-wider uppercase mb-1.5 text-[#5C4F44]">
-              <span>
+          {/* Complimentary Shipping Progress */}
+          <div className="bg-[#FFFDF9] px-6 py-3.5 border-b border-[#E8DED4]">
+            <div className="flex justify-between text-xs tracking-wider uppercase mb-1.5 text-[#392C2A]">
+              <span className="font-medium">
                 {remainingForFreeShipping === 0
-                  ? 'Complimentary White Glove Courier Unlocked'
-                  : `Add ₹${remainingForFreeShipping.toLocaleString('en-IN')} for complimentary courier`}
+                  ? 'Free Shipping Unlocked!'
+                  : `Add ₹${remainingForFreeShipping.toLocaleString('en-US')} for Free Shipping`}
               </span>
-              <span className="font-mono text-[#8C7A6B] font-semibold">{progressPercent}%</span>
+              <span className="font-mono text-[#C9878D] font-semibold">{progressPercent}%</span>
             </div>
-            <div className="w-full bg-[#E5DDD3] h-1.5 overflow-hidden">
+            <div className="w-full bg-[#E8DED4] h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-[#1E1714] h-full transition-all duration-300"
+                className="bg-[#C9878D] h-full transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
 
           {/* Cart Items List */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 divide-y divide-[#E7E0D6]">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 divide-y divide-[#E8DED4]">
             {cartItems.length === 0 ? (
               <div className="text-center py-16 space-y-4">
-                <p className="font-serif text-xl text-[#8C7A6B]">Your shopping bag is presently empty.</p>
-                <p className="text-xs text-[#6B5C50] max-w-xs mx-auto leading-relaxed">
-                  Explore our curated creations in Haute Parfumerie, Sartorial Wardrobe, and Botanical Skincare.
+                <p className="font-serif text-xl text-[#7D6B67]">Your cart is currently empty.</p>
+                <p className="text-xs text-[#7D6B67] max-w-xs mx-auto leading-relaxed">
+                  Discover our luxury fragrances, botanical skincare, and lifestyle essentials.
                 </p>
                 <button
                   onClick={() => {
                     setIsCartDrawerOpen(false);
                     setCurrentPage('shop');
                   }}
-                  className="mt-4 px-6 py-2.5 bg-[#1E1714] hover:bg-[#342721] text-xs uppercase tracking-[0.2em] text-[#FAF8F5] transition-colors cursor-pointer"
+                  className="mt-4 px-6 py-2.5 bg-[#C9878D] hover:bg-[#B56F75] text-xs uppercase tracking-[0.2em] text-white transition-colors cursor-pointer rounded-sm shadow-xs font-semibold"
                 >
-                  Explore Catalog
+                  Shop Now
                 </button>
               </div>
             ) : (
@@ -151,7 +158,7 @@ export const CartDrawer: React.FC = () => {
                         setCurrentPage('product-detail');
                         setIsCartDrawerOpen(false);
                       }}
-                      className="w-20 h-24 bg-white border border-[#E7E0D6] overflow-hidden shrink-0 cursor-pointer"
+                      className="w-20 h-24 bg-[#FFFDF9] border border-[#E8DED4] overflow-hidden shrink-0 cursor-pointer rounded-sm"
                     >
                       <img
                         src={item.product.images[0] || ''}
@@ -171,79 +178,79 @@ export const CartDrawer: React.FC = () => {
                               setCurrentPage('product-detail');
                               setIsCartDrawerOpen(false);
                             }}
-                            className="font-serif text-base text-[#1E1714] hover:text-[#5C4F44] cursor-pointer line-clamp-1 font-medium"
+                            className="font-serif text-base text-[#392C2A] hover:text-[#C9878D] cursor-pointer line-clamp-1 font-medium"
                           >
                             {item.product.name}
                           </h3>
                           <button
                             onClick={() => removeFromCart(item.productId, item.selectedVariant)}
-                            className="text-[#8C7A6B] hover:text-[#A86464] p-1 transition-colors"
-                            title="Remove creation"
+                            className="text-[#7D6B67] hover:text-[#D97979] p-1 transition-colors cursor-pointer"
+                            title="Remove item"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
                         {item.selectedVariant && (
-                          <p className="text-xs text-[#8C7A6B] tracking-wider uppercase mt-0.5">
+                          <p className="text-xs text-[#7D6B67] tracking-wider uppercase mt-0.5">
                             {item.selectedVariant}
                           </p>
                         )}
 
-                        <p className="text-xs text-[#8C7A6B] mt-1 font-mono tabular-nums font-semibold">
-                          ₹{item.product.price.toLocaleString('en-IN')}
+                        <p className="text-xs text-[#392C2A] mt-1 font-mono tabular-nums font-semibold">
+                          ₹{item.product.price.toLocaleString('en-US')}
                         </p>
                       </div>
 
                       {/* Quantity Stepper */}
-                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#F3EFEA]">
-                        <div className="flex items-center border border-[#DCD3C7] bg-white">
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#E8DED4]">
+                        <div className="flex items-center border border-[#E8DED4] bg-[#FFFDF9] rounded-sm">
                           <button
                             onClick={() =>
                               updateCartQuantity(item.productId, item.quantity - 1, item.selectedVariant)
                             }
-                            className="p-1.5 text-[#8C7A6B] hover:text-[#1E1714]"
+                            className="p-1.5 text-[#7D6B67] hover:text-[#392C2A] cursor-pointer"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="px-3 text-xs font-mono tabular-nums text-[#1E1714] font-medium">
+                          <span className="px-3 text-xs font-mono tabular-nums text-[#392C2A] font-semibold">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() =>
                               updateCartQuantity(item.productId, item.quantity + 1, item.selectedVariant)
                             }
-                            className="p-1.5 text-[#8C7A6B] hover:text-[#1E1714]"
+                            className="p-1.5 text-[#7D6B67] hover:text-[#392C2A] cursor-pointer"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
 
-                        <span className="font-mono text-sm text-[#1E1714] font-semibold tabular-nums">
-                          ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
+                        <span className="font-mono text-sm text-[#392C2A] font-semibold tabular-nums">
+                          ₹{(item.product.price * item.quantity).toLocaleString('en-US')}
                         </span>
                       </div>
                     </div>
                   </div>
                 ))}
 
-                {/* Gifting Experience Accordion */}
-                <div className="pt-4 border-t border-[#E7E0D6]">
+                {/* Gifting Options */}
+                <div className="pt-4 border-t border-[#E8DED4]">
                   <button
                     onClick={() => setShowGiftOptions(!showGiftOptions)}
-                    className="w-full flex items-center justify-between text-xs text-[#1E1714] py-1 cursor-pointer font-medium"
+                    className="w-full flex items-center justify-between text-xs text-[#392C2A] py-1 cursor-pointer font-medium"
                   >
                     <span className="flex items-center gap-1.5">
-                      <Gift className="w-4 h-4 text-[#BFA175]" />
-                      <span>Bespoke Gifting Service</span>
+                      <Gift className="w-4 h-4 text-[#C9878D]" />
+                      <span>Gift Options & Gift Wrapping</span>
                     </span>
-                    <span className="text-[#8C7A6B] text-[11px] underline">
-                      {showGiftOptions ? 'Collapse' : 'Customize'}
+                    <span className="text-[#C9878D] text-[11px] underline">
+                      {showGiftOptions ? 'Hide' : 'Add Gift Options'}
                     </span>
                   </button>
 
                   {showGiftOptions && (
-                    <div className="mt-3 p-4 bg-white border border-[#E7E0D6] space-y-3 text-xs animate-in fade-in duration-150">
+                    <div className="mt-3 p-4 bg-[#FFFDF9] border border-[#E8DED4] space-y-3 text-xs rounded-sm">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
@@ -255,79 +262,79 @@ export const CartDrawer: React.FC = () => {
                               isGift: e.target.checked || prev.isGift
                             }))
                           }
-                          className="accent-[#1E1714]"
+                          className="accent-[#C9878D]"
                         />
-                        <span className="text-[#1E1714]">
-                          Luxury Hand-Waxed Presentation Box (+₹350)
+                        <span className="text-[#392C2A] font-medium">
+                          Signature Gift Box & Ribbon Wrapping (+₹350)
                         </span>
                       </label>
 
                       <div>
-                        <label className="block text-[#8C7A6B] text-[11px] uppercase mb-0.5">
+                        <label className="block text-[#7D6B67] text-[11px] uppercase mb-0.5">
                           Recipient Name
                         </label>
                         <input
                           type="text"
-                          placeholder="e.g. Lady Clara"
+                          placeholder="e.g. Clara Vance"
                           value={giftOptions.recipientName}
                           onChange={e =>
                             setGiftOptions(prev => ({ ...prev, recipientName: e.target.value, isGift: true }))
                           }
-                          className="w-full bg-[#FAF8F5] border border-[#DCD3C7] px-2.5 py-1.5 text-xs text-[#1E1714]"
+                          className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-2.5 py-1.5 text-xs text-[#392C2A] rounded-sm focus:border-[#C9878D]"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[#8C7A6B] text-[11px] uppercase mb-0.5">
-                          Handwritten Calligraphy Card Message
+                        <label className="block text-[#7D6B67] text-[11px] uppercase mb-0.5">
+                          Personalized Gift Message
                         </label>
                         <textarea
                           rows={2}
-                          placeholder="Compose your personalized wishes..."
+                          placeholder="Write your personal gift message..."
                           value={giftOptions.giftMessage}
                           onChange={e =>
                             setGiftOptions(prev => ({ ...prev, giftMessage: e.target.value, isGift: true }))
                           }
-                          className="w-full bg-[#FAF8F5] border border-[#DCD3C7] px-2.5 py-1.5 text-xs text-[#1E1714]"
+                          className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-2.5 py-1.5 text-xs text-[#392C2A] rounded-sm focus:border-[#C9878D]"
                         />
                       </div>
 
-                      <label className="flex items-center gap-2 cursor-pointer text-[#8C7A6B] text-[11px]">
+                      <label className="flex items-center gap-2 cursor-pointer text-[#7D6B67] text-[11px]">
                         <input
                           type="checkbox"
                           checked={giftOptions.hidePriceOnReceipt}
                           onChange={e =>
                             setGiftOptions(prev => ({ ...prev, hidePriceOnReceipt: e.target.checked }))
                           }
-                          className="accent-[#1E1714]"
+                          className="accent-[#C9878D]"
                         />
-                        <span>Conceal acquisition prices on delivery receipt</span>
+                        <span>Hide prices on the gift receipt</span>
                       </label>
                     </div>
                   )}
                 </div>
 
-                {/* Loyalty Points Redemption (if client logged in) */}
+                {/* Loyalty Points Redemption */}
                 {user && user.loyaltyPoints > 0 && (
-                  <div className="pt-3 border-t border-[#E7E0D6]">
-                    <div className="p-3 bg-[#F4EFEA] border border-[#E7E0D6] space-y-2 text-xs">
+                  <div className="pt-3 border-t border-[#E8DED4]">
+                    <div className="p-3 bg-[#FFFDF9] border border-[#E8DED4] space-y-2 text-xs rounded-sm">
                       <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-1.5 font-medium text-[#1E1714]">
-                          <Coins className="w-4 h-4 text-[#BFA175]" />
-                          <span>Nocturne Privilège Points</span>
+                        <span className="flex items-center gap-1.5 font-medium text-[#392C2A]">
+                          <Coins className="w-4 h-4 text-[#D6B77A]" />
+                          <span>Member Reward Points</span>
                         </span>
-                        <span className="font-mono text-[#8C7A6B]">
+                        <span className="font-mono text-[#7D6B67]">
                           {user.loyaltyPoints} available
                         </span>
                       </div>
 
                       {pointsToRedeem > 0 ? (
-                        <div className="flex items-center justify-between text-[#3F6E50] font-medium pt-1">
+                        <div className="flex items-center justify-between text-[#3E7B54] font-medium pt-1">
                           <span>Redeeming {pointsToRedeem} points:</span>
-                          <span className="font-mono">-₹{pointsDiscount.toLocaleString('en-IN')}</span>
+                          <span className="font-mono">-₹{pointsDiscount.toLocaleString('en-US')}</span>
                           <button
                             onClick={() => setPointsToRedeem(0)}
-                            className="text-[11px] text-[#8C7A6B] underline ml-2 cursor-pointer"
+                            className="text-[11px] text-[#7D6B67] underline ml-2 cursor-pointer"
                           >
                             Cancel
                           </button>
@@ -336,7 +343,7 @@ export const CartDrawer: React.FC = () => {
                         <button
                           onClick={() => setPointsToRedeem(maxRedeemablePoints)}
                           disabled={maxRedeemablePoints === 0}
-                          className="w-full py-1.5 bg-white border border-[#DCD3C7] hover:border-[#1E1714] text-[#1E1714] text-[11px] uppercase tracking-wider transition-colors cursor-pointer"
+                          className="w-full py-1.5 bg-[#FAF7F2] border border-[#E8DED4] hover:border-[#C9878D] text-[#392C2A] text-[11px] uppercase tracking-wider transition-colors cursor-pointer rounded-sm"
                         >
                           Redeem {maxRedeemablePoints} Points (-₹{maxRedeemablePoints})
                         </button>
@@ -345,25 +352,25 @@ export const CartDrawer: React.FC = () => {
                   </div>
                 )}
 
-                {/* Complementary Creations */}
+                {/* You May Also Like */}
                 {complementaryProducts.length > 0 && (
-                  <div className="pt-4 border-t border-[#E7E0D6] space-y-3">
-                    <p className="text-[11px] tracking-wider uppercase text-[#8C7A6B] font-medium">
-                      Complementary Atelier Pairings
+                  <div className="pt-4 border-t border-[#E8DED4] space-y-3">
+                    <p className="text-[11px] tracking-wider uppercase text-[#7D6B67] font-semibold">
+                      You May Also Like
                     </p>
                     <div className="space-y-2">
                       {complementaryProducts.map(p => (
-                        <div key={p.id} className="p-2.5 bg-white border border-[#E7E0D6] flex items-center justify-between text-xs">
+                        <div key={p.id} className="p-2.5 bg-[#FFFDF9] border border-[#E8DED4] flex items-center justify-between text-xs rounded-sm">
                           <div className="flex items-center gap-2.5">
-                            <img src={p.images[0] || ''} alt="" className="w-10 h-12 object-cover border border-[#E7E0D6]" />
+                            <img src={p.images[0] || ''} alt="" className="w-10 h-12 object-cover border border-[#E8DED4] rounded-xs" />
                             <div>
-                              <p className="font-serif text-sm text-[#1E1714] line-clamp-1">{p.name}</p>
-                              <p className="font-mono text-[#8C7A6B]">₹{p.price.toLocaleString('en-IN')}</p>
+                              <p className="font-serif text-sm text-[#392C2A] line-clamp-1">{p.name}</p>
+                              <p className="font-mono text-[#7D6B67]">₹{p.price.toLocaleString('en-US')}</p>
                             </div>
                           </div>
                           <button
                             onClick={() => addToCart(p, 1)}
-                            className="px-2.5 py-1 bg-[#F4EFEA] hover:bg-[#1E1714] hover:text-white text-[#1E1714] text-[11px] uppercase tracking-wider transition-colors border border-[#DCD3C7]"
+                            className="px-3 py-1 bg-[#E8D8C8] hover:bg-[#DECABE] text-[#392C2A] text-[11px] uppercase tracking-wider transition-colors border border-[#E8DED4] rounded-xs font-semibold cursor-pointer"
                           >
                             + Add
                           </button>
@@ -378,18 +385,18 @@ export const CartDrawer: React.FC = () => {
 
           {/* Footer Checkout Summary */}
           {cartItems.length > 0 && (
-            <div className="p-6 bg-white border-t border-[#E7E0D6] space-y-4">
-              {/* Coupon Form */}
+            <div className="p-6 bg-[#FFFDF9] border-t border-[#E8DED4] space-y-4">
+              {/* Promo Code Form */}
               {appliedCoupon ? (
-                <div className="flex items-center justify-between p-2.5 bg-[#F4EFEA] border border-[#E7E0D6] text-xs">
-                  <div className="flex items-center gap-2 text-[#1E1714]">
-                    <Tag className="w-3.5 h-3.5 text-[#BFA175]" />
+                <div className="flex items-center justify-between p-2.5 bg-[#FAF7F2] border border-[#E8DED4] text-xs rounded-sm">
+                  <div className="flex items-center gap-2 text-[#392C2A]">
+                    <Tag className="w-3.5 h-3.5 text-[#C9878D]" />
                     <span className="font-mono tracking-wider font-semibold">{appliedCoupon.code}</span>
-                    <span className="text-[#8C7A6B]">(-₹{cartDiscount.toLocaleString('en-IN')})</span>
+                    <span className="text-[#C9878D] font-medium">(-₹{cartDiscount.toLocaleString('en-US')})</span>
                   </div>
                   <button
                     onClick={removeCoupon}
-                    className="text-[#8C7A6B] hover:text-[#1E1714] text-[11px] underline cursor-pointer"
+                    className="text-[#7D6B67] hover:text-[#392C2A] text-[11px] underline cursor-pointer"
                   >
                     Remove
                   </button>
@@ -399,71 +406,71 @@ export const CartDrawer: React.FC = () => {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Privilege Code (e.g. WELCOME10)"
+                      placeholder="Promo Code (e.g. WELCOME10)"
                       value={couponCodeInput}
                       onChange={e => setCouponCodeInput(e.target.value)}
-                      className="flex-1 bg-[#FAF8F5] border border-[#DCD3C7] px-3 py-2 text-xs text-[#1E1714] placeholder-[#AAA] uppercase font-mono focus:outline-none focus:border-[#8C7A6B]"
+                      className="flex-1 bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-xs text-[#392C2A] placeholder-[#998] uppercase font-mono focus:outline-none focus:border-[#C9878D] rounded-sm"
                     />
                     <button
                       type="submit"
                       disabled={isApplyingCoupon}
-                      className="px-4 py-2 border border-[#DCD3C7] hover:border-[#1E1714] text-xs uppercase tracking-wider text-[#1E1714] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                      className="px-4 py-2 border border-[#E8DED4] bg-[#E8D8C8] hover:bg-[#DECABE] text-xs uppercase tracking-wider text-[#392C2A] transition-colors cursor-pointer rounded-sm font-semibold"
                     >
                       Apply
                     </button>
                   </div>
-                  {couponError && <p className="text-[11px] text-[#A86464]">{couponError}</p>}
+                  {couponError && <p className="text-[11px] text-[#D97979]">{couponError}</p>}
                 </form>
               )}
 
               {/* Subtotal & Taxes */}
-              <div className="space-y-1.5 text-xs text-[#8C7A6B] pt-2">
+              <div className="space-y-1.5 text-xs text-[#7D6B67] pt-2">
                 <div className="flex justify-between">
-                  <span>Acquisitions Subtotal</span>
-                  <span className="font-mono text-[#1E1714] tabular-nums font-medium">
-                    ₹{cartSubtotal.toLocaleString('en-IN')}
+                  <span>Subtotal</span>
+                  <span className="font-mono text-[#392C2A] tabular-nums font-medium">
+                    ₹{cartSubtotal.toLocaleString('en-US')}
                   </span>
                 </div>
                 {cartDiscount > 0 && (
-                  <div className="flex justify-between text-[#8C7A6B]">
-                    <span>Privilege Concession</span>
+                  <div className="flex justify-between text-[#C9878D]">
+                    <span>Promo Discount</span>
                     <span className="font-mono tabular-nums font-semibold">
-                      -₹{cartDiscount.toLocaleString('en-IN')}
+                      -₹{cartDiscount.toLocaleString('en-US')}
                     </span>
                   </div>
                 )}
                 {pointsDiscount > 0 && (
-                  <div className="flex justify-between text-[#3F6E50]">
-                    <span>Points Concession</span>
+                  <div className="flex justify-between text-[#3E7B54]">
+                    <span>Points Redeemed</span>
                     <span className="font-mono tabular-nums font-semibold">
-                      -₹{pointsDiscount.toLocaleString('en-IN')}
+                      -₹{pointsDiscount.toLocaleString('en-US')}
                     </span>
                   </div>
                 )}
                 {giftWrapFee > 0 && (
-                  <div className="flex justify-between text-[#1E1714]">
-                    <span>Wax-Sealed Gift Packaging</span>
+                  <div className="flex justify-between text-[#392C2A]">
+                    <span>Gift Packaging</span>
                     <span className="font-mono tabular-nums">
-                      +₹{giftWrapFee.toLocaleString('en-IN')}
+                      +₹{giftWrapFee.toLocaleString('en-US')}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span>White Glove Courier</span>
-                  <span className="font-mono text-[#1E1714] tabular-nums">
-                    {cartShippingFee === 0 ? 'Complimentary' : `₹${cartShippingFee.toLocaleString('en-IN')}`}
+                  <span>Shipping</span>
+                  <span className="font-mono text-[#392C2A] tabular-nums">
+                    {cartShippingFee === 0 ? 'Free' : `₹${cartShippingFee.toLocaleString('en-US')}`}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Applicable GST (3%)</span>
-                  <span className="font-mono text-[#1E1714] tabular-nums">
-                    ₹{cartTax.toLocaleString('en-IN')}
+                  <span>Estimated Tax (3%)</span>
+                  <span className="font-mono text-[#392C2A] tabular-nums">
+                    ₹{cartTax.toLocaleString('en-US')}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-[#1E1714] font-serif pt-2 border-t border-[#E7E0D6]">
-                  <span className="font-normal text-base">Total Amount</span>
-                  <span className="font-mono text-[#1E1714] tabular-nums text-lg font-semibold">
-                    ₹{cartTotal.toLocaleString('en-IN')}
+                <div className="flex justify-between text-sm text-[#392C2A] font-serif pt-2 border-t border-[#E8DED4]">
+                  <span className="font-normal text-base">Estimated Total</span>
+                  <span className="font-mono text-[#392C2A] tabular-nums text-lg font-bold">
+                    ₹{cartTotal.toLocaleString('en-US')}
                   </span>
                 </div>
               </div>
@@ -474,19 +481,19 @@ export const CartDrawer: React.FC = () => {
                   setIsCartDrawerOpen(false);
                   setCurrentPage('checkout');
                 }}
-                className="w-full py-3.5 bg-[#1E1714] text-[#FAF8F5] text-xs font-semibold tracking-[0.2em] uppercase hover:bg-[#342721] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                className="w-full py-3.5 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md rounded-sm"
               >
-                <span>Proceed to Checkout</span>
+                <span>Checkout</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center justify-center gap-2 text-[11px] text-[#8C7A6B] pt-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#BFA175]" />
-                <span>Protected with 256-Bit SSL Atelier Encryption</span>
+              <div className="flex items-center justify-center gap-2 text-[11px] text-[#7D6B67] pt-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C9878D]" />
+                <span>Secure 256-Bit SSL Checkout</span>
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

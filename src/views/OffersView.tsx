@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Coupon } from '../types';
 import { useStore } from '../context/StoreContext';
-import { Tag, Sparkles, Copy, Check, ArrowRight, ShieldCheck, Clock } from 'lucide-react';
+import { Tag, Copy, Check, ShieldCheck } from 'lucide-react';
 
 export const OffersView: React.FC = () => {
   const { applyCoupon, setCurrentPage, showToast } = useStore();
@@ -18,7 +18,7 @@ export const OffersView: React.FC = () => {
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
-    showToast(`Privilege code "${code}" copied to clipboard.`, 'success');
+    showToast(`Promo code "${code}" copied to clipboard.`, 'success');
     setTimeout(() => setCopiedCode(null), 3000);
   };
 
@@ -32,18 +32,18 @@ export const OffersView: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Editorial Header */}
-      <div className="text-center space-y-4 max-w-2xl mx-auto border-b border-[#E7E0D6] pb-8">
-        <div className="w-12 h-12 bg-[#F4EFEA] border border-[#DCD3C7] rounded-full flex items-center justify-center mx-auto text-[#1E1714]">
-          <Tag className="w-6 h-6 text-[#8C7A6B]" />
+      <div className="text-center space-y-4 max-w-2xl mx-auto border-b border-[#E8DED4] pb-8">
+        <div className="w-12 h-12 bg-[#E8D8C8] border border-[#E8DED4] rounded-full flex items-center justify-center mx-auto text-[#392C2A]">
+          <Tag className="w-6 h-6 text-[#C9878D]" />
         </div>
-        <span className="text-xs tracking-[0.3em] uppercase text-[#8C7A6B] font-semibold block">
-          Patron Privileges
+        <span className="text-xs tracking-[0.3em] uppercase text-[#C9878D] font-semibold block">
+          Special Offers & Rewards
         </span>
-        <h1 className="font-serif text-3xl sm:text-5xl text-[#1E1714] font-normal">
-          Active Concessions & Codes
+        <h1 className="font-serif text-3xl sm:text-5xl text-[#392C2A] font-normal">
+          Active Promo Codes & Discounts
         </h1>
-        <p className="text-xs sm:text-sm text-[#5C4F44] leading-relaxed">
-          Authentic atelier privileges for esteemed collectors, maiden acquisitions, and festive seasonal edits. Apply directly to your bag or enter at checkout.
+        <p className="text-xs sm:text-sm text-[#7D6B67] leading-relaxed">
+          Authentic promotional offers for first-time shoppers and seasonal collections. Apply directly to your cart or copy and paste at checkout.
         </p>
       </div>
 
@@ -52,45 +52,45 @@ export const OffersView: React.FC = () => {
         {coupons.map(coupon => (
           <div
             key={coupon.id}
-            className="p-6 bg-white border border-[#E7E0D6] shadow-sm hover:border-[#8C7A6B] transition-all space-y-4 flex flex-col justify-between"
+            className="p-6 bg-[#FFFDF9] border border-[#E8DED4] shadow-xs hover:border-[#C9878D] transition-all space-y-4 flex flex-col justify-between rounded-sm"
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs uppercase px-2.5 py-1 bg-[#F4EFEA] border border-[#DCD3C7] text-[#1E1714] font-semibold tracking-wider">
+                <span className="font-mono text-xs uppercase px-2.5 py-1 bg-[#FAF7F2] border border-[#E8DED4] text-[#392C2A] font-semibold tracking-wider rounded-xs">
                   {coupon.code}
                 </span>
-                <span className="text-xs font-mono text-[#8C7A6B]">
+                <span className="text-xs font-mono text-[#7D6B67]">
                   Valid until {coupon.expiryDate}
                 </span>
               </div>
 
-              <h3 className="font-serif text-2xl text-[#1E1714]">
+              <h3 className="font-serif text-2xl text-[#392C2A] font-medium">
                 {coupon.discountType === 'PERCENT'
-                  ? `${coupon.discountValue}% Concession`
-                  : `₹${coupon.discountValue.toLocaleString('en-IN')} Off`}
+                  ? `${coupon.discountValue}% Off`
+                  : `₹${coupon.discountValue.toLocaleString('en-US')} Off`}
               </h3>
 
-              <p className="text-xs text-[#5C4F44] leading-relaxed">
-                {coupon.description || 'Special boutique patronage concession code.'}
+              <p className="text-xs text-[#7D6B67] leading-relaxed">
+                {coupon.description || 'Special boutique promotional code.'}
               </p>
 
-              <div className="text-[11px] text-[#8C7A6B] space-y-1 pt-1 border-t border-[#F3EFEA]">
-                <p>• Minimum acquisition threshold: <strong>₹{coupon.minOrder.toLocaleString('en-IN')}</strong></p>
+              <div className="text-[11px] text-[#7D6B67] space-y-1 pt-2 border-t border-[#E8DED4]">
+                <p>• Minimum order amount: <strong>₹{coupon.minOrder.toLocaleString('en-US')}</strong></p>
                 {coupon.maxDiscount && (
-                  <p>• Maximum concession cap: <strong>₹{coupon.maxDiscount.toLocaleString('en-IN')}</strong></p>
+                  <p>• Maximum discount: <strong>₹{coupon.maxDiscount.toLocaleString('en-US')}</strong></p>
                 )}
-                <p>• Applicable across all Haute Parfumerie, Sartorial, and Botanical creations.</p>
+                <p>• Valid across all fragrances, skincare, and lifestyle essentials.</p>
               </div>
             </div>
 
             <div className="pt-4 flex items-center gap-3">
               <button
                 onClick={() => handleCopy(coupon.code)}
-                className="flex-1 py-2 border border-[#DCD3C7] hover:border-[#1E1714] text-xs uppercase tracking-wider text-[#1E1714] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="flex-1 py-2 border border-[#E8DED4] hover:border-[#C9878D] text-xs uppercase tracking-wider text-[#392C2A] flex items-center justify-center gap-1.5 transition-colors cursor-pointer rounded-xs"
               >
                 {copiedCode === coupon.code ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-[#3F6E50]" />
+                    <Check className="w-3.5 h-3.5 text-[#3E7B54]" />
                     <span>Copied</span>
                   </>
                 ) : (
@@ -103,7 +103,7 @@ export const OffersView: React.FC = () => {
 
               <button
                 onClick={() => handleApplyDirect(coupon.code)}
-                className="py-2 px-4 bg-[#1E1714] hover:bg-[#342721] text-[#FAF8F5] text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
+                className="py-2 px-4 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer rounded-xs shadow-xs"
               >
                 Apply & Shop
               </button>
@@ -113,20 +113,20 @@ export const OffersView: React.FC = () => {
       </div>
 
       {/* Free Shipping & Policy Note */}
-      <div className="p-6 bg-[#F4EFEA] border border-[#E7E0D6] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#5C4F44]">
+      <div className="p-6 bg-[#E8D8C8]/40 border border-[#E8DED4] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7D6B67] rounded-sm">
         <div className="flex items-center gap-3">
-          <ShieldCheck className="w-5 h-5 text-[#8C7A6B] shrink-0" />
+          <ShieldCheck className="w-5 h-5 text-[#C9878D] shrink-0" />
           <div>
-            <p className="font-serif text-sm text-[#1E1714] font-medium">Automatic Complimentary Delivery</p>
-            <p>Orders exceeding ₹5,000 receive complimentary White Glove Courier transit without requiring a code.</p>
+            <p className="font-serif text-sm text-[#392C2A] font-semibold">Automatic Complimentary Delivery</p>
+            <p>All orders over ₹5,000 receive complimentary express shipping automatically at checkout without requiring a code.</p>
           </div>
         </div>
 
         <button
           onClick={() => setCurrentPage('shop')}
-          className="px-5 py-2.5 bg-white border border-[#DCD3C7] hover:border-[#1E1714] text-[#1E1714] uppercase tracking-wider text-xs transition-colors shrink-0 cursor-pointer"
+          className="px-5 py-2.5 bg-[#FFFDF9] border border-[#E8DED4] hover:border-[#C9878D] text-[#392C2A] uppercase tracking-wider text-xs font-semibold transition-colors shrink-0 cursor-pointer rounded-xs"
         >
-          Explore Catalog
+          Shop Now
         </button>
       </div>
     </div>

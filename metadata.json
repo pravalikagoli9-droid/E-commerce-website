@@ -1,6 +1,6 @@
 {
-  "name": "ÉLIXIR & NOIR — Luxury Haute Parfumerie & Sartorial Boutique",
-  "description": "An artisanal luxury e-commerce boutique featuring haute fragrances, sculptural apparel, and botanical skincare with full checkout, order tracking, and administrative atelier.",
+  "name": "ÉLIXIR & NOIR — Luxury Fragrances, Beauty & Lifestyle",
+  "description": "An artisanal luxury e-commerce boutique featuring niche perfumes, botanical skincare, and lifestyle essentials with full checkout, order tracking, and account management.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

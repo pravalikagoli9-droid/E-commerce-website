@@ -33,17 +33,17 @@ const ToastContainer: React.FC = () => {
       {toasts.map(toast => (
         <div
           key={toast.id}
-          className={`pointer-events-auto px-4 py-3 bg-[#1E1714] border text-xs shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-2 fade-in duration-200 ${
+          className={`pointer-events-auto px-4 py-3 bg-[#392C2A] border text-xs shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-2 fade-in duration-200 ${
             toast.type === 'success'
-              ? 'border-[#BFA175]/60 text-[#FAF8F5]'
+              ? 'border-[#C9878D]/70 text-[#FAF7F2]'
               : toast.type === 'error'
-              ? 'border-[#A86464] text-[#F5C2C2]'
-              : 'border-[#3E342F] text-[#E5DDD3]'
+              ? 'border-[#D97979] text-[#FFE8E8]'
+              : 'border-[#E8DED4]/30 text-[#E8D8C8]'
           }`}
         >
-          {toast.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#BFA175] shrink-0" />}
-          {toast.type === 'error' && <AlertCircle className="w-4 h-4 text-[#A86464] shrink-0" />}
-          {toast.type === 'info' && <Info className="w-4 h-4 text-[#BFA175] shrink-0" />}
+          {toast.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#C9878D] shrink-0" />}
+          {toast.type === 'error' && <AlertCircle className="w-4 h-4 text-[#D97979] shrink-0" />}
+          {toast.type === 'info' && <Info className="w-4 h-4 text-[#D6B77A] shrink-0" />}
           <span className="leading-snug">{toast.message}</span>
         </div>
       ))}
@@ -56,24 +56,24 @@ const CompareBottomDock: React.FC = () => {
   if (compareList.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#1E1714] text-[#FAF8F5] border border-[#BFA175]/40 shadow-2xl px-5 py-3 flex items-center gap-4 animate-in slide-in-from-bottom-4 duration-200">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#392C2A] text-[#FAF7F2] border border-[#C9878D]/50 shadow-2xl px-5 py-3 flex items-center gap-4 animate-in slide-in-from-bottom-4 duration-200">
       <div className="flex items-center gap-2 text-xs">
-        <Scale className="w-4 h-4 text-[#BFA175]" />
-        <span className="font-serif text-sm tracking-wide">Comparison Salon</span>
-        <span className="text-[11px] font-mono bg-[#342721] text-[#E5DDD3] px-1.5 py-0.5 border border-[#4D3C33]">
-          {compareList.length} {compareList.length === 1 ? 'creation' : 'creations'}
+        <Scale className="w-4 h-4 text-[#D6B77A]" />
+        <span className="font-serif text-sm tracking-wide">Product Comparison</span>
+        <span className="text-[11px] font-mono bg-[#4D3D3A] text-[#E8D8C8] px-1.5 py-0.5 border border-[#64504D]">
+          {compareList.length} {compareList.length === 1 ? 'item' : 'items'}
         </span>
       </div>
       <div className="flex items-center gap-2">
         <button
           onClick={() => setIsCompareOpen(true)}
-          className="px-3 py-1.5 bg-[#FAF8F5] text-[#1E1714] text-[10px] font-semibold uppercase tracking-[0.16em] hover:bg-white transition-colors cursor-pointer"
+          className="px-3.5 py-1.5 bg-[#C9878D] text-white text-[10px] font-semibold uppercase tracking-[0.16em] hover:bg-[#B56F75] transition-colors cursor-pointer shadow-sm"
         >
-          Review Differences
+          Compare Now
         </button>
         <button
           onClick={clearCompare}
-          className="text-[10px] text-[#A8988B] hover:text-[#FAF8F5] underline cursor-pointer"
+          className="text-[10px] text-[#E8D8C8] hover:text-white underline cursor-pointer"
         >
           Clear
         </button>
@@ -86,7 +86,7 @@ const MainContent: React.FC = () => {
   const { currentPage } = useStore();
 
   return (
-    <main className="min-h-screen flex flex-col justify-between bg-[#FAF8F5] text-[#1E1714]">
+    <main className="min-h-screen flex flex-col justify-between bg-[#FAF7F2] text-[#392C2A]">
       <div className="flex-1">
         {currentPage === 'home' && <HomeView />}
         {currentPage === 'shop' && <ShopView />}
@@ -112,7 +112,7 @@ const MainContent: React.FC = () => {
 export function App() {
   return (
     <StoreProvider>
-      <div className="min-h-screen bg-[#FAF8F5] text-[#1E1714] selection:bg-[#E7E0D6] selection:text-[#1E1714] font-sans">
+      <div className="min-h-screen bg-[#FAF7F2] text-[#392C2A] selection:bg-[#E8D8C8] selection:text-[#392C2A] font-sans">
         <Navbar />
         <MainContent />
         <CartDrawer />

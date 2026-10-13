@@ -9,18 +9,14 @@ import {
   Star,
   ShieldCheck,
   Truck,
-  RotateCcw,
-  Sparkles,
   Minus,
   Plus,
   ArrowLeft,
   Scale,
   Bell,
-  Check,
-  Info,
-  Flag,
-  Share2
+  Flag
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export const ProductDetailView: React.FC = () => {
   const {
@@ -53,9 +49,6 @@ export const ProductDetailView: React.FC = () => {
   // Price Drop / Back in stock Modal
   const [showAlertModal, setShowAlertModal] = useState(false);
 
-  // Apparel Size Guide Unit Toggle
-  const [sizeUnit, setSizeUnit] = useState<'cm' | 'in'>('cm');
-
   // Zoom magnifier effect state
   const [zoomStyle, setZoomStyle] = useState({ display: 'none', backgroundPosition: '0% 0%' });
 
@@ -81,12 +74,12 @@ export const ProductDetailView: React.FC = () => {
   if (!selectedProduct) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
-        <p className="font-serif text-2xl text-[#8C7A6B]">Creation not selected.</p>
+        <p className="font-serif text-2xl text-[#7D6B67]">Product not found.</p>
         <button
           onClick={() => setCurrentPage('shop')}
-          className="px-6 py-2.5 bg-[#1E1714] text-[#FAF8F5] text-xs uppercase tracking-[0.2em] font-medium"
+          className="px-6 py-2.5 bg-[#C9878D] text-white text-xs uppercase tracking-[0.2em] font-semibold hover:bg-[#B56F75] transition-colors rounded-sm"
         >
-          Return to Catalog
+          Back to Shop
         </button>
       </div>
     );
@@ -124,7 +117,7 @@ export const ProductDetailView: React.FC = () => {
           productId: selectedProduct.id,
           rating: reviewRating,
           comment: reviewComment.trim(),
-          userName: user ? user.name : (reviewAuthor.trim() || 'Guest Connoisseur')
+          userName: user ? user.name : (reviewAuthor.trim() || 'Verified Customer')
         })
       });
       if (res.ok) {
@@ -132,12 +125,12 @@ export const ProductDetailView: React.FC = () => {
         setReviews(prev => [data.review, ...prev]);
         setReviewComment('');
         setReviewAuthor('');
-        showToast('Your connoisseur endorsement has been inscribed.', 'success');
+        showToast('Thank you! Your customer review has been posted.', 'success');
       } else {
-        showToast('Failed to record endorsement.', 'error');
+        showToast('Failed to submit review.', 'error');
       }
     } catch {
-      showToast('Connection error.', 'error');
+      showToast('Connection error. Please try again.', 'error');
     } finally {
       setIsSubmittingReview(false);
     }
@@ -150,10 +143,10 @@ export const ProductDetailView: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reviewId })
       });
-      showToast('Endorsement flagged for curatorial review.', 'info');
+      showToast('Review reported for administrative moderation.', 'info');
       setReviews(prev => prev.filter(r => r.id !== reviewId));
     } catch {
-      showToast('Error reporting endorsement.', 'error');
+      showToast('Error reporting review.', 'error');
     }
   };
 
@@ -184,26 +177,26 @@ export const ProductDetailView: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-20">
       {/* Back button */}
-      <div className="flex items-center justify-between border-b border-[#E7E0D6] pb-4">
+      <div className="flex items-center justify-between border-b border-[#E8DED4] pb-4">
         <button
           onClick={() => setCurrentPage('shop')}
-          className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#8C7A6B] hover:text-[#1E1714] transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#7D6B67] hover:text-[#C9878D] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Return to Catalog</span>
+          <span>Back to Shop</span>
         </button>
 
-        <div className="flex items-center gap-4 text-xs">
+        <div className="flex items-center gap-5 text-xs">
           <button
             onClick={() => addToCompare(selectedProduct)}
-            className="flex items-center gap-1.5 text-[#8C7A6B] hover:text-[#1E1714] cursor-pointer"
+            className="flex items-center gap-1.5 text-[#7D6B67] hover:text-[#C9878D] cursor-pointer"
           >
             <Scale className="w-4 h-4" />
             <span>Compare</span>
           </button>
           <button
             onClick={() => setShowAlertModal(true)}
-            className="flex items-center gap-1.5 text-[#8C7A6B] hover:text-[#1E1714] cursor-pointer"
+            className="flex items-center gap-1.5 text-[#7D6B67] hover:text-[#C9878D] cursor-pointer"
           >
             <Bell className="w-4 h-4" />
             <span>Price Drop Alert</span>
@@ -219,14 +212,21 @@ export const ProductDetailView: React.FC = () => {
           <div
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="aspect-[4/5] bg-white border border-[#E7E0D6] overflow-hidden relative cursor-crosshair"
+            className="aspect-[4/5] bg-[#FFFDF9] border border-[#E8DED4] overflow-hidden relative cursor-crosshair rounded-sm"
           >
-            <img
-              src={selectedProduct.images[activeImageIdx] || selectedProduct.images[0]}
-              alt={selectedProduct.name}
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover"
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={activeImageIdx}
+                src={selectedProduct.images[activeImageIdx] || selectedProduct.images[0]}
+                alt={selectedProduct.name}
+                referrerPolicy="no-referrer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full h-full object-cover"
+              />
+            </AnimatePresence>
 
             {/* Magnifier zoom overlay */}
             <div
@@ -241,12 +241,12 @@ export const ProductDetailView: React.FC = () => {
 
             <button
               onClick={() => toggleWishlist(selectedProduct.id)}
-              className="absolute top-4 right-4 p-3 bg-white/80 hover:bg-white text-[#1E1714] shadow-sm backdrop-blur-sm transition-colors rounded-full z-10"
+              className="absolute top-4 right-4 p-3 bg-white/90 hover:bg-white text-[#392C2A] shadow-sm backdrop-blur-sm transition-colors rounded-full z-10 cursor-pointer"
               aria-label="Wishlist toggle"
             >
               <Heart
                 className={`w-5 h-5 ${
-                  inWishlist ? 'fill-[#C8A29A] text-[#C8A29A]' : 'text-[#8C7A6B]'
+                  inWishlist ? 'fill-[#C9878D] text-[#C9878D]' : 'text-[#7D6B67]'
                 }`}
               />
             </button>
@@ -259,8 +259,8 @@ export const ProductDetailView: React.FC = () => {
                 <button
                   key={idx}
                   onClick={() => setActiveImageIdx(idx)}
-                  className={`w-20 h-24 border overflow-hidden cursor-pointer transition-all ${
-                    activeImageIdx === idx ? 'border-[#1E1714] ring-1 ring-[#1E1714]' : 'border-[#E7E0D6] opacity-70 hover:opacity-100'
+                  className={`w-20 h-24 border overflow-hidden cursor-pointer transition-all rounded-sm ${
+                    activeImageIdx === idx ? 'border-[#C9878D] ring-1 ring-[#C9878D]' : 'border-[#E8DED4] opacity-70 hover:opacity-100'
                   }`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover" />
@@ -271,61 +271,61 @@ export const ProductDetailView: React.FC = () => {
         </div>
 
         {/* Right Column: Contiguous Purchase Module */}
-        <div className="lg:col-span-5 space-y-8 sticky top-28">
-          <div className="space-y-3 pb-6 border-b border-[#E7E0D6]">
-            <div className="flex items-center justify-between text-xs text-[#8C7A6B]">
-              <span className="tracking-[0.2em] uppercase text-[#BFA175] font-semibold">
+        <div className="lg:col-span-5 space-y-8 sticky top-28 bg-[#FFFDF9] p-6 sm:p-8 border border-[#E8DED4] rounded-sm shadow-xs">
+          <div className="space-y-3 pb-6 border-b border-[#E8DED4]">
+            <div className="flex items-center justify-between text-xs text-[#7D6B67]">
+              <span className="tracking-[0.2em] uppercase text-[#C9878D] font-semibold">
                 {selectedProduct.categoryName}
               </span>
               <span className="font-mono text-[11px]">SKU: {selectedProduct.sku}</span>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl text-[#1E1714] leading-tight font-normal">
+            <h1 className="font-serif text-3xl sm:text-4xl text-[#392C2A] leading-tight font-normal">
               {selectedProduct.name}
             </h1>
 
             {/* Ratings, Reviews & Stock */}
-            <div className="flex items-center gap-3 text-xs text-[#6B5C50]">
-              <div className="flex items-center gap-1 text-[#BFA175] font-mono font-semibold">
-                <Star className="w-3.5 h-3.5 fill-[#BFA175]" />
+            <div className="flex items-center gap-3 text-xs text-[#7D6B67]">
+              <div className="flex items-center gap-1 text-[#D6B77A] font-mono font-semibold">
+                <Star className="w-3.5 h-3.5 fill-[#D6B77A]" />
                 <span>{selectedProduct.averageRating.toFixed(1)}</span>
               </div>
               <span>·</span>
-              <span>{reviews.length} Connoisseur Endorsements</span>
+              <span>{reviews.length} Customer Reviews</span>
               <span>·</span>
-              <span className="text-[#3F6E50] font-medium">
-                {selectedProduct.stock > 0 ? `In Stock (${selectedProduct.stock} bottles remaining)` : 'Exhausted'}
+              <span className={selectedProduct.stock > 0 ? 'text-[#3E7B54] font-medium' : 'text-[#D97979] font-medium'}>
+                {selectedProduct.stock > 0 ? `In Stock (${selectedProduct.stock} left)` : 'Out of Stock'}
               </span>
             </div>
 
             {/* Pricing */}
             <div className="pt-2 flex items-baseline gap-3 font-mono tabular-nums">
-              <span className="text-2xl font-bold text-[#1E1714]">
-                ₹{currentPrice.toLocaleString('en-IN')}
+              <span className="text-2xl font-bold text-[#392C2A]">
+                ₹{currentPrice.toLocaleString('en-US')}
               </span>
               {selectedProduct.compareAtPrice && (
-                <span className="text-sm text-[#8C7A6B] line-through">
-                  ₹{selectedProduct.compareAtPrice.toLocaleString('en-IN')}
+                <span className="text-sm text-[#7D6B67] line-through">
+                  ₹{selectedProduct.compareAtPrice.toLocaleString('en-US')}
                 </span>
               )}
-              <span className="text-xs text-[#8C7A6B] font-sans">
-                (Inclusive of all luxury taxes & courier duties)
+              <span className="text-xs text-[#7D6B67] font-sans">
+                (Taxes included)
               </span>
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-sm text-[#5C4F44] leading-relaxed">
+          <p className="text-sm text-[#7D6B67] leading-relaxed">
             {selectedProduct.description}
           </p>
 
-          {/* Category-Specific Highlight Pill */}
+          {/* Category-Specific Highlight Box */}
           {selectedProduct.fragranceFamily && (
-            <div className="p-3 bg-[#F4EFEA] border border-[#E7E0D6] space-y-1 text-xs">
-              <span className="uppercase text-[10px] tracking-wider text-[#8C7A6B] font-semibold block">
-                Olfactory Family & Longevity
+            <div className="p-3.5 bg-[#FAF7F2] border border-[#E8DED4] space-y-1 text-xs rounded-sm">
+              <span className="uppercase text-[10px] tracking-wider text-[#C9878D] font-semibold block">
+                Fragrance Family & Longevity
               </span>
-              <p className="text-[#1E1714] font-medium">
+              <p className="text-[#392C2A] font-medium">
                 {selectedProduct.fragranceFamily} · {selectedProduct.sillage} Sillage ({selectedProduct.longevity})
               </p>
             </div>
@@ -334,23 +334,23 @@ export const ProductDetailView: React.FC = () => {
           {/* Variant Selector */}
           {selectedProduct.variants && selectedProduct.variants.length > 0 && (
             <div className="space-y-2">
-              <label className="text-xs tracking-[0.2em] uppercase text-[#8C7A6B] block font-medium">
-                Select Specification / Size
+              <label className="text-xs tracking-[0.2em] uppercase text-[#7D6B67] block font-semibold">
+                Select Option / Size
               </label>
               <div className="flex flex-wrap gap-2">
                 {selectedProduct.variants.map(v => (
                   <button
                     key={v.id}
                     onClick={() => setSelectedVariant(v.name)}
-                    className={`px-4 py-2 text-xs uppercase tracking-wider transition-colors border cursor-pointer ${
+                    className={`px-4 py-2 text-xs uppercase tracking-wider transition-colors border cursor-pointer rounded-sm ${
                       selectedVariant === v.name
-                        ? 'bg-[#1E1714] text-[#FAF8F5] border-[#1E1714] font-medium'
-                        : 'bg-white text-[#5C4F44] border-[#E7E0D6] hover:border-[#8C7A6B]'
+                        ? 'bg-[#C9878D] text-white border-[#C9878D] font-semibold shadow-xs'
+                        : 'bg-[#FFFDF9] text-[#7D6B67] border-[#E8DED4] hover:border-[#C9878D] hover:text-[#392C2A]'
                     }`}
                   >
                     {v.name}
                     {v.priceDiff !== 0 && (
-                      <span className="ml-1 text-[11px] opacity-75">
+                      <span className="ml-1 text-[11px] opacity-80">
                         ({v.priceDiff > 0 ? `+₹${v.priceDiff}` : `-₹${Math.abs(v.priceDiff)}`})
                       </span>
                     )}
@@ -363,19 +363,19 @@ export const ProductDetailView: React.FC = () => {
           {/* Quantity Stepper & CTAs */}
           <div className="space-y-4 pt-2">
             <div className="flex items-center gap-4">
-              <div className="flex items-center border border-[#DCD3C7] bg-white">
+              <div className="flex items-center border border-[#E8DED4] bg-[#FAF7F2] rounded-sm">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-3 text-[#8C7A6B] hover:text-[#1E1714]"
+                  className="p-3 text-[#7D6B67] hover:text-[#392C2A] cursor-pointer"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="px-4 text-sm font-mono text-[#1E1714] font-bold tabular-nums">
+                <span className="px-4 text-sm font-mono text-[#392C2A] font-bold tabular-nums">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(Math.min(selectedProduct.stock, quantity + 1))}
-                  className="p-3 text-[#8C7A6B] hover:text-[#1E1714]"
+                  className="p-3 text-[#7D6B67] hover:text-[#392C2A] cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -384,36 +384,36 @@ export const ProductDetailView: React.FC = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={selectedProduct.stock <= 0}
-                className="flex-1 py-3.5 bg-white border border-[#1E1714] hover:bg-[#FAF8F5] text-xs font-semibold tracking-[0.2em] uppercase text-[#1E1714] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                className="flex-1 py-3.5 bg-[#E8D8C8] hover:bg-[#DECABE] text-[#392C2A] border border-[#E8DED4] text-xs font-semibold tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs rounded-sm"
               >
-                <ShoppingBag className="w-4 h-4" />
-                <span>Add to Shopping Bag</span>
+                <ShoppingBag className="w-4 h-4 text-[#C9878D]" />
+                <span>Add to Cart</span>
               </button>
             </div>
 
             <button
               onClick={handleBuyNow}
               disabled={selectedProduct.stock <= 0}
-              className="w-full py-4 bg-[#1E1714] hover:bg-[#342721] text-[#FAF8F5] text-xs font-semibold tracking-[0.22em] uppercase transition-colors shadow-xl cursor-pointer"
+              className="w-full py-4 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold tracking-[0.22em] uppercase transition-colors shadow-md cursor-pointer rounded-sm"
             >
-              Acquire Now · Instant Checkout
+              Buy Now · Instant Checkout
             </button>
           </div>
 
           {/* Trust Guarantees */}
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E7E0D6] text-xs text-[#6B5C50]">
+          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E8DED4] text-xs text-[#7D6B67]">
             <div className="flex items-start gap-2.5">
-              <Truck className="w-4 h-4 text-[#8C7A6B] shrink-0 mt-0.5" />
+              <Truck className="w-4 h-4 text-[#C9878D] shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-[#1E1714]">White Glove Courier</p>
-                <p className="text-[11px] text-[#8C7A6B]">Complimentary over ₹5,000</p>
+                <p className="font-semibold text-[#392C2A]">Express Shipping</p>
+                <p className="text-[11px] text-[#7D6B67]">Complimentary over ₹5,000</p>
               </div>
             </div>
             <div className="flex items-start gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-[#8C7A6B] shrink-0 mt-0.5" />
+              <ShieldCheck className="w-4 h-4 text-[#C9878D] shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-[#1E1714]">Atelier Authenticity</p>
-                <p className="text-[11px] text-[#8C7A6B]">Individually numbered wax seal</p>
+                <p className="font-semibold text-[#392C2A]">Authenticity Guaranteed</p>
+                <p className="text-[11px] text-[#7D6B67]">Individually batch verified</p>
               </div>
             </div>
           </div>
@@ -421,16 +421,16 @@ export const ProductDetailView: React.FC = () => {
       </div>
 
       {/* Specifications, Pyramids, Rituals, & Size Guides */}
-      <div className="border-t border-[#E7E0D6] pt-14 space-y-12">
+      <div className="border-t border-[#E8DED4] pt-14 space-y-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Notes or Actives */}
           {selectedProduct.notes && selectedProduct.notes.length > 0 && (
             <div className="space-y-4">
-              <h3 className="font-serif text-2xl text-[#1E1714]">Olfactory Pyramid Structure</h3>
-              <ul className="space-y-2 text-xs text-[#5C4F44] divide-y divide-[#E7E0D6]">
+              <h3 className="font-serif text-2xl text-[#392C2A]">Fragrance Notes & Pyramid</h3>
+              <ul className="space-y-2 text-xs text-[#7D6B67] divide-y divide-[#E8DED4]">
                 {selectedProduct.notes.map((note, i) => (
                   <li key={i} className="py-2.5 flex items-center justify-between">
-                    <span className="font-medium text-[#1E1714]">{note.split(':')[0]}</span>
+                    <span className="font-medium text-[#392C2A]">{note.split(':')[0]}</span>
                     <span>{note.split(':')[1]}</span>
                   </li>
                 ))}
@@ -442,26 +442,26 @@ export const ProductDetailView: React.FC = () => {
           {selectedProduct.sizeGuide && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-serif text-2xl text-[#1E1714]">Sartorial Sizing Guide</h3>
-                <div className="text-xs text-[#8C7A6B] flex items-center gap-1">
-                  <span>Metric: <strong>cm</strong></span>
+                <h3 className="font-serif text-2xl text-[#392C2A]">Size & Fit Guide</h3>
+                <div className="text-xs text-[#7D6B67] flex items-center gap-1">
+                  <span>Unit: <strong>cm / inches</strong></span>
                 </div>
               </div>
 
-              <div className="overflow-x-auto border border-[#E7E0D6]">
+              <div className="overflow-x-auto border border-[#E8DED4] rounded-sm">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-[#F4EFEA] border-b border-[#E7E0D6]">
+                  <thead className="bg-[#FAF7F2] border-b border-[#E8DED4]">
                     <tr>
-                      <th className="p-2.5 font-medium text-[#1E1714]">Size</th>
-                      <th className="p-2.5 font-medium text-[#1E1714]">Chest</th>
-                      <th className="p-2.5 font-medium text-[#1E1714]">Waist</th>
-                      <th className="p-2.5 font-medium text-[#1E1714]">Length</th>
+                      <th className="p-2.5 font-medium text-[#392C2A]">Size</th>
+                      <th className="p-2.5 font-medium text-[#392C2A]">Chest</th>
+                      <th className="p-2.5 font-medium text-[#392C2A]">Waist</th>
+                      <th className="p-2.5 font-medium text-[#392C2A]">Length</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E0D6] bg-white text-[#5C4F44]">
+                  <tbody className="divide-y divide-[#E8DED4] bg-[#FFFDF9] text-[#7D6B67]">
                     {selectedProduct.sizeGuide.map((row, i) => (
                       <tr key={i}>
-                        <td className="p-2.5 font-medium text-[#1E1714]">{row.size}</td>
+                        <td className="p-2.5 font-medium text-[#392C2A]">{row.size}</td>
                         <td className="p-2.5">{row.chest}</td>
                         <td className="p-2.5">{row.waist}</td>
                         <td className="p-2.5">{row.length}</td>
@@ -476,11 +476,11 @@ export const ProductDetailView: React.FC = () => {
           {/* Skincare Ritual & Warnings */}
           {selectedProduct.usageRitual && (
             <div className="space-y-4">
-              <h3 className="font-serif text-2xl text-[#1E1714]">Nocturnal Application Ritual</h3>
-              <div className="p-5 bg-white border border-[#E7E0D6] space-y-3 text-xs text-[#5C4F44]">
+              <h3 className="font-serif text-2xl text-[#392C2A]">Recommended Evening Routine</h3>
+              <div className="p-5 bg-[#FFFDF9] border border-[#E8DED4] space-y-3 text-xs text-[#7D6B67] rounded-sm">
                 <p className="leading-relaxed">{selectedProduct.usageRitual}</p>
                 {selectedProduct.dermatologicalWarnings && (
-                  <p className="text-[11px] text-[#8C7A6B] border-t border-[#F3EFEA] pt-2 italic">
+                  <p className="text-[11px] text-[#C9878D] border-t border-[#E8DED4] pt-2 italic">
                     Note: {selectedProduct.dermatologicalWarnings}
                   </p>
                 )}
@@ -488,14 +488,14 @@ export const ProductDetailView: React.FC = () => {
             </div>
           )}
 
-          {/* Atelier Specifications */}
+          {/* Product Specifications */}
           {selectedProduct.details && (
             <div className="space-y-4">
-              <h3 className="font-serif text-2xl text-[#1E1714]">Atelier Craftsmanship Details</h3>
-              <ul className="space-y-2 text-xs text-[#5C4F44] divide-y divide-[#E7E0D6]">
+              <h3 className="font-serif text-2xl text-[#392C2A]">Product Details & Specifications</h3>
+              <ul className="space-y-2 text-xs text-[#7D6B67] divide-y divide-[#E8DED4]">
                 {Object.entries(selectedProduct.details).map(([key, value]) => (
                   <li key={key} className="py-2.5 flex items-center justify-between">
-                    <span className="font-medium text-[#1E1714]">{key}</span>
+                    <span className="font-medium text-[#392C2A]">{key}</span>
                     <span className="text-right max-w-xs">{value}</span>
                   </li>
                 ))}
@@ -506,33 +506,33 @@ export const ProductDetailView: React.FC = () => {
 
         {/* Ingredients if available */}
         {selectedProduct.ingredients && (
-          <div className="p-6 bg-white border border-[#E7E0D6] space-y-2 text-xs">
-            <span className="tracking-[0.2em] uppercase text-[#8C7A6B] font-semibold">
-              Ingredient Transparency
+          <div className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-2 text-xs rounded-sm">
+            <span className="tracking-[0.2em] uppercase text-[#C9878D] font-semibold">
+              Full Ingredients List
             </span>
-            <p className="text-[#6B5C50] leading-relaxed italic">
+            <p className="text-[#7D6B67] leading-relaxed italic">
               {selectedProduct.ingredients}
             </p>
           </div>
         )}
       </div>
 
-      {/* Customer Endorsements & Reviews Section */}
-      <div className="border-t border-[#E7E0D6] pt-14 space-y-8">
+      {/* Customer Reviews Section */}
+      <div className="border-t border-[#E8DED4] pt-14 space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <span className="text-xs tracking-[0.25em] uppercase text-[#8C7A6B] font-semibold">
-              Client Testimonials
+            <span className="text-xs tracking-[0.25em] uppercase text-[#C9878D] font-semibold">
+              Customer Feedback
             </span>
-            <h2 className="font-serif text-3xl text-[#1E1714]">Connoisseur Endorsements</h2>
+            <h2 className="font-serif text-3xl text-[#392C2A]">Customer Ratings & Reviews</h2>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <span className="text-[#8C7A6B]">Sort Reviews:</span>
+            <span className="text-[#7D6B67]">Sort Reviews:</span>
             <select
               value={reviewSort}
               onChange={e => setReviewSort(e.target.value as any)}
-              className="bg-white border border-[#DCD3C7] px-3 py-1 text-xs text-[#1E1714] cursor-pointer"
+              className="bg-[#FFFDF9] border border-[#E8DED4] px-3 py-1.5 text-xs text-[#392C2A] cursor-pointer rounded-sm focus:border-[#C9878D]"
             >
               <option value="recent">Most Recent</option>
               <option value="rating">Highest Rating</option>
@@ -543,30 +543,34 @@ export const ProductDetailView: React.FC = () => {
         {/* Reviews Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {sortedReviews.length === 0 ? (
-            <p className="text-xs text-[#8C7A6B] italic py-8">
-              Be the first collector to provide an endorsement for this formulation.
+            <p className="text-xs text-[#7D6B67] italic py-8">
+              Be the first customer to leave a review for this product.
             </p>
           ) : (
             sortedReviews.map(r => (
-              <div key={r.id} className="p-6 bg-white border border-[#E7E0D6] space-y-3 text-xs">
+              <div key={r.id} className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-3 text-xs rounded-sm shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-[#BFA175]">
+                  <div className="flex items-center gap-1 text-[#D6B77A]">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={`w-3.5 h-3.5 ${
-                          i < r.rating ? 'fill-[#BFA175]' : 'text-[#E7E0D6]'
+                          i < r.rating ? 'fill-[#D6B77A]' : 'text-[#E8DED4]'
                         }`}
                       />
                     ))}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] text-[#8C7A6B] font-mono">
-                      {new Date(r.createdAt).toLocaleDateString()}
+                    <span className="text-[11px] text-[#7D6B67] font-mono">
+                      {new Date(r.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
                     </span>
                     <button
                       onClick={() => handleReportReview(r.id)}
-                      className="text-[#8C7A6B] hover:text-[#A86464] p-1"
+                      className="text-[#7D6B67] hover:text-[#D97979] p-1 cursor-pointer"
                       title="Report inappropriate review"
                     >
                       <Flag className="w-3 h-3" />
@@ -574,14 +578,14 @@ export const ProductDetailView: React.FC = () => {
                   </div>
                 </div>
 
-                <p className="text-[#1E1714] leading-relaxed font-serif text-sm">
+                <p className="text-[#392C2A] leading-relaxed font-serif text-sm">
                   "{r.comment}"
                 </p>
 
-                <div className="pt-2 border-t border-[#F3EFEA] flex items-center justify-between text-[11px] text-[#8C7A6B]">
-                  <span className="font-medium text-[#1E1714]">{r.userName}</span>
+                <div className="pt-2 border-t border-[#E8DED4] flex items-center justify-between text-[11px] text-[#7D6B67]">
+                  <span className="font-semibold text-[#392C2A]">{r.userName}</span>
                   {r.verifiedPurchase && (
-                    <span className="text-[#3F6E50] font-medium">Verified Acquisition</span>
+                    <span className="text-[#3E7B54] font-medium">Verified Buyer</span>
                   )}
                 </div>
               </div>
@@ -590,11 +594,11 @@ export const ProductDetailView: React.FC = () => {
         </div>
 
         {/* Write a Review Form */}
-        <div className="p-6 sm:p-8 bg-[#F4EFEA] border border-[#E7E0D6] max-w-2xl space-y-4">
-          <h3 className="font-serif text-xl text-[#1E1714]">Inscribe Your Connoisseur Endorsement</h3>
+        <div className="p-6 sm:p-8 bg-[#FFFDF9] border border-[#E8DED4] max-w-2xl space-y-4 rounded-sm shadow-xs">
+          <h3 className="font-serif text-xl text-[#392C2A]">Write a Customer Review</h3>
           <form onSubmit={handleReviewSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block text-[#8C7A6B] mb-1 uppercase tracking-wider font-medium">
+              <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
                 Rating
               </label>
               <div className="flex gap-2">
@@ -608,8 +612,8 @@ export const ProductDetailView: React.FC = () => {
                     <Star
                       className={`w-5 h-5 ${
                         star <= reviewRating
-                          ? 'fill-[#BFA175] text-[#BFA175]'
-                          : 'text-[#DCD3C7]'
+                          ? 'fill-[#D6B77A] text-[#D6B77A]'
+                          : 'text-[#E8DED4]'
                       }`}
                     />
                   </button>
@@ -619,53 +623,53 @@ export const ProductDetailView: React.FC = () => {
 
             {!user && (
               <div>
-                <label className="block text-[#8C7A6B] mb-1 uppercase tracking-wider font-medium">
+                <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
                   Your Full Name
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Lady Clara Ravenscroft"
+                  placeholder="e.g. Clara Vance"
                   value={reviewAuthor}
                   onChange={e => setReviewAuthor(e.target.value)}
-                  className="w-full bg-white border border-[#DCD3C7] px-3 py-2 text-[#1E1714] placeholder-[#AAA] focus:outline-none focus:border-[#8C7A6B]"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-[#8C7A6B] mb-1 uppercase tracking-wider font-medium">
-                Commentary & Sensory Impressions
+              <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
+                Review & Impressions
               </label>
               <textarea
                 rows={3}
                 required
-                placeholder="Detail the sillage, fabric drape, or cellular nourishment..."
+                placeholder="Share your thoughts on the scent longevity, fabric fit, or skincare texture..."
                 value={reviewComment}
                 onChange={e => setReviewComment(e.target.value)}
-                className="w-full bg-white border border-[#DCD3C7] px-3 py-2 text-[#1E1714] placeholder-[#AAA] focus:outline-none focus:border-[#8C7A6B]"
+                className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
               />
             </div>
 
             <button
               type="submit"
               disabled={isSubmittingReview}
-              className="px-6 py-2.5 bg-[#1E1714] hover:bg-[#342721] text-[#FAF8F5] uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer"
+              className="px-6 py-2.5 bg-[#C9878D] hover:bg-[#B56F75] text-white uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer rounded-sm shadow-xs"
             >
-              Submit Endorsement
+              Submit Review
             </button>
           </form>
         </div>
       </div>
 
-      {/* Related Creations */}
+      {/* You May Also Like */}
       {relatedProducts.length > 0 && (
-        <div className="border-t border-[#E7E0D6] pt-14 space-y-6">
+        <div className="border-t border-[#E8DED4] pt-14 space-y-6">
           <div className="space-y-1">
-            <span className="text-xs tracking-[0.25em] uppercase text-[#8C7A6B] font-semibold">
-              Complementary Atelier Works
+            <span className="text-xs tracking-[0.25em] uppercase text-[#C9878D] font-semibold">
+              Recommendations
             </span>
-            <h2 className="font-serif text-3xl text-[#1E1714]">You May Also Appreciate</h2>
+            <h2 className="font-serif text-3xl text-[#392C2A]">You May Also Like</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {relatedProducts.map(p => (

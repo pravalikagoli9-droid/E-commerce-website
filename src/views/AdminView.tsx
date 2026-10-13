@@ -3,18 +3,9 @@ import type { Order, Product, Coupon, ContactRequest, AdminMetrics } from '../ty
 import { useStore } from '../context/StoreContext';
 import {
   Shield,
-  Package,
-  TrendingUp,
-  Users,
-  AlertTriangle,
   Plus,
   Trash2,
-  Edit3,
-  CheckCircle,
-  Truck,
-  Tag,
-  MessageSquare,
-  ArrowRight
+  Tag
 } from 'lucide-react';
 
 export const AdminView: React.FC = () => {
@@ -92,18 +83,18 @@ export const AdminView: React.FC = () => {
   if (user?.role !== 'ADMIN') {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center space-y-6">
-        <div className="w-12 h-12 bg-[#261515] text-[#C5A880] rounded-full flex items-center justify-center mx-auto">
+        <div className="w-12 h-12 bg-[#FAF7F2] border border-[#E8DED4] text-[#C9878D] rounded-full flex items-center justify-center mx-auto">
           <Shield className="w-6 h-6" />
         </div>
-        <h2 className="font-serif text-3xl text-white">Restricted Atelier Access</h2>
-        <p className="text-xs text-[#888] leading-relaxed">
-          The Atelier Director portal is reserved exclusively for authenticated administrative curators.
+        <h2 className="font-serif text-3xl text-[#392C2A]">Restricted Administrator Access</h2>
+        <p className="text-xs text-[#7D6B67] leading-relaxed">
+          The Store Administrator portal is reserved for authenticated staff members.
         </p>
         <button
           onClick={() => quickLoginDemo('ADMIN')}
-          className="w-full py-3 bg-[#F0ECE8] hover:bg-white text-black text-xs font-semibold uppercase tracking-[0.2em] transition-colors cursor-pointer"
+          className="w-full py-3 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold uppercase tracking-[0.2em] transition-colors cursor-pointer rounded-sm shadow-xs"
         >
-          Sign In as Atelier Director (Admin)
+          Sign In as Store Administrator
         </button>
       </div>
     );
@@ -119,7 +110,7 @@ export const AdminView: React.FC = () => {
         },
         body: JSON.stringify({
           orderStatus: status,
-          trackingNumber: trackingNum || `WG-IND-${Math.floor(10000000 + Math.random() * 90000000)}`
+          trackingNumber: trackingNum || `BD-IND-${Math.floor(10000000 + Math.random() * 90000000)}`
         })
       });
       if (res.ok) {
@@ -127,7 +118,7 @@ export const AdminView: React.FC = () => {
         loadAdminData();
       }
     } catch (e) {
-      showToast('Failed to update status.', 'error');
+      showToast('Failed to update order status.', 'error');
     }
   };
 
@@ -146,13 +137,13 @@ export const AdminView: React.FC = () => {
           categoryId: newProdCategory,
           price: newProdPrice,
           stock: newProdStock,
-          description: newProdDesc || 'Artisanal atelier formulation.',
+          description: newProdDesc || 'Artisanal luxury formulation.',
           notes: newProdNotes ? newProdNotes.split(',').map(s => s.trim()) : [],
           images: ['/src/assets/images/hero_luxury_boutique_1791824705943.jpg']
         })
       });
       if (res.ok) {
-        showToast('New product inscribed into atelier collection.', 'success');
+        showToast('New product added to catalog.', 'success');
         setShowAddProduct(false);
         setNewProdName('');
         setNewProdPrice('');
@@ -167,7 +158,7 @@ export const AdminView: React.FC = () => {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm('Archive and remove this creation from active catalog?')) return;
+    if (!confirm('Remove this product from the active catalog?')) return;
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: 'DELETE',
@@ -179,7 +170,7 @@ export const AdminView: React.FC = () => {
         loadAdminData();
       }
     } catch {
-      showToast('Failed to delete.', 'error');
+      showToast('Failed to delete product.', 'error');
     }
   };
 
@@ -202,57 +193,57 @@ export const AdminView: React.FC = () => {
         })
       });
       if (res.ok) {
-        showToast(`Privilege code "${newCoupCode.toUpperCase()}" generated.`, 'success');
+        showToast(`Promo code "${newCoupCode.toUpperCase()}" generated.`, 'success');
         setShowAddCoupon(false);
         setNewCoupCode('');
         loadAdminData();
       }
     } catch {
-      showToast('Error creating coupon.', 'error');
+      showToast('Error creating promo code.', 'error');
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#1C1C1C] pb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E8DED4] pb-6 gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#C5A880]">
+          <div className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#C9878D] font-semibold">
             <Shield className="w-3.5 h-3.5" />
-            <span>Directeur de l'Atelier</span>
+            <span>Store Administrator</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-white mt-1">
-            Atelier Administrative Console
+          <h1 className="font-serif text-3xl sm:text-4xl text-[#392C2A] mt-1">
+            Admin Management Console
           </h1>
         </div>
 
         <button
           onClick={loadAdminData}
-          className="px-4 py-2 border border-[#333] hover:border-white text-xs uppercase tracking-wider text-white"
+          className="px-4 py-2 border border-[#E8DED4] hover:border-[#C9878D] text-xs uppercase tracking-wider text-[#392C2A] rounded-xs cursor-pointer bg-[#FFFDF9]"
         >
-          Refresh Ledgers
+          Refresh Data
         </button>
       </div>
 
-      {/* Navigation Tabs (Zero Pill) */}
-      <div className="flex flex-wrap border-b border-[#1C1C1C] gap-6 text-xs uppercase tracking-[0.18em]">
+      {/* Navigation Tabs */}
+      <div className="flex flex-wrap border-b border-[#E8DED4] gap-6 text-xs uppercase tracking-[0.18em]">
         <button
           onClick={() => setActiveTab('metrics')}
           className={`pb-3 transition-colors cursor-pointer ${
             activeTab === 'metrics'
-              ? 'text-white border-b-2 border-[#F0ECE8] font-medium'
-              : 'text-[#777] hover:text-white'
+              ? 'text-[#392C2A] border-b-2 border-[#C9878D] font-semibold'
+              : 'text-[#7D6B67] hover:text-[#392C2A]'
           }`}
         >
-          Overview & Financials
+          Overview & Sales
         </button>
 
         <button
           onClick={() => setActiveTab('orders')}
           className={`pb-3 transition-colors cursor-pointer ${
             activeTab === 'orders'
-              ? 'text-white border-b-2 border-[#F0ECE8] font-medium'
-              : 'text-[#777] hover:text-white'
+              ? 'text-[#392C2A] border-b-2 border-[#C9878D] font-semibold'
+              : 'text-[#7D6B67] hover:text-[#392C2A]'
           }`}
         >
           Orders & Fulfillment ({adminOrders.length})
@@ -262,90 +253,90 @@ export const AdminView: React.FC = () => {
           onClick={() => setActiveTab('products')}
           className={`pb-3 transition-colors cursor-pointer ${
             activeTab === 'products'
-              ? 'text-white border-b-2 border-[#F0ECE8] font-medium'
-              : 'text-[#777] hover:text-white'
+              ? 'text-[#392C2A] border-b-2 border-[#C9878D] font-semibold'
+              : 'text-[#7D6B67] hover:text-[#392C2A]'
           }`}
         >
-          Catalog Management ({products.length})
+          Products Catalog ({products.length})
         </button>
 
         <button
           onClick={() => setActiveTab('coupons')}
           className={`pb-3 transition-colors cursor-pointer ${
             activeTab === 'coupons'
-              ? 'text-white border-b-2 border-[#F0ECE8] font-medium'
-              : 'text-[#777] hover:text-white'
+              ? 'text-[#392C2A] border-b-2 border-[#C9878D] font-semibold'
+              : 'text-[#7D6B67] hover:text-[#392C2A]'
           }`}
         >
-          Privilege Codes ({adminCoupons.length})
+          Promo Codes ({adminCoupons.length})
         </button>
 
         <button
           onClick={() => setActiveTab('inquiries')}
           className={`pb-3 transition-colors cursor-pointer ${
             activeTab === 'inquiries'
-              ? 'text-white border-b-2 border-[#F0ECE8] font-medium'
-              : 'text-[#777] hover:text-white'
+              ? 'text-[#392C2A] border-b-2 border-[#C9878D] font-semibold'
+              : 'text-[#7D6B67] hover:text-[#392C2A]'
           }`}
         >
-          Consultation Requests ({inquiries.length})
+          Customer Inquiries ({inquiries.length})
         </button>
       </div>
 
-      {/* 1. OVERVIEW & FINANCIALS */}
+      {/* 1. OVERVIEW & SALES */}
       {activeTab === 'metrics' && (
         <div className="space-y-8">
           {/* 4 Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 bg-[#0A0A0A] border border-[#1F1F1F] space-y-2">
-              <span className="text-[11px] tracking-wider uppercase text-[#888]">Gross Acquisitions</span>
-              <p className="font-mono text-3xl text-[#C5A880] tabular-nums">
-                ₹{metrics?.totalSales ? metrics.totalSales.toLocaleString('en-IN') : '0'}
+            <div className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-2 rounded-sm shadow-xs">
+              <span className="text-[11px] tracking-wider uppercase text-[#7D6B67] font-semibold">Gross Sales</span>
+              <p className="font-mono text-3xl text-[#392C2A] tabular-nums font-bold">
+                ₹{metrics?.totalSales ? metrics.totalSales.toLocaleString('en-US') : '0'}
               </p>
-              <span className="text-[11px] text-[#666]">Verified settled orders</span>
+              <span className="text-[11px] text-[#7D6B67]">Verified completed orders</span>
             </div>
 
-            <div className="p-6 bg-[#0A0A0A] border border-[#1F1F1F] space-y-2">
-              <span className="text-[11px] tracking-wider uppercase text-[#888]">Total Orders</span>
-              <p className="font-mono text-3xl text-white tabular-nums">
+            <div className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-2 rounded-sm shadow-xs">
+              <span className="text-[11px] tracking-wider uppercase text-[#7D6B67] font-semibold">Total Orders</span>
+              <p className="font-mono text-3xl text-[#392C2A] tabular-nums font-bold">
                 {metrics?.totalOrders || 0}
               </p>
-              <span className="text-[11px] text-[#666]">Lifetime ledger transactions</span>
+              <span className="text-[11px] text-[#7D6B67]">Lifetime customer transactions</span>
             </div>
 
-            <div className="p-6 bg-[#0A0A0A] border border-[#1F1F1F] space-y-2">
-              <span className="text-[11px] tracking-wider uppercase text-[#888]">Inscribed Patrons</span>
-              <p className="font-mono text-3xl text-white tabular-nums">
+            <div className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-2 rounded-sm shadow-xs">
+              <span className="text-[11px] tracking-wider uppercase text-[#7D6B67] font-semibold">Registered Customers</span>
+              <p className="font-mono text-3xl text-[#392C2A] tabular-nums font-bold">
                 {metrics?.totalCustomers || 0}
               </p>
-              <span className="text-[11px] text-[#666]">Client sanctuary accounts</span>
+              <span className="text-[11px] text-[#7D6B67]">Active member accounts</span>
             </div>
 
-            <div className="p-6 bg-[#0A0A0A] border border-[#1F1F1F] space-y-2">
-              <span className="text-[11px] tracking-wider uppercase text-[#888]">Inventory Alerts</span>
-              <p className="font-mono text-3xl text-[#A86464] tabular-nums">
+            <div className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-2 rounded-sm shadow-xs">
+              <span className="text-[11px] tracking-wider uppercase text-[#7D6B67] font-semibold">Inventory Alerts</span>
+              <p className="font-mono text-3xl text-[#D97979] tabular-nums font-bold">
                 {metrics?.lowStockProducts || 0}
               </p>
-              <span className="text-[11px] text-[#666]">Formulations with ≤10 units</span>
+              <span className="text-[11px] text-[#7D6B67]">Products with ≤10 units in stock</span>
             </div>
           </div>
 
           {/* Recent Orders Preview */}
-          <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-6 space-y-4">
-            <h2 className="font-serif text-xl text-white">Recent Transactions</h2>
-            <div className="divide-y divide-[#181818]">
+          <div className="bg-[#FFFDF9] border border-[#E8DED4] p-6 space-y-4 rounded-sm shadow-xs">
+            <h2 className="font-serif text-xl text-[#392C2A]">Recent Orders</h2>
+            <div className="divide-y divide-[#E8DED4]">
               {adminOrders.slice(0, 5).map(o => (
                 <div key={o.id} className="py-3 flex items-center justify-between text-xs">
                   <div>
-                    <span className="font-mono text-white font-medium">#{o.orderNumber}</span>
-                    <span className="text-[#888] ml-3">{o.customerName}</span>
-                    <span className="text-[#666] ml-2">({o.items.length} items)</span>
+                    <span className="font-mono text-[#392C2A] font-semibold">#{o.orderNumber}</span>
+                    <span className="text-[#7D6B67] ml-3">{o.customerName}</span>
+                    <span className="text-[#7D6B67] ml-2">({o.items.length} items)</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-[#C5A880] font-mono tabular-nums">
-                      ₹{o.totalAmount.toLocaleString('en-IN')}
+                    <span className="text-[#392C2A] font-mono tabular-nums font-bold">
+                      ₹{o.totalAmount.toLocaleString('en-US')}
                     </span>
-                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 border border-[#333]">
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 border border-[#E8DED4] text-[#392C2A] bg-[#FAF7F2] rounded-xs">
                       {o.orderStatus}
                     </span>
                   </div>
@@ -359,72 +350,72 @@ export const AdminView: React.FC = () => {
       {/* 2. ORDERS & FULFILLMENT */}
       {activeTab === 'orders' && (
         <div className="space-y-6">
-          <div className="divide-y divide-[#181818] bg-[#0A0A0A] border border-[#1F1F1F]">
+          <div className="divide-y divide-[#E8DED4] bg-[#FFFDF9] border border-[#E8DED4] rounded-sm shadow-xs">
             {adminOrders.map(order => (
               <div key={order.id} className="p-6 space-y-4 text-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#141414] pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E8DED4] pb-3">
                   <div>
-                    <span className="font-mono text-base text-white font-semibold">
+                    <span className="font-mono text-base text-[#392C2A] font-semibold">
                       Order #{order.orderNumber}
                     </span>
-                    <span className="text-[#888] ml-3">
+                    <span className="text-[#7D6B67] ml-3">
                       {order.customerName} ({order.customerEmail})
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="font-mono text-base text-[#C5A880] tabular-nums">
-                      ₹{order.totalAmount.toLocaleString('en-IN')}
+                    <span className="font-mono text-base text-[#392C2A] tabular-nums font-bold">
+                      ₹{order.totalAmount.toLocaleString('en-US')}
                     </span>
-                    <span className="font-mono text-[11px] uppercase px-2 py-0.5 border border-[#333] text-white">
+                    <span className="font-mono text-[11px] uppercase px-2 py-0.5 border border-[#E8DED4] text-[#392C2A] bg-[#FAF7F2] rounded-xs font-semibold">
                       {order.paymentStatus} · {order.paymentMethod}
                     </span>
                   </div>
                 </div>
 
                 {/* Items & Shipping Address */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[#AAA]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[#7D6B67]">
                   <div>
-                    <span className="text-white block mb-1">Acquisitions:</span>
+                    <span className="text-[#392C2A] font-semibold block mb-1">Products:</span>
                     <ul className="space-y-1">
                       {order.items.map((it, idx) => (
                         <li key={idx}>
-                          {it.quantity}x {it.productName} ({it.selectedVariant || 'Standard'}) - ₹{it.price.toLocaleString('en-IN')}
+                          {it.quantity}x {it.productName} ({it.selectedVariant || 'Standard'}) - ₹{it.price.toLocaleString('en-US')}
                         </li>
                       ))}
                     </ul>
                   </div>
 
                   <div>
-                    <span className="text-white block mb-1">Delivery Destination:</span>
+                    <span className="text-[#392C2A] font-semibold block mb-1">Shipping Address:</span>
                     <p>{order.shippingAddress.addressLine1}, {order.shippingAddress.city} - {order.shippingAddress.postalCode}</p>
                     <p>Contact: {order.shippingAddress.phone}</p>
                   </div>
                 </div>
 
                 {/* Status action control */}
-                <div className="pt-3 border-t border-[#141414] flex flex-wrap items-center justify-between gap-4">
+                <div className="pt-3 border-t border-[#E8DED4] flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#888]">Update Fulfillment Status:</span>
+                    <span className="text-[#7D6B67]">Update Status:</span>
                     <button
                       onClick={() => handleUpdateOrderStatus(order.id, 'PROCESSING')}
-                      className={`px-3 py-1 border text-[11px] uppercase font-mono ${
-                        order.orderStatus === 'PROCESSING' ? 'bg-[#333] text-white border-white' : 'border-[#333] text-[#888]'
+                      className={`px-3 py-1 border text-[11px] uppercase font-mono cursor-pointer rounded-xs ${
+                        order.orderStatus === 'PROCESSING' ? 'bg-[#392C2A] text-white border-[#392C2A]' : 'border-[#E8DED4] text-[#7D6B67]'
                       }`}
                     >
                       Processing
                     </button>
                     <button
                       onClick={() => handleUpdateOrderStatus(order.id, 'SHIPPED')}
-                      className={`px-3 py-1 border text-[11px] uppercase font-mono ${
-                        order.orderStatus === 'SHIPPED' ? 'bg-[#C5A880] text-black border-[#C5A880]' : 'border-[#333] text-[#888]'
+                      className={`px-3 py-1 border text-[11px] uppercase font-mono cursor-pointer rounded-xs ${
+                        order.orderStatus === 'SHIPPED' ? 'bg-[#C9878D] text-white border-[#C9878D]' : 'border-[#E8DED4] text-[#7D6B67]'
                       }`}
                     >
                       Shipped
                     </button>
                     <button
                       onClick={() => handleUpdateOrderStatus(order.id, 'DELIVERED')}
-                      className={`px-3 py-1 border text-[11px] uppercase font-mono ${
-                        order.orderStatus === 'DELIVERED' ? 'bg-[#64B587] text-black border-[#64B587]' : 'border-[#333] text-[#888]'
+                      className={`px-3 py-1 border text-[11px] uppercase font-mono cursor-pointer rounded-xs ${
+                        order.orderStatus === 'DELIVERED' ? 'bg-[#3E7B54] text-white border-[#3E7B54]' : 'border-[#E8DED4] text-[#7D6B67]'
                       }`}
                     >
                       Delivered
@@ -432,8 +423,8 @@ export const AdminView: React.FC = () => {
                   </div>
 
                   {order.trackingNumber && (
-                    <span className="font-mono text-[#888]">
-                      Waybill: <strong className="text-white">{order.trackingNumber}</strong>
+                    <span className="font-mono text-[#7D6B67]">
+                      Tracking: <strong className="text-[#392C2A]">{order.trackingNumber}</strong>
                     </span>
                   )}
                 </div>
@@ -447,40 +438,40 @@ export const AdminView: React.FC = () => {
       {activeTab === 'products' && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="font-serif text-xl text-white">Atelier Catalog Items</h2>
+            <h2 className="font-serif text-xl text-[#392C2A]">Catalog Products</h2>
             <button
               onClick={() => setShowAddProduct(!showAddProduct)}
-              className="px-4 py-2 bg-[#F0ECE8] hover:bg-white text-black text-xs uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors cursor-pointer rounded-sm shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Inscribe New Creation</span>
+              <span>Add New Product</span>
             </button>
           </div>
 
           {showAddProduct && (
-            <form onSubmit={handleCreateProduct} className="p-6 bg-[#0D0D0D] border border-[#2B2B2B] space-y-4 text-xs max-w-2xl">
-              <h3 className="font-serif text-lg text-white">Inscribe New Creation</h3>
+            <form onSubmit={handleCreateProduct} className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-4 text-xs max-w-2xl rounded-sm shadow-xs">
+              <h3 className="font-serif text-lg text-[#392C2A]">Add New Product</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[#AAA] mb-1">Title</label>
+                  <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Product Title</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Cuir Impérial Extrait"
+                    placeholder="e.g. Amber Blanc Extrait"
                     value={newProdName}
                     onChange={e => setNewProdName(e.target.value)}
-                    className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] rounded-sm focus:border-[#C9878D]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#AAA] mb-1">Category</label>
+                  <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Category</label>
                   <select
                     value={newProdCategory}
                     onChange={e => setNewProdCategory(e.target.value)}
-                    className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] rounded-sm focus:border-[#C9878D]"
                   >
-                    <option value="cat_fragrances">Haute Parfumerie</option>
-                    <option value="cat_apparel">Sartorial Wardrobe</option>
+                    <option value="cat_fragrances">Luxury Fragrances</option>
+                    <option value="cat_apparel">Lifestyle & Apparel</option>
                     <option value="cat_skincare">Botanical Skincare</option>
                   </select>
                 </div>
@@ -488,60 +479,60 @@ export const AdminView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[#AAA] mb-1">Price (₹ INR)</label>
+                  <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Price (₹ INR)</label>
                   <input
                     type="number"
                     required
                     placeholder="21000"
                     value={newProdPrice}
                     onChange={e => setNewProdPrice(e.target.value)}
-                    className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white font-mono"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm focus:border-[#C9878D]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#AAA] mb-1">Initial Stock</label>
+                  <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Initial Stock</label>
                   <input
                     type="number"
                     value={newProdStock}
                     onChange={e => setNewProdStock(e.target.value)}
-                    className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white font-mono"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm focus:border-[#C9878D]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[#AAA] mb-1">Description</label>
+                <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Description</label>
                 <textarea
                   rows={2}
-                  placeholder="Atmospheric narrative and formulation details..."
+                  placeholder="Detailed product notes and formulation description..."
                   value={newProdDesc}
                   onChange={e => setNewProdDesc(e.target.value)}
-                  className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] rounded-sm focus:border-[#C9878D]"
                 />
               </div>
 
               <div>
-                <label className="block text-[#AAA] mb-1">Notes / Ingredients (comma-separated)</label>
+                <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Notes / Key Ingredients (comma-separated)</label>
                 <input
                   type="text"
                   placeholder="Top: Bergamot, Heart: Leather, Base: Birch Tar"
                   value={newProdNotes}
                   onChange={e => setNewProdNotes(e.target.value)}
-                  className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] rounded-sm focus:border-[#C9878D]"
                 />
               </div>
 
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-[#F0ECE8] text-black uppercase tracking-wider font-semibold"
+                  className="px-6 py-2 bg-[#C9878D] hover:bg-[#B56F75] text-white uppercase tracking-wider font-semibold rounded-sm shadow-xs cursor-pointer"
                 >
                   Save Product
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddProduct(false)}
-                  className="px-4 py-2 border border-[#333] text-[#888] uppercase tracking-wider"
+                  className="px-4 py-2 border border-[#E8DED4] text-[#7D6B67] uppercase tracking-wider rounded-sm cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -550,11 +541,11 @@ export const AdminView: React.FC = () => {
           )}
 
           {/* Table of Products */}
-          <div className="divide-y divide-[#181818] bg-[#0A0A0A] border border-[#1F1F1F]">
+          <div className="divide-y divide-[#E8DED4] bg-[#FFFDF9] border border-[#E8DED4] rounded-sm shadow-xs">
             {products.map(prod => (
               <div key={prod.id} className="p-4 flex items-center justify-between gap-4 text-xs">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-14 bg-[#141414] border border-[#222] overflow-hidden shrink-0">
+                  <div className="w-12 h-14 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
                     <img
                       src={prod.images[0] || ''}
                       alt=""
@@ -563,21 +554,21 @@ export const AdminView: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <h4 className="font-serif text-sm text-white">{prod.name}</h4>
-                    <p className="text-[#888]">{prod.categoryName} · SKU: {prod.sku}</p>
+                    <h4 className="font-serif text-sm text-[#392C2A] font-medium">{prod.name}</h4>
+                    <p className="text-[#7D6B67]">{prod.categoryName} · SKU: {prod.sku}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-8">
-                  <span className="font-mono text-white tabular-nums">
-                    ₹{prod.price.toLocaleString('en-IN')}
+                  <span className="font-mono text-[#392C2A] tabular-nums font-semibold">
+                    ₹{prod.price.toLocaleString('en-US')}
                   </span>
-                  <span className={`font-mono tabular-nums ${prod.stock <= 10 ? 'text-[#A86464]' : 'text-[#888]'}`}>
+                  <span className={`font-mono tabular-nums ${prod.stock <= 10 ? 'text-[#D97979] font-semibold' : 'text-[#7D6B67]'}`}>
                     Stock: {prod.stock}
                   </span>
                   <button
                     onClick={() => handleDeleteProduct(prod.id)}
-                    className="text-[#666] hover:text-[#A86464] p-1.5"
+                    className="text-[#7D6B67] hover:text-[#D97979] p-1.5 cursor-pointer"
                     title="Delete product"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -589,67 +580,67 @@ export const AdminView: React.FC = () => {
         </div>
       )}
 
-      {/* 4. PRIVILEGE CODES (COUPONS) */}
+      {/* 4. PROMO CODES */}
       {activeTab === 'coupons' && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="font-serif text-xl text-white">Privilege Codes & Concessions</h2>
+            <h2 className="font-serif text-xl text-[#392C2A]">Promo Codes & Discounts</h2>
             <button
               onClick={() => setShowAddCoupon(!showAddCoupon)}
-              className="px-4 py-2 bg-[#F0ECE8] hover:bg-white text-black text-xs uppercase tracking-wider font-semibold flex items-center gap-1.5"
+              className="px-4 py-2 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs uppercase tracking-wider font-semibold flex items-center gap-1.5 rounded-sm shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Generate Privilege Code</span>
+              <span>Create Promo Code</span>
             </button>
           </div>
 
           {showAddCoupon && (
-            <form onSubmit={handleCreateCoupon} className="p-6 bg-[#0D0D0D] border border-[#2B2B2B] space-y-4 text-xs max-w-md">
-              <h3 className="font-serif text-lg text-white">New Privilege Code</h3>
+            <form onSubmit={handleCreateCoupon} className="p-6 bg-[#FFFDF9] border border-[#E8DED4] space-y-4 text-xs max-w-md rounded-sm shadow-xs">
+              <h3 className="font-serif text-lg text-[#392C2A]">New Promo Code</h3>
               <div>
-                <label className="block text-[#AAA] mb-1">Code</label>
+                <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Code</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. VIP25"
                   value={newCoupCode}
                   onChange={e => setNewCoupCode(e.target.value)}
-                  className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white font-mono uppercase"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono uppercase rounded-sm focus:border-[#C9878D]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[#AAA] mb-1">Discount %</label>
+                  <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Discount %</label>
                   <input
                     type="number"
                     required
                     value={newCoupDiscount}
                     onChange={e => setNewCoupDiscount(e.target.value)}
-                    className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white font-mono"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm focus:border-[#C9878D]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#AAA] mb-1">Min Order (₹)</label>
+                  <label className="block text-[#7D6B67] mb-1 font-semibold uppercase">Min Order (₹)</label>
                   <input
                     type="number"
                     required
                     value={newCoupMinOrder}
                     onChange={e => setNewCoupMinOrder(e.target.value)}
-                    className="w-full bg-[#141414] border border-[#2B2B2B] px-3 py-2 text-white font-mono"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm focus:border-[#C9878D]"
                   />
                 </div>
               </div>
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-[#F0ECE8] text-black uppercase tracking-wider font-semibold"
+                  className="px-6 py-2 bg-[#C9878D] hover:bg-[#B56F75] text-white uppercase tracking-wider font-semibold rounded-sm shadow-xs cursor-pointer"
                 >
                   Create Code
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddCoupon(false)}
-                  className="px-4 py-2 border border-[#333] text-[#888] uppercase tracking-wider"
+                  className="px-4 py-2 border border-[#E8DED4] text-[#7D6B67] uppercase tracking-wider rounded-sm cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -657,17 +648,17 @@ export const AdminView: React.FC = () => {
             </form>
           )}
 
-          <div className="divide-y divide-[#181818] bg-[#0A0A0A] border border-[#1F1F1F]">
+          <div className="divide-y divide-[#E8DED4] bg-[#FFFDF9] border border-[#E8DED4] rounded-sm shadow-xs">
             {adminCoupons.map(c => (
               <div key={c.id} className="p-4 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-3">
-                  <Tag className="w-4 h-4 text-[#C5A880]" />
-                  <span className="font-mono text-sm text-white font-semibold">{c.code}</span>
-                  <span className="text-[#888]">{c.discountValue}% OFF (Min ₹{c.minOrder.toLocaleString('en-IN')})</span>
+                  <Tag className="w-4 h-4 text-[#C9878D]" />
+                  <span className="font-mono text-sm text-[#392C2A] font-semibold">{c.code}</span>
+                  <span className="text-[#7D6B67]">{c.discountValue}% OFF (Min ₹{c.minOrder.toLocaleString('en-US')})</span>
                 </div>
-                <div className="flex items-center gap-4 text-[#777] font-mono">
+                <div className="flex items-center gap-4 text-[#7D6B67] font-mono">
                   <span>Expires: {c.expiryDate}</span>
-                  <span className="text-[#64B587] border border-[#64B587]/30 px-2 py-0.5">
+                  <span className="text-[#3E7B54] border border-[#3E7B54]/30 px-2 py-0.5 rounded-xs">
                     {c.active ? 'ACTIVE' : 'INACTIVE'}
                   </span>
                 </div>
@@ -680,19 +671,19 @@ export const AdminView: React.FC = () => {
       {/* 5. CONSULTATION INQUIRIES */}
       {activeTab === 'inquiries' && (
         <div className="space-y-6">
-          <h2 className="font-serif text-xl text-white">Private Client Inquiries</h2>
-          <div className="divide-y divide-[#181818] bg-[#0A0A0A] border border-[#1F1F1F]">
+          <h2 className="font-serif text-xl text-[#392C2A]">Customer Inquiries</h2>
+          <div className="divide-y divide-[#E8DED4] bg-[#FFFDF9] border border-[#E8DED4] rounded-sm shadow-xs">
             {inquiries.length === 0 ? (
-              <p className="p-8 text-xs text-[#888] text-center">No inquiries currently pending.</p>
+              <p className="p-8 text-xs text-[#7D6B67] text-center">No inquiries currently received.</p>
             ) : (
               inquiries.map(req => (
                 <div key={req.id} className="p-6 space-y-2 text-xs">
                   <div className="flex justify-between items-center">
-                    <span className="font-serif text-base text-white">{req.name}</span>
-                    <span className="text-[#666] font-mono">{new Date(req.createdAt).toLocaleDateString()}</span>
+                    <span className="font-serif text-base text-[#392C2A] font-medium">{req.name}</span>
+                    <span className="text-[#7D6B67] font-mono">{new Date(req.createdAt).toLocaleDateString('en-US')}</span>
                   </div>
-                  <p className="text-[#C5A880]">{req.subject} ({req.email})</p>
-                  <p className="text-[#AAA] leading-relaxed pt-1">"{req.message}"</p>
+                  <p className="text-[#C9878D] font-medium">{req.subject} ({req.email})</p>
+                  <p className="text-[#7D6B67] leading-relaxed pt-1">"{req.message}"</p>
                 </div>
               ))
             )}

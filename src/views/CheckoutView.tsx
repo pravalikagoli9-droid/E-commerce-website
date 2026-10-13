@@ -9,8 +9,7 @@ import {
   ArrowRight,
   Lock,
   Tag,
-  CheckCircle2,
-  AlertCircle
+  CheckCircle2
 } from 'lucide-react';
 
 export const CheckoutView: React.FC = () => {
@@ -56,11 +55,11 @@ export const CheckoutView: React.FC = () => {
   if (cartItems.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4">
-        <h2 className="font-serif text-3xl text-white">Your Shopping Bag is Empty</h2>
-        <p className="text-xs text-[#777]">Please add atelier creations before proceeding to checkout.</p>
+        <h2 className="font-serif text-3xl text-[#392C2A]">Your Shopping Cart is Empty</h2>
+        <p className="text-xs text-[#7D6B67]">Please add items to your cart before proceeding to checkout.</p>
         <button
           onClick={() => setCurrentPage('shop')}
-          className="px-6 py-2.5 bg-[#F0ECE8] text-[#000000] text-xs uppercase tracking-[0.2em] font-medium"
+          className="px-6 py-2.5 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs uppercase tracking-[0.2em] font-semibold transition-colors rounded-sm shadow-xs cursor-pointer"
         >
           Explore Catalog
         </button>
@@ -74,7 +73,7 @@ export const CheckoutView: React.FC = () => {
     setCouponError(null);
     const res = await applyCoupon(couponCode.trim());
     if (!res.success) {
-      setCouponError(res.error || 'Invalid code');
+      setCouponError(res.error || 'Invalid promo code');
     } else {
       setCouponCode('');
     }
@@ -83,7 +82,7 @@ export const CheckoutView: React.FC = () => {
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName || !email || !phone || !addressLine1 || !city || !postalCode) {
-      showToast('Please complete all delivery address fields.', 'error');
+      showToast('Please complete all shipping address fields.', 'error');
       return;
     }
 
@@ -98,48 +97,45 @@ export const CheckoutView: React.FC = () => {
         state,
         postalCode,
         country: 'India',
-        phone
+        phone,
+        isDefault: true
       };
 
-      const res = await fetch('/api/orders/create', {
+      const orderPayload = {
+        shippingAddress,
+        paymentMethod,
+        customerEmail: email
+      };
+
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(user ? { Authorization: `Bearer ${localStorage.getItem('elixir_token')}` } : {})
         },
-        body: JSON.stringify({
-          items: cartItems.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            selectedVariant: item.selectedVariant
-          })),
-          shippingAddress,
-          couponCode: appliedCoupon?.code,
-          paymentMethod,
-          customerEmail: email
-        })
+        body: JSON.stringify(orderPayload)
       });
 
       const data = await res.json();
+
       if (!res.ok) {
-        showToast(data.error || 'Failed to initialize order.', 'error');
+        showToast(data.error || 'Could not create order. Please try again.', 'error');
         setIsProcessing(false);
         return;
       }
 
-      setPendingOrderId(data.order.id);
-
       if (paymentMethod === 'COD') {
-        // Direct COD approval
-        await handlePaymentSuccess(data.order.id, 'cod_verified_signature');
+        clearCart();
+        setActiveOrder(data.order);
+        setCurrentPage('order-confirmation');
+        showToast('Your order has been placed successfully!', 'success');
       } else {
-        // Open Razorpay payment gateway simulation modal
+        setPendingOrderId(data.order.id);
         setPaymentModalOpen(true);
-        setIsProcessing(false);
       }
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to connect to checkout service.', 'error');
+    } catch {
+      showToast('Error creating order. Please check your network connection.', 'error');
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -166,12 +162,12 @@ export const CheckoutView: React.FC = () => {
         setActiveOrder(data.order);
         setPaymentModalOpen(false);
         setCurrentPage('order-confirmation');
-        showToast('Acquisition order successfully placed.', 'success');
+        showToast('Payment verified! Your order has been placed.', 'success');
       } else {
         showToast(data.error || 'Payment verification failed.', 'error');
       }
     } catch {
-      showToast('Payment verification error.', 'error');
+      showToast('Payment verification error. Please contact customer support.', 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -180,12 +176,12 @@ export const CheckoutView: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Editorial Title */}
-      <div className="border-b border-[#1C1C1C] pb-6">
-        <span className="text-xs tracking-[0.25em] uppercase text-[#C5A880]">
-          Bespoke Checkout
+      <div className="border-b border-[#E8DED4] pb-6">
+        <span className="text-xs tracking-[0.25em] uppercase text-[#C9878D] font-semibold">
+          Secure Checkout
         </span>
-        <h1 className="font-serif text-3xl sm:text-4xl text-white mt-1">
-          Complete Your Acquisition
+        <h1 className="font-serif text-3xl sm:text-4xl text-[#392C2A] mt-1 font-normal">
+          Complete Your Order
         </h1>
       </div>
 
@@ -193,14 +189,14 @@ export const CheckoutView: React.FC = () => {
         {/* Left Form: Delivery & Payment Details */}
         <div className="lg:col-span-7 space-y-10">
           {/* 1. Client Contact */}
-          <div className="space-y-4">
-            <h2 className="font-serif text-xl text-white flex items-center gap-2">
-              <span className="font-mono text-xs text-[#C5A880]">01.</span>
-              <span>Client Information</span>
+          <div className="space-y-4 bg-[#FFFDF9] p-6 border border-[#E8DED4] rounded-sm shadow-2xs">
+            <h2 className="font-serif text-xl text-[#392C2A] flex items-center gap-2">
+              <span className="font-mono text-xs text-[#C9878D] font-semibold">01.</span>
+              <span>Contact Information</span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
+                <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
                   Full Name
                 </label>
                 <input
@@ -209,27 +205,27 @@ export const CheckoutView: React.FC = () => {
                   placeholder="e.g. Eleanor Vance"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
-                  Email Address (Receipt & Tracking)
+                <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
+                  Email Address
                 </label>
                 <input
                   type="email"
                   required
-                  placeholder="client@elixirnoir.com"
+                  placeholder="name@example.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
-                  Telephone Contact (Courier Verification)
+                <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
+                  Phone Number
                 </label>
                 <input
                   type="tel"
@@ -237,49 +233,49 @@ export const CheckoutView: React.FC = () => {
                   placeholder="+91 98200 12345"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
-                  className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* 2. Delivery Address */}
-          <div className="space-y-4">
-            <h2 className="font-serif text-xl text-white flex items-center gap-2">
-              <span className="font-mono text-xs text-[#C5A880]">02.</span>
-              <span>Delivery Sanctuary</span>
+          <div className="space-y-4 bg-[#FFFDF9] p-6 border border-[#E8DED4] rounded-sm shadow-2xs">
+            <h2 className="font-serif text-xl text-[#392C2A] flex items-center gap-2">
+              <span className="font-mono text-xs text-[#C9878D] font-semibold">02.</span>
+              <span>Shipping Address</span>
             </h2>
             <div className="space-y-4 text-xs">
               <div>
-                <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
+                <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
                   Street Address Line 1
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Apartment, Suite, Building Name, Street"
+                  placeholder="Apartment, suite, unit, building, street address"
                   value={addressLine1}
                   onChange={e => setAddressLine1(e.target.value)}
-                  className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
+                <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
                   Address Line 2 (Optional)
                 </label>
                 <input
                   type="text"
-                  placeholder="Landmark, Estate Wing"
+                  placeholder="Apartment number, floor, landmark"
                   value={addressLine2}
                   onChange={e => setAddressLine2(e.target.value)}
-                  className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                  className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
+                  <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
                     City
                   </label>
                   <input
@@ -287,11 +283,11 @@ export const CheckoutView: React.FC = () => {
                     required
                     value={city}
                     onChange={e => setCity(e.target.value)}
-                    className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
+                  <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
                     State
                   </label>
                   <input
@@ -299,19 +295,19 @@ export const CheckoutView: React.FC = () => {
                     required
                     value={state}
                     onChange={e => setState(e.target.value)}
-                    className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#AAA] mb-1 uppercase tracking-wider">
-                    PIN / Postal Code
+                  <label className="block text-[#7D6B67] mb-1 uppercase tracking-wider font-semibold">
+                    Postal / Zip Code
                   </label>
                   <input
                     type="text"
                     required
                     value={postalCode}
                     onChange={e => setPostalCode(e.target.value)}
-                    className="w-full bg-[#0D0D0D] border border-[#262626] px-3.5 py-2.5 text-white placeholder-[#555] focus:outline-none focus:border-[#C5A880]"
+                    className="w-full bg-[#FAF7F2] border border-[#E8DED4] px-3.5 py-2.5 text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
                   />
                 </div>
               </div>
@@ -319,9 +315,9 @@ export const CheckoutView: React.FC = () => {
           </div>
 
           {/* 3. Payment Method */}
-          <div className="space-y-4">
-            <h2 className="font-serif text-xl text-white flex items-center gap-2">
-              <span className="font-mono text-xs text-[#C5A880]">03.</span>
+          <div className="space-y-4 bg-[#FFFDF9] p-6 border border-[#E8DED4] rounded-sm shadow-2xs">
+            <h2 className="font-serif text-xl text-[#392C2A] flex items-center gap-2">
+              <span className="font-mono text-xs text-[#C9878D] font-semibold">03.</span>
               <span>Payment Method</span>
             </h2>
 
@@ -329,10 +325,10 @@ export const CheckoutView: React.FC = () => {
               {/* Razorpay UPI */}
               <label
                 onClick={() => setPaymentMethod('RAZORPAY_UPI')}
-                className={`p-4 border flex items-start gap-4 cursor-pointer transition-colors ${
+                className={`p-4 border flex items-start gap-4 cursor-pointer transition-colors rounded-sm ${
                   paymentMethod === 'RAZORPAY_UPI'
-                    ? 'bg-[#141414] border-[#C5A880]'
-                    : 'bg-[#0A0A0A] border-[#222] hover:border-[#444]'
+                    ? 'bg-[#FAF7F2] border-[#C9878D]'
+                    : 'bg-[#FFFDF9] border-[#E8DED4] hover:border-[#C9878D]'
                 }`}
               >
                 <input
@@ -340,15 +336,15 @@ export const CheckoutView: React.FC = () => {
                   name="paymentMethod"
                   checked={paymentMethod === 'RAZORPAY_UPI'}
                   onChange={() => setPaymentMethod('RAZORPAY_UPI')}
-                  className="mt-1 accent-[#C5A880]"
+                  className="mt-1 accent-[#C9878D]"
                 />
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm font-medium text-white">
-                    <QrCode className="w-4 h-4 text-[#C5A880]" />
-                    <span>Razorpay UPI (Google Pay, PhonePe, Paytm, QR)</span>
+                  <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
+                    <QrCode className="w-4 h-4 text-[#C9878D]" />
+                    <span>UPI (Google Pay, PhonePe, Paytm, QR Code)</span>
                   </div>
-                  <p className="text-xs text-[#888]">
-                    Zero gateway fees · Instant confirmation via encrypted Indian UPI protocol.
+                  <p className="text-xs text-[#7D6B67]">
+                    Zero fees · Instant confirmation via UPI payment methods.
                   </p>
                 </div>
               </label>
@@ -356,10 +352,10 @@ export const CheckoutView: React.FC = () => {
               {/* Razorpay Cards */}
               <label
                 onClick={() => setPaymentMethod('RAZORPAY_CARD')}
-                className={`p-4 border flex items-start gap-4 cursor-pointer transition-colors ${
+                className={`p-4 border flex items-start gap-4 cursor-pointer transition-colors rounded-sm ${
                   paymentMethod === 'RAZORPAY_CARD'
-                    ? 'bg-[#141414] border-[#C5A880]'
-                    : 'bg-[#0A0A0A] border-[#222] hover:border-[#444]'
+                    ? 'bg-[#FAF7F2] border-[#C9878D]'
+                    : 'bg-[#FFFDF9] border-[#E8DED4] hover:border-[#C9878D]'
                 }`}
               >
                 <input
@@ -367,15 +363,15 @@ export const CheckoutView: React.FC = () => {
                   name="paymentMethod"
                   checked={paymentMethod === 'RAZORPAY_CARD'}
                   onChange={() => setPaymentMethod('RAZORPAY_CARD')}
-                  className="mt-1 accent-[#C5A880]"
+                  className="mt-1 accent-[#C9878D]"
                 />
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm font-medium text-white">
-                    <CreditCard className="w-4 h-4 text-[#C5A880]" />
-                    <span>Credit / Debit Cards & NetBanking (Razorpay)</span>
+                  <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
+                    <CreditCard className="w-4 h-4 text-[#C9878D]" />
+                    <span>Credit / Debit Cards & Net Banking</span>
                   </div>
-                  <p className="text-xs text-[#888]">
-                    Visa, Mastercard, American Express, Rupay, and Top Tier Banks.
+                  <p className="text-xs text-[#7D6B67]">
+                    Visa, Mastercard, American Express, and all major banks.
                   </p>
                 </div>
               </label>
@@ -383,10 +379,10 @@ export const CheckoutView: React.FC = () => {
               {/* Cash On Delivery */}
               <label
                 onClick={() => setPaymentMethod('COD')}
-                className={`p-4 border flex items-start gap-4 cursor-pointer transition-colors ${
+                className={`p-4 border flex items-start gap-4 cursor-pointer transition-colors rounded-sm ${
                   paymentMethod === 'COD'
-                    ? 'bg-[#141414] border-[#C5A880]'
-                    : 'bg-[#0A0A0A] border-[#222] hover:border-[#444]'
+                    ? 'bg-[#FAF7F2] border-[#C9878D]'
+                    : 'bg-[#FFFDF9] border-[#E8DED4] hover:border-[#C9878D]'
                 }`}
               >
                 <input
@@ -394,15 +390,15 @@ export const CheckoutView: React.FC = () => {
                   name="paymentMethod"
                   checked={paymentMethod === 'COD'}
                   onChange={() => setPaymentMethod('COD')}
-                  className="mt-1 accent-[#C5A880]"
+                  className="mt-1 accent-[#C9878D]"
                 />
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm font-medium text-white">
-                    <Truck className="w-4 h-4 text-[#C5A880]" />
-                    <span>Bespoke Concierge Delivery (Cash on Delivery)</span>
+                  <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
+                    <Truck className="w-4 h-4 text-[#C9878D]" />
+                    <span>Cash on Delivery</span>
                   </div>
-                  <p className="text-xs text-[#888]">
-                    Remit directly to our white glove courier upon inspected delivery.
+                  <p className="text-xs text-[#7D6B67]">
+                    Pay directly in cash or UPI upon delivery.
                   </p>
                 </div>
               </label>
@@ -411,17 +407,17 @@ export const CheckoutView: React.FC = () => {
         </div>
 
         {/* Right Column: Order Summary & Place Order */}
-        <div className="lg:col-span-5 bg-[#0A0A0A] border border-[#222] p-6 sm:p-8 space-y-6 sticky top-28">
-          <h2 className="font-serif text-2xl text-white pb-3 border-b border-[#1C1C1C]">
-            Acquisitions Summary
+        <div className="lg:col-span-5 bg-[#FFFDF9] border border-[#E8DED4] p-6 sm:p-8 space-y-6 sticky top-28 rounded-sm shadow-xs">
+          <h2 className="font-serif text-2xl text-[#392C2A] pb-3 border-b border-[#E8DED4]">
+            Order Summary
           </h2>
 
           {/* Cart Items list */}
-          <div className="space-y-4 max-h-72 overflow-y-auto divide-y divide-[#181818]">
+          <div className="space-y-4 max-h-72 overflow-y-auto divide-y divide-[#E8DED4]">
             {cartItems.map((item, idx) => (
               <div key={idx} className="pt-3 first:pt-0 flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-14 bg-[#141414] border border-[#262626] overflow-hidden shrink-0">
+                  <div className="w-12 h-14 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
                     <img
                       src={item.product.images[0] || ''}
                       alt=""
@@ -430,30 +426,30 @@ export const CheckoutView: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <p className="font-serif text-sm text-white line-clamp-1">{item.product.name}</p>
-                    <p className="text-[#777]">Qty: {item.quantity} {item.selectedVariant ? `· ${item.selectedVariant}` : ''}</p>
+                    <p className="font-serif text-sm text-[#392C2A] line-clamp-1 font-medium">{item.product.name}</p>
+                    <p className="text-[#7D6B67]">Qty: {item.quantity} {item.selectedVariant ? `· ${item.selectedVariant}` : ''}</p>
                   </div>
                 </div>
-                <span className="font-mono text-[#C5A880] tabular-nums">
-                  ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
+                <span className="font-mono text-[#392C2A] tabular-nums font-semibold">
+                  ₹{(item.product.price * item.quantity).toLocaleString('en-US')}
                 </span>
               </div>
             ))}
           </div>
 
           {/* Coupon Input */}
-          <div className="pt-4 border-t border-[#1C1C1C]">
+          <div className="pt-4 border-t border-[#E8DED4]">
             {appliedCoupon ? (
-              <div className="flex items-center justify-between p-2.5 bg-[#141414] border border-[#262626] text-xs">
-                <div className="flex items-center gap-2 text-[#C5A880]">
+              <div className="flex items-center justify-between p-2.5 bg-[#FAF7F2] border border-[#E8DED4] text-xs rounded-sm">
+                <div className="flex items-center gap-2 text-[#C9878D]">
                   <Tag className="w-3.5 h-3.5" />
-                  <span className="font-mono">{appliedCoupon.code}</span>
-                  <span>(-₹{cartDiscount.toLocaleString('en-IN')})</span>
+                  <span className="font-mono font-semibold">{appliedCoupon.code}</span>
+                  <span>(-₹{cartDiscount.toLocaleString('en-US')})</span>
                 </div>
                 <button
                   type="button"
                   onClick={removeCoupon}
-                  className="text-[#888] hover:text-white underline"
+                  className="text-[#7D6B67] hover:text-[#392C2A] underline cursor-pointer"
                 >
                   Remove
                 </button>
@@ -463,56 +459,56 @@ export const CheckoutView: React.FC = () => {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Coupon Code"
+                    placeholder="Promo Code"
                     value={couponCode}
                     onChange={e => setCouponCode(e.target.value)}
-                    className="flex-1 bg-[#121212] border border-[#2B2B2B] px-3 py-2 text-xs text-white placeholder-[#555] uppercase font-mono focus:outline-none focus:border-[#C5A880]"
+                    className="flex-1 bg-[#FAF7F2] border border-[#E8DED4] px-3 py-2 text-xs text-[#392C2A] placeholder-[#998] uppercase font-mono focus:outline-none focus:border-[#C9878D] rounded-sm"
                   />
                   <button
                     type="button"
                     onClick={handleApplyCoupon}
-                    className="px-4 py-2 border border-[#333] hover:border-[#666] text-xs uppercase tracking-wider text-[#CCC] hover:text-white"
+                    className="px-4 py-2 border border-[#E8DED4] bg-[#E8D8C8] hover:bg-[#DECABE] text-xs uppercase tracking-wider text-[#392C2A] font-semibold rounded-sm cursor-pointer"
                   >
                     Apply
                   </button>
                 </div>
-                {couponError && <p className="text-[11px] text-[#A86464]">{couponError}</p>}
+                {couponError && <p className="text-[11px] text-[#D97979]">{couponError}</p>}
               </div>
             )}
           </div>
 
           {/* Cost breakdown */}
-          <div className="space-y-2 text-xs text-[#8A857D] pt-4 border-t border-[#1C1C1C]">
+          <div className="space-y-2 text-xs text-[#7D6B67] pt-4 border-t border-[#E8DED4]">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-mono text-white tabular-nums">
-                ₹{cartSubtotal.toLocaleString('en-IN')}
+              <span className="font-mono text-[#392C2A] tabular-nums font-medium">
+                ₹{cartSubtotal.toLocaleString('en-US')}
               </span>
             </div>
             {cartDiscount > 0 && (
-              <div className="flex justify-between text-[#C5A880]">
-                <span>Privilege Discount</span>
-                <span className="font-mono tabular-nums">
-                  -₹{cartDiscount.toLocaleString('en-IN')}
+              <div className="flex justify-between text-[#C9878D]">
+                <span>Promo Discount</span>
+                <span className="font-mono tabular-nums font-semibold">
+                  -₹{cartDiscount.toLocaleString('en-US')}
                 </span>
               </div>
             )}
             <div className="flex justify-between">
-              <span>White Glove Delivery</span>
-              <span className="font-mono text-white tabular-nums">
-                {cartShippingFee === 0 ? 'Complimentary' : `₹${cartShippingFee.toLocaleString('en-IN')}`}
+              <span>Shipping</span>
+              <span className="font-mono text-[#392C2A] tabular-nums">
+                {cartShippingFee === 0 ? 'Free' : `₹${cartShippingFee.toLocaleString('en-US')}`}
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Estimated GST (3%)</span>
-              <span className="font-mono text-white tabular-nums">
-                ₹{cartTax.toLocaleString('en-IN')}
+              <span>Estimated Tax (3%)</span>
+              <span className="font-mono text-[#392C2A] tabular-nums">
+                ₹{cartTax.toLocaleString('en-US')}
               </span>
             </div>
-            <div className="flex justify-between text-base font-serif text-white pt-3 border-t border-[#1C1C1C]">
+            <div className="flex justify-between text-base font-serif text-[#392C2A] pt-3 border-t border-[#E8DED4]">
               <span>Final Total</span>
-              <span className="font-mono text-[#C5A880] tabular-nums text-lg">
-                ₹{cartTotal.toLocaleString('en-IN')}
+              <span className="font-mono text-[#392C2A] tabular-nums text-lg font-bold">
+                ₹{cartTotal.toLocaleString('en-US')}
               </span>
             </div>
           </div>
@@ -521,94 +517,93 @@ export const CheckoutView: React.FC = () => {
           <button
             type="submit"
             disabled={isProcessing}
-            className="w-full py-4 bg-[#F0ECE8] hover:bg-white text-[#000000] text-xs font-semibold tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xl"
+            className="w-full py-4 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md rounded-sm"
           >
             <Lock className="w-4 h-4" />
             <span>
               {isProcessing
-                ? 'Validating Order...'
+                ? 'Processing Order...'
                 : paymentMethod === 'COD'
-                ? 'Confirm Concierge Order'
-                : `Authorize ₹${cartTotal.toLocaleString('en-IN')}`}
+                ? 'Confirm Order'
+                : `Pay ₹${cartTotal.toLocaleString('en-US')}`}
             </span>
           </button>
 
-          <p className="text-[11px] text-[#666] text-center flex items-center justify-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#C5A880]" />
-            Encrypted by 256-Bit Razorpay Atelier Protocols
+          <p className="text-[11px] text-[#7D6B67] text-center flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#C9878D]" />
+            Encrypted by 256-Bit SSL Protocols
           </p>
         </div>
       </form>
 
-      {/* Razorpay Gateway Modal Simulation */}
+      {/* Payment Gateway Modal Simulation */}
       {paymentModalOpen && pendingOrderId && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#0F0F0F] border border-[#2B2B2B] shadow-2xl p-6 sm:p-8 space-y-6 text-[#F0ECE8]">
-            <div className="flex items-center justify-between border-b border-[#222] pb-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#392C2A]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#FAF7F2] border border-[#E8DED4] shadow-2xl p-6 sm:p-8 space-y-6 text-[#392C2A] rounded-sm">
+            <div className="flex items-center justify-between border-b border-[#E8DED4] pb-4">
               <div>
-                <span className="text-[10px] tracking-[0.2em] uppercase text-[#C5A880] font-mono">
-                  Razorpay Secure Gateway
+                <span className="text-[10px] tracking-[0.2em] uppercase text-[#C9878D] font-mono font-semibold">
+                  Secure Payment Gateway
                 </span>
-                <h3 className="font-serif text-xl text-white">ÉLIXIR & NOIR S.A.</h3>
+                <h3 className="font-serif text-xl text-[#392C2A]">ÉLIXIR & NOIR</h3>
               </div>
-              <span className="font-mono text-xs text-[#777]">Test Mode</span>
+              <span className="font-mono text-xs text-[#7D6B67]">Demo Gateway</span>
             </div>
 
-            <div className="p-4 bg-[#141414] border border-[#222] space-y-1">
-              <span className="text-xs text-[#888]">Amount to Authorize:</span>
-              <p className="font-mono text-2xl text-[#C5A880] tabular-nums">
-                ₹{cartTotal.toLocaleString('en-IN')}
+            <div className="p-4 bg-[#FFFDF9] border border-[#E8DED4] space-y-1 rounded-sm">
+              <span className="text-xs text-[#7D6B67]">Amount to Authorize:</span>
+              <p className="font-mono text-2xl text-[#392C2A] tabular-nums font-bold">
+                ₹{cartTotal.toLocaleString('en-US')}
               </p>
             </div>
 
             {paymentMethod === 'RAZORPAY_UPI' ? (
               <div className="space-y-4 text-xs">
-                <p className="text-[#AAA]">Scan with any Indian UPI App or enter VPA:</p>
-                <div className="flex justify-center p-4 bg-white rounded-md max-w-[180px] mx-auto">
-                  {/* Visual QR Code Mock */}
-                  <div className="w-36 h-36 bg-black flex flex-col items-center justify-center text-white text-[10px] p-2 text-center">
-                    <QrCode className="w-16 h-16 text-white mb-1" />
-                    <span>UPI://PAY?PA=ELIXIR@ICICI</span>
+                <p className="text-[#7D6B67]">Scan with any UPI App or enter your UPI ID:</p>
+                <div className="flex justify-center p-4 bg-white border border-[#E8DED4] rounded-md max-w-[180px] mx-auto shadow-xs">
+                  <div className="w-36 h-36 bg-[#FAF7F2] border border-[#E8DED4] flex flex-col items-center justify-center text-[#392C2A] text-[10px] p-2 text-center rounded-sm">
+                    <QrCode className="w-16 h-16 text-[#C9878D] mb-1" />
+                    <span className="font-mono text-[9px]">UPI://PAY?PA=ELIXIR@ICICI</span>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[#888]">Virtual Payment Address (UPI ID):</label>
+                  <label className="text-[#7D6B67] uppercase font-semibold">UPI ID:</label>
                   <input
                     type="text"
                     value={upiId}
                     onChange={e => setUpiId(e.target.value)}
-                    className="w-full bg-[#181818] border border-[#333] px-3 py-2 text-white font-mono"
+                    className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
                   />
                 </div>
               </div>
             ) : (
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="text-[#888]">Card Number</label>
+                  <label className="text-[#7D6B67] uppercase font-semibold">Card Number</label>
                   <input
                     type="text"
                     value={cardNumber}
                     onChange={e => setCardNumber(e.target.value)}
-                    className="w-full bg-[#181818] border border-[#333] px-3 py-2 text-white font-mono"
+                    className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[#888]">Expiry</label>
+                    <label className="text-[#7D6B67] uppercase font-semibold">Expiry Date</label>
                     <input
                       type="text"
                       value={cardExpiry}
                       onChange={e => setCardExpiry(e.target.value)}
-                      className="w-full bg-[#181818] border border-[#333] px-3 py-2 text-white font-mono"
+                      className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
                     />
                   </div>
                   <div>
-                    <label className="text-[#888]">CVV</label>
+                    <label className="text-[#7D6B67] uppercase font-semibold">CVV</label>
                     <input
                       type="password"
                       value={cardCvv}
                       onChange={e => setCardCvv(e.target.value)}
-                      className="w-full bg-[#181818] border border-[#333] px-3 py-2 text-white font-mono"
+                      className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
                     />
                   </div>
                 </div>
@@ -621,7 +616,7 @@ export const CheckoutView: React.FC = () => {
                   handlePaymentSuccess(pendingOrderId, `pay_rzp_${Date.now()}`)
                 }
                 disabled={isProcessing}
-                className="w-full py-3.5 bg-[#C5A880] hover:bg-[#D4BC96] text-black text-xs font-semibold tracking-[0.2em] uppercase transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold tracking-[0.2em] uppercase transition-colors cursor-pointer flex items-center justify-center gap-2 rounded-sm shadow-md"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Simulate Successful Payment</span>
@@ -629,7 +624,7 @@ export const CheckoutView: React.FC = () => {
 
               <button
                 onClick={() => setPaymentModalOpen(false)}
-                className="w-full py-2.5 border border-[#333] text-xs text-[#888] hover:text-white uppercase tracking-wider transition-colors"
+                className="w-full py-2.5 border border-[#E8DED4] text-xs text-[#7D6B67] hover:text-[#392C2A] uppercase tracking-wider transition-colors cursor-pointer rounded-sm"
               >
                 Cancel Transaction
               </button>

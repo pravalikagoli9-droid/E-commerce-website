@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { ProductCard } from '../components/ProductCard';
-import { Search, SlidersHorizontal, RotateCcw, Sparkles } from 'lucide-react';
+import { Search, SlidersHorizontal, RotateCcw } from 'lucide-react';
 
 export const ShopView: React.FC = () => {
   const { products, selectedCategorySlug, setSelectedCategorySlug } = useStore();
@@ -14,9 +14,9 @@ export const ShopView: React.FC = () => {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   const categories = [
-    { name: 'All Archive', slug: null },
-    { name: 'Haute Parfumerie', slug: 'fragrances' },
-    { name: 'Sartorial Wardrobe', slug: 'apparel' },
+    { name: 'All Products', slug: null },
+    { name: 'Luxury Fragrances', slug: 'fragrances' },
+    { name: 'Lifestyle & Apparel', slug: 'apparel' },
     { name: 'Botanical Skincare', slug: 'skincare' }
   ];
 
@@ -88,35 +88,35 @@ export const ShopView: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Editorial Header */}
-      <div className="border-b border-[#E7E0D6] pb-8 space-y-3">
-        <span className="text-xs tracking-[0.25em] uppercase text-[#8C7A6B] font-semibold">
-          The Complete Archive
+      <div className="border-b border-[#E8DED4] pb-8 space-y-3">
+        <span className="text-xs tracking-[0.25em] uppercase text-[#C9878D] font-semibold">
+          Complete Collection
         </span>
-        <h1 className="font-serif text-3xl sm:text-5xl text-[#1E1714]">
+        <h1 className="font-serif text-3xl sm:text-5xl text-[#392C2A]">
           {selectedCategorySlug === 'fragrances'
-            ? 'Haute Parfumerie'
+            ? 'Luxury Fragrances'
             : selectedCategorySlug === 'apparel'
-            ? 'Sartorial Wardrobe'
+            ? 'Lifestyle & Apparel'
             : selectedCategorySlug === 'skincare'
             ? 'Botanical Skincare'
-            : 'Artisanal Creations'}
+            : 'All Products'}
         </h1>
-        <p className="text-xs sm:text-sm text-[#5C4F44] max-w-2xl leading-relaxed">
-          Explore our limited edition formulations and garments, handcrafted in numbered atelier runs.
+        <p className="text-xs sm:text-sm text-[#7D6B67] max-w-2xl leading-relaxed">
+          Discover artisanal perfumes, pure fabric garments, and restorative botanical skincare.
         </p>
       </div>
 
       {/* Category Tabs & Search Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E7E0D6] pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E8DED4] pb-4">
         <div className="flex flex-wrap gap-2">
           {categories.map(c => (
             <button
               key={c.name}
               onClick={() => setSelectedCategorySlug(c.slug)}
-              className={`px-4 py-2 text-xs uppercase tracking-[0.16em] transition-colors cursor-pointer border ${
+              className={`px-4 py-2 text-xs uppercase tracking-[0.16em] transition-colors cursor-pointer border rounded-sm ${
                 selectedCategorySlug === c.slug
-                  ? 'bg-[#1E1714] text-[#FAF8F5] border-[#1E1714] font-medium'
-                  : 'bg-white text-[#6B5C50] border-[#E7E0D6] hover:border-[#8C7A6B]'
+                  ? 'bg-[#C9878D] text-white border-[#C9878D] font-semibold shadow-xs'
+                  : 'bg-[#FFFDF9] text-[#7D6B67] border-[#E8DED4] hover:border-[#C9878D] hover:text-[#392C2A]'
               }`}
             >
               {c.name}
@@ -128,13 +128,13 @@ export const ShopView: React.FC = () => {
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {/* In-catalog Search */}
           <div className="relative flex-1 sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#7D6B67]" />
             <input
               type="text"
-              placeholder="Search catalog by note or fabric..."
+              placeholder="Search by keyword, note, or material..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-white border border-[#DCD3C7] pl-8 pr-3 py-1.5 text-xs text-[#1E1714] placeholder-[#AAA] focus:outline-none focus:border-[#1E1714]"
+              className="w-full bg-[#FFFDF9] border border-[#E8DED4] pl-8 pr-3 py-1.5 text-xs text-[#392C2A] placeholder-[#998] focus:outline-none focus:border-[#C9878D] rounded-sm"
             />
           </div>
 
@@ -142,20 +142,20 @@ export const ShopView: React.FC = () => {
           <select
             value={selectedSort}
             onChange={e => setSelectedSort(e.target.value as any)}
-            className="bg-white border border-[#DCD3C7] px-3 py-1.5 text-xs text-[#1E1714] focus:outline-none focus:border-[#1E1714] uppercase tracking-wider cursor-pointer"
+            className="bg-[#FFFDF9] border border-[#E8DED4] px-3 py-1.5 text-xs text-[#392C2A] focus:outline-none focus:border-[#C9878D] uppercase tracking-wider cursor-pointer rounded-sm"
           >
-            <option value="featured">Featured Curations</option>
+            <option value="featured">Featured Products</option>
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
-            <option value="popularity">Popularity / Endorsements</option>
-            <option value="rating">Connoisseur Rating</option>
+            <option value="popularity">Most Popular</option>
+            <option value="rating">Customer Rating</option>
             <option value="newest">New Arrivals</option>
           </select>
 
           {/* Mobile Filter Toggle */}
           <button
             onClick={() => setIsFilterDrawerOpen(!isFilterDrawerOpen)}
-            className="sm:hidden p-2 border border-[#DCD3C7] text-[#1E1714] bg-white"
+            className="sm:hidden p-2 border border-[#E8DED4] text-[#392C2A] bg-[#FFFDF9] rounded-sm cursor-pointer"
             aria-label="Filter"
           >
             <SlidersHorizontal className="w-4 h-4" />
@@ -164,9 +164,9 @@ export const ShopView: React.FC = () => {
       </div>
 
       {/* Filter Bar (Price slider, In-stock filter, Rating filter) */}
-      <div className={`p-4 bg-white border border-[#E7E0D6] flex flex-wrap items-center justify-between gap-6 text-xs text-[#5C4F44] ${isFilterDrawerOpen ? 'block' : 'hidden sm:flex'}`}>
+      <div className={`p-4 bg-[#FFFDF9] border border-[#E8DED4] flex flex-wrap items-center justify-between gap-6 text-xs text-[#7D6B67] rounded-sm ${isFilterDrawerOpen ? 'block' : 'hidden sm:flex'}`}>
         <div className="flex items-center gap-4 flex-1 max-w-sm">
-          <span className="text-[#8C7A6B]">Price Ceiling:</span>
+          <span className="text-[#392C2A] font-medium">Max Price:</span>
           <input
             type="range"
             min="4000"
@@ -174,30 +174,30 @@ export const ShopView: React.FC = () => {
             step="1000"
             value={priceMax}
             onChange={e => setPriceMax(Number(e.target.value))}
-            className="flex-1 accent-[#1E1714] cursor-pointer"
+            className="flex-1 accent-[#C9878D] cursor-pointer"
           />
-          <span className="font-mono text-[#1E1714] font-semibold tabular-nums">
-            ₹{priceMax.toLocaleString('en-IN')}
+          <span className="font-mono text-[#392C2A] font-semibold tabular-nums">
+            ₹{priceMax.toLocaleString('en-US')}
           </span>
         </div>
 
         <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2 cursor-pointer text-[#1E1714]">
+          <label className="flex items-center gap-2 cursor-pointer text-[#392C2A]">
             <input
               type="checkbox"
               checked={inStockOnly}
               onChange={e => setInStockOnly(e.target.checked)}
-              className="accent-[#1E1714]"
+              className="accent-[#C9878D]"
             />
-            <span>In Atelier Stock Only</span>
+            <span>In Stock Only</span>
           </label>
 
           <div className="flex items-center gap-2">
-            <span className="text-[#8C7A6B]">Min Rating:</span>
+            <span className="text-[#392C2A] font-medium">Min Rating:</span>
             <select
               value={minRating}
               onChange={e => setMinRating(Number(e.target.value))}
-              className="bg-[#FAF8F5] border border-[#DCD3C7] px-2 py-1 text-xs text-[#1E1714]"
+              className="bg-[#FAF7F2] border border-[#E8DED4] px-2 py-1 text-xs text-[#392C2A] rounded-sm focus:border-[#C9878D]"
             >
               <option value="0">All Ratings</option>
               <option value="4.5">4.5+ Stars</option>
@@ -209,7 +209,7 @@ export const ShopView: React.FC = () => {
           {(selectedCategorySlug || search || priceMax < 75000 || inStockOnly || minRating > 0) && (
             <button
               onClick={resetFilters}
-              className="flex items-center gap-1.5 text-xs text-[#8C7A6B] hover:text-[#1E1714] hover:underline cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-[#C9878D] hover:text-[#B56F75] hover:underline cursor-pointer font-medium"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset Filters</span>
@@ -220,16 +220,16 @@ export const ShopView: React.FC = () => {
 
       {/* Product Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="text-center py-24 space-y-4 border border-[#E7E0D6] bg-white p-8">
-          <p className="font-serif text-2xl text-[#8C7A6B]">No creations match your current criteria.</p>
-          <p className="text-xs text-[#6B5C50] max-w-sm mx-auto leading-relaxed">
-            Try expanding your price range, clearing specific note searches, or toggling off stock constraints.
+        <div className="text-center py-24 space-y-4 border border-[#E8DED4] bg-[#FFFDF9] p-8 rounded-sm">
+          <p className="font-serif text-2xl text-[#7D6B67]">No products found matching your search.</p>
+          <p className="text-xs text-[#7D6B67] max-w-sm mx-auto leading-relaxed">
+            Try adjusting your price range, clearing specific keywords, or removing the in-stock filter.
           </p>
           <button
             onClick={resetFilters}
-            className="mt-4 px-6 py-2.5 bg-[#1E1714] hover:bg-[#342721] text-[#FAF8F5] text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer"
+            className="mt-4 px-6 py-2.5 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer shadow-sm rounded-sm"
           >
-            Reset All Filters
+            Clear All Filters
           </button>
         </div>
       ) : (
