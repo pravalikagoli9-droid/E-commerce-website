@@ -140,7 +140,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Recently Viewed & Personalization
   const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('elixir_recent');
+      const saved = localStorage.getItem('velmora_recent') || localStorage.getItem('elixir_recent');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -149,7 +149,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const [favoriteCategories, setFavoriteCategories] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('elixir_fav_cats');
+      const saved = localStorage.getItem('velmora_fav_cats') || localStorage.getItem('elixir_fav_cats');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -158,12 +158,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // User Auth
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('elixir_token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('velmora_token') || localStorage.getItem('elixir_token'));
   const [guestId] = useState<string>(() => {
-    let id = localStorage.getItem('elixir_guest_id');
+    let id = localStorage.getItem('velmora_guest_id') || localStorage.getItem('elixir_guest_id');
     if (!id) {
       id = `gst_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-      localStorage.setItem('elixir_guest_id', id);
+      localStorage.setItem('velmora_guest_id', id);
     }
     return id;
   });
@@ -174,7 +174,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Cart
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem('elixir_cart');
+      const saved = localStorage.getItem('velmora_cart') || localStorage.getItem('elixir_cart');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -408,7 +408,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
       setToken(data.token);
       setUser(data.user);
-      localStorage.setItem('elixir_token', data.token);
+      localStorage.setItem('velmora_token', data.token);
       showToast(`Welcome! 500 bonus reward points have been added to your account, ${data.user.name}.`, 'success');
       return { success: true };
     } catch {
@@ -419,6 +419,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const logout = () => {
     setUser(null);
     setToken(null);
+    localStorage.removeItem('velmora_token');
     localStorage.removeItem('elixir_token');
     showToast('You have successfully signed out.', 'info');
     if (currentPage === 'account' || currentPage === 'admin') {
@@ -477,9 +478,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const quickLoginDemo = async (role: 'CUSTOMER' | 'ADMIN') => {
     if (role === 'ADMIN') {
-      await login('admin@elixirnoir.com', 'NoirAtelier2026!');
+      await login('admin@velmora.com', 'NoirAtelier2026!');
     } else {
-      await login('client@elixirnoir.com', 'Customer2026!');
+      await login('client@velmora.com', 'Customer2026!');
     }
   };
 

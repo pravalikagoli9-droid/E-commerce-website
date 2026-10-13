@@ -5,22 +5,21 @@
     --font-serif: 'Cormorant Garamond', Georgia, serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
-    /* Dusty Rose & Warm Beige Luxury Beauty Theme Tokens */
-    --color-primary: #C9878D;
-    --color-primary-hover: #B56F75;
-    --color-secondary: #E8D8C8;
-    --color-bg-main: #FAF7F2;
-    --color-card: #FFFDF9;
-    --color-text-main: #392C2A;
-    --color-text-muted: #7D6B67;
-    --color-accent: #D6B77A;
-    --color-border: #E8DED4;
+    /* VELMORA Luxury Beauty Theme Tokens */
+    --color-mocha: #5A3E36;
+    --color-mocha-hover: #48322B;
+    --color-champagne: #D6B77A;
+    --color-bg-ivory: #F8F4ED;
+    --color-card-cream: #FFFDF8;
+    --color-espresso: #30231F;
+    --color-taupe: #B7A397;
+    --color-olive: #78866B;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #FAF7F2;
-    color: #392C2A;
+    background-color: #F8F4ED;
+    color: #30231F;
     overflow-x: hidden;
   }
 
@@ -29,25 +28,25 @@
   }
 }
 
-/* Custom scrollbar with Dusty Rose and Warm Beige tones */
+/* Custom scrollbar with Mocha and Champagne tones */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF7F2;
+  background: #F8F4ED;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E8D8C8;
+  background: #B7A397;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #C9878D;
+  background: #5A3E36;
 }
 
 ::selection {
-  background-color: #E8D8C8;
-  color: #392C2A;
+  background-color: #D6B77A;
+  color: #30231F;
 }
 
 /* Accessible reduced motion support */

@@ -43,7 +43,7 @@ if (!fs.existsSync(DB_DIR)) {
 }
 
 export function hashPassword(password: string): string {
-  const salt = 'elixir_noir_salt_2026';
+  const salt = 'velmora_salt_2026';
   return crypto.scryptSync(password, salt, 32).toString('hex');
 }
 
@@ -55,8 +55,8 @@ const initialSeedData: DatabaseSchema = {
   users: [
     {
       id: 'usr_admin_01',
-      name: 'Adrien de Noir (Directeur)',
-      email: 'admin@elixirnoir.com',
+      name: 'Adrien de Noir (Director)',
+      email: 'admin@velmora.com',
       passwordHash: hashPassword('NoirAtelier2026!'),
       role: 'ADMIN',
       accountStatus: 'ACTIVE',
@@ -67,7 +67,7 @@ const initialSeedData: DatabaseSchema = {
         {
           id: 'ly_adm_1',
           date: '2026-01-01',
-          description: 'Directeur Founder Privilege Allowance',
+          description: 'VELMORA Founder Privilege Allowance',
           points: 3400,
           type: 'EARNED'
         }
@@ -83,7 +83,7 @@ const initialSeedData: DatabaseSchema = {
         {
           id: 'addr_adm_1',
           fullName: 'Adrien de Noir',
-          addressLine1: 'Atelier ÉLIXIR, 18 Rue de la Paix',
+          addressLine1: 'VELMORA Atelier, 18 Rue de la Paix',
           city: 'Mumbai',
           state: 'Maharashtra',
           postalCode: '400001',
@@ -97,7 +97,7 @@ const initialSeedData: DatabaseSchema = {
     {
       id: 'usr_client_01',
       name: 'Eleanor Vance',
-      email: 'client@elixirnoir.com',
+      email: 'client@velmora.com',
       passwordHash: hashPassword('Customer2026!'),
       role: 'CUSTOMER',
       accountStatus: 'ACTIVE',
@@ -108,14 +108,14 @@ const initialSeedData: DatabaseSchema = {
         {
           id: 'ly_cli_1',
           date: '2026-02-15',
-          description: 'Welcome Sanctuary Inscription Bonus',
+          description: 'Welcome VELMORA Member Bonus',
           points: 500,
           type: 'EARNED'
         },
         {
           id: 'ly_cli_2',
           date: '2026-10-10',
-          description: 'Acquisition Order EN-84920 Points',
+          description: 'Order VEL-84920 Points',
           points: 750,
           type: 'EARNED'
         }
@@ -150,7 +150,7 @@ const initialSeedData: DatabaseSchema = {
       name: 'Luxury Fragrances',
       slug: 'fragrances',
       description: 'Artisanal niche fragrances crafted with fine natural resins, floral absolutes, and rare aged woods.',
-      image: '/src/assets/images/category_fragrances_1791824720667.jpg',
+      image: '/src/assets/images/velmora_perfume_ambre_1791912395312.jpg',
       status: 'ACTIVE'
     },
     {
@@ -166,7 +166,7 @@ const initialSeedData: DatabaseSchema = {
       name: 'Botanical Skincare',
       slug: 'skincare',
       description: 'Restorative serums, barrier creams, and facial sculpting tools crafted with clean botanical ingredients.',
-      image: '/src/assets/images/category_skincare_1791824742582.jpg',
+      image: '/src/assets/images/velmora_botanical_serum_1791912396485.jpg',
       status: 'ACTIVE'
     }
   ],
@@ -181,11 +181,10 @@ const initialSeedData: DatabaseSchema = {
       price: 18500,
       compareAtPrice: 21000,
       images: [
-        '/src/assets/images/hero_luxury_boutique_1791824705943.jpg',
-        '/src/assets/images/category_fragrances_1791824720667.jpg'
+        '/src/assets/images/velmora_perfume_ambre_1791912395312.jpg'
       ],
       stock: 24,
-      sku: 'EN-FRG-001',
+      sku: 'VEL-FRG-001',
       status: 'ACTIVE',
       averageRating: 4.9,
       reviewCount: 18,
@@ -223,11 +222,10 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Luxury Fragrances',
       price: 16200,
       images: [
-        '/src/assets/images/category_fragrances_1791824720667.jpg',
-        '/src/assets/images/hero_luxury_boutique_1791824705943.jpg'
+        '/src/assets/images/category_fragrances_1791824720667.jpg'
       ],
       stock: 19,
-      sku: 'EN-FRG-002',
+      sku: 'VEL-FRG-002',
       status: 'ACTIVE',
       averageRating: 4.8,
       reviewCount: 14,
@@ -246,7 +244,7 @@ const initialSeedData: DatabaseSchema = {
       details: {
         'Concentration': 'Extrait de Parfum (30% maceration)',
         'Volume': '100ml / 3.4 FL. OZ.',
-        'Origin': 'Atelier ÉLIXIR, Grasse',
+        'Origin': 'VELMORA Atelier, Grasse',
         'Sillage': 'Intense & Enveloping'
       },
       createdAt: '2026-01-15T11:00:00.000Z'
@@ -264,7 +262,7 @@ const initialSeedData: DatabaseSchema = {
         '/src/assets/images/hero_luxury_boutique_1791824705943.jpg'
       ],
       stock: 14,
-      sku: 'EN-FRG-003',
+      sku: 'VEL-FRG-003',
       status: 'ACTIVE',
       averageRating: 5.0,
       reviewCount: 11,
@@ -296,10 +294,10 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Luxury Fragrances',
       price: 24500,
       images: [
-        '/src/assets/images/category_fragrances_1791824720667.jpg'
+        '/src/assets/images/velmora_perfume_rose_1791912395755.jpg'
       ],
       stock: 8,
-      sku: 'EN-FRG-004',
+      sku: 'VEL-FRG-004',
       status: 'ACTIVE',
       averageRating: 4.9,
       reviewCount: 9,
@@ -334,7 +332,7 @@ const initialSeedData: DatabaseSchema = {
         '/src/assets/images/category_apparel_1791824731775.jpg'
       ],
       stock: 6,
-      sku: 'EN-APP-001',
+      sku: 'VEL-APP-001',
       status: 'ACTIVE',
       averageRating: 5.0,
       reviewCount: 7,
@@ -370,10 +368,10 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Lifestyle & Apparel',
       price: 38000,
       images: [
-        '/src/assets/images/category_apparel_1791824731775.jpg'
+        '/src/assets/images/velmora_luxury_apparel_1791912397560.jpg'
       ],
       stock: 15,
-      sku: 'EN-APP-002',
+      sku: 'VEL-APP-002',
       status: 'ACTIVE',
       averageRating: 4.9,
       reviewCount: 12,
@@ -406,10 +404,10 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Lifestyle & Apparel',
       price: 28500,
       images: [
-        '/src/assets/images/category_apparel_1791824731775.jpg'
+        '/src/assets/images/velmora_cashmere_knit_1791912551404.jpg'
       ],
       stock: 12,
-      sku: 'EN-APP-003',
+      sku: 'VEL-APP-003',
       status: 'ACTIVE',
       averageRating: 4.8,
       reviewCount: 8,
@@ -443,10 +441,10 @@ const initialSeedData: DatabaseSchema = {
       price: 32000,
       compareAtPrice: 36000,
       images: [
-        '/src/assets/images/category_apparel_1791824731775.jpg'
+        '/src/assets/images/velmora_tailored_trousers_1791912550672.jpg'
       ],
       stock: 10,
-      sku: 'EN-APP-004',
+      sku: 'VEL-APP-004',
       status: 'ACTIVE',
       averageRating: 4.9,
       reviewCount: 6,
@@ -474,10 +472,10 @@ const initialSeedData: DatabaseSchema = {
       price: 9800,
       compareAtPrice: 11500,
       images: [
-        '/src/assets/images/category_skincare_1791824742582.jpg'
+        '/src/assets/images/velmora_botanical_serum_1791912396485.jpg'
       ],
       stock: 35,
-      sku: 'EN-SKN-001',
+      sku: 'VEL-SKN-001',
       status: 'ACTIVE',
       averageRating: 4.9,
       reviewCount: 32,
@@ -509,10 +507,10 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Botanical Skincare',
       price: 12400,
       images: [
-        '/src/assets/images/category_skincare_1791824742582.jpg'
+        '/src/assets/images/velmora_face_cream_1791912396507.jpg'
       ],
       stock: 22,
-      sku: 'EN-SKN-002',
+      sku: 'VEL-SKN-002',
       status: 'ACTIVE',
       averageRating: 4.8,
       reviewCount: 16,
@@ -538,10 +536,10 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Botanical Skincare',
       price: 4200,
       images: [
-        '/src/assets/images/category_skincare_1791824742582.jpg'
+        '/src/assets/images/velmora_obsidian_guasha_1791912397941.jpg'
       ],
       stock: 40,
-      sku: 'EN-SKN-003',
+      sku: 'VEL-SKN-003',
       status: 'ACTIVE',
       averageRating: 5.0,
       reviewCount: 24,
@@ -569,7 +567,7 @@ const initialSeedData: DatabaseSchema = {
         '/src/assets/images/category_skincare_1791824742582.jpg'
       ],
       stock: 28,
-      sku: 'EN-SKN-004',
+      sku: 'VEL-SKN-004',
       status: 'ACTIVE',
       averageRating: 4.7,
       reviewCount: 15,
@@ -589,15 +587,15 @@ const initialSeedData: DatabaseSchema = {
   orders: [
     {
       id: 'ord_1042',
-      orderNumber: 'EN-84920',
+      orderNumber: 'VEL-84920',
       userId: 'usr_client_01',
       customerName: 'Eleanor Vance',
-      customerEmail: 'client@elixirnoir.com',
+      customerEmail: 'client@velmora.com',
       items: [
         {
           productId: 'prod_nocturne_ambre',
           productName: 'Nocturne Ambré Eau de Parfum',
-          productImage: '/src/assets/images/hero_luxury_boutique_1791824705943.jpg',
+          productImage: '/src/assets/images/velmora_perfume_ambre_1791912395312.jpg',
           price: 18500,
           quantity: 1,
           selectedVariant: '100ml Grand Flacon'
@@ -605,7 +603,7 @@ const initialSeedData: DatabaseSchema = {
         {
           productId: 'prod_aeterna_serum',
           productName: 'Aeterna Botanical Restorative Serum',
-          productImage: '/src/assets/images/category_skincare_1791824742582.jpg',
+          productImage: '/src/assets/images/velmora_botanical_serum_1791912396485.jpg',
           price: 9800,
           quantity: 1,
           selectedVariant: '30ml Dropper'
@@ -703,7 +701,7 @@ const initialSeedData: DatabaseSchema = {
     },
     {
       id: 'coup_03',
-      code: 'NOIR15',
+      code: 'VELMORA15',
       discountType: 'PERCENT',
       discountValue: 15,
       minOrder: 10000,
@@ -743,7 +741,7 @@ const initialSeedData: DatabaseSchema = {
       id: 'alt_01',
       productId: 'prod_nocturne_ambre',
       productName: 'Nocturne Ambré Eau de Parfum',
-      userEmail: 'client@elixirnoir.com',
+      userEmail: 'client@velmora.com',
       type: 'PRICE_DROP',
       targetPrice: 17000,
       createdAt: '2026-10-01T10:00:00.000Z'
