@@ -52,9 +52,16 @@
       "role": "CUSTOMER",
       "accountStatus": "ACTIVE",
       "emailVerifiedAt": "2026-02-15T12:00:00.000Z",
-      "loyaltyPoints": 1421,
+      "loyaltyPoints": 1592,
       "loyaltyTier": "OR",
       "loyaltyHistory": [
+        {
+          "id": "ly_1791966304008",
+          "date": "2026-10-14",
+          "description": "Acquisition EN-5978",
+          "points": 171,
+          "type": "EARNED"
+        },
         {
           "id": "ly_1791963337339",
           "date": "2026-10-14",
@@ -719,6 +726,45 @@
       "paymentStatus": "PAID",
       "orderStatus": "PLACED",
       "paymentMethod": "RAZORPAY_UPI",
+      "id": "ord_1791966304008",
+      "orderNumber": "EN-5978",
+      "trackingCourier": "Blue Dart Sovereign White Glove",
+      "estimatedDelivery": "Within 3-4 Business Days",
+      "createdAt": "2026-10-14T08:25:04.008Z",
+      "updatedAt": "2026-10-14T08:25:04.008Z",
+      "pointsEarned": 171
+    },
+    {
+      "userId": "usr_client_01",
+      "customerName": "Test Client",
+      "customerEmail": "test@elixirnoir.com",
+      "items": [
+        {
+          "productId": "prod_nocturne_ambre",
+          "productName": "Nocturne Ambré Eau de Parfum",
+          "productImage": "",
+          "price": 18500,
+          "quantity": 1
+        }
+      ],
+      "shippingAddress": {
+        "id": "addr_test",
+        "fullName": "Test Client",
+        "addressLine1": "Colaba Causeway",
+        "city": "Mumbai",
+        "state": "MH",
+        "postalCode": "400005",
+        "country": "India",
+        "phone": "+91 99999 88888"
+      },
+      "subtotal": 18500,
+      "discount": 1850,
+      "shippingFee": 0,
+      "tax": 500,
+      "totalAmount": 17150,
+      "paymentStatus": "PAID",
+      "orderStatus": "PLACED",
+      "paymentMethod": "RAZORPAY_UPI",
       "id": "ord_1791963337338",
       "orderNumber": "EN-1415",
       "trackingCourier": "Blue Dart Sovereign White Glove",
@@ -877,7 +923,7 @@
   "carts": {
     "gst_1791826023152_xu6g": {
       "items": [],
-      "updatedAt": "2026-10-14T07:27:31.068Z"
+      "updatedAt": "2026-10-14T08:18:23.671Z"
     },
     "usr_test_user": {
       "items": [
@@ -941,10 +987,10 @@
             ],
             "createdAt": "2026-01-10T10:00:00.000Z"
           },
-          "quantity": 2
+          "quantity": 4
         }
       ],
-      "updatedAt": "2026-10-14T07:35:37.338Z"
+      "updatedAt": "2026-10-14T08:25:04.007Z"
     }
   },
   "wishlists": {

@@ -3,9 +3,19 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import { GoogleGenAI, GenerateVideosOperation } from '@google/genai';
 import { db, hashPassword, verifyPassword } from './src/server/db.js';
 
 dotenv.config();
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    }
+  }
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -683,6 +693,98 @@ app.patch('/api/admin/contact-requests/:id', requireAdmin, (req, res) => {
 });
 
 // ----------------------------------------------------
+// VEO VIDEO GENERATION (veo-3.1-fast-generate-preview)
+// ----------------------------------------------------
+app.post('/api/generate-video', async (req, res) => {
+  try {
+    const { imageBase64, mimeType, prompt, aspectRatio } = req.body;
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'An image is required for video generation.' });
+    }
+
+    // Strip data URI header if present
+    const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
+    const cleanMimeType = mimeType || (imageBase64.includes('image/png') ? 'image/png' : 'image/jpeg');
+
+    const selectedRatio = aspectRatio === '9:16' ? '9:16' : '16:9';
+    const videoPrompt = prompt && prompt.trim().length > 0
+      ? prompt.trim()
+      : 'Cinematic luxury beauty commercial with smooth camera movement, delicate fragrance mist, and warm golden lighting';
+
+    const operation = await ai.models.generateVideos({
+      model: 'veo-3.1-fast-generate-preview',
+      prompt: videoPrompt,
+      image: {
+        imageBytes: cleanBase64,
+        mimeType: cleanMimeType,
+      },
+      config: {
+        numberOfVideos: 1,
+        aspectRatio: selectedRatio,
+      }
+    });
+
+    return res.json({ operationName: operation.name });
+  } catch (err: any) {
+    console.error('Error generating video with Veo:', err);
+    return res.status(500).json({ error: err?.message || 'Failed to start video generation.' });
+  }
+});
+
+app.post('/api/video-status', async (req, res) => {
+  try {
+    const { operationName } = req.body;
+    if (!operationName) {
+      return res.status(400).json({ error: 'operationName is required' });
+    }
+
+    const op = new GenerateVideosOperation();
+    op.name = operationName;
+    const updated = await ai.operations.getVideosOperation({ operation: op });
+    return res.json({
+      done: !!updated.done,
+      error: updated.error || null,
+      operationName: updated.name
+    });
+  } catch (err: any) {
+    console.error('Error polling video status:', err);
+    return res.status(500).json({ error: err?.message || 'Failed to poll video status.' });
+  }
+});
+
+app.post('/api/video-download', async (req, res) => {
+  try {
+    const { operationName } = req.body;
+    if (!operationName) {
+      return res.status(400).json({ error: 'operationName is required' });
+    }
+
+    const op = new GenerateVideosOperation();
+    op.name = operationName;
+    const updated = await ai.operations.getVideosOperation({ operation: op });
+    const uri = updated.response?.generatedVideos?.[0]?.video?.uri;
+    if (!uri) {
+      return res.status(404).json({ error: 'Generated video URI not found.' });
+    }
+
+    const videoRes = await fetch(uri, {
+      headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY || '' },
+    });
+
+    if (!videoRes.ok) {
+      return res.status(videoRes.status).json({ error: 'Failed to download video stream.' });
+    }
+
+    res.setHeader('Content-Type', 'video/mp4');
+    const arrayBuffer = await videoRes.arrayBuffer();
+    return res.send(Buffer.from(arrayBuffer));
+  } catch (err: any) {
+    console.error('Error downloading video:', err);
+    return res.status(500).json({ error: err?.message || 'Failed to download video.' });
+  }
+});
+
+// ----------------------------------------------------
 // FRONTEND SERVING (Vite middleware in dev, dist in prod)
 // ----------------------------------------------------
 async function startServer() {
@@ -702,7 +804,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✨ ÉLIXIR & NOIR boutique engine listening on http://0.0.0.0:${PORT}`);
+    console.log(`✨ VELMORA luxury beauty engine listening on http://0.0.0.0:${PORT}`);
   });
 }
 

@@ -58,6 +58,10 @@ interface StoreContextType {
   isCompareOpen: boolean;
   setIsCompareOpen: (open: boolean) => void;
 
+  // AI Motion Studio
+  isMotionStudioOpen: boolean;
+  setIsMotionStudioOpen: (open: boolean) => void;
+
   // Personalization & Recently Viewed
   recentlyViewedIds: string[];
   addRecentlyViewed: (productId: string) => void;
@@ -136,6 +140,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Compare
   const [compareList, setCompareList] = useState<Product[]>([]);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+
+  // AI Motion Studio
+  const [isMotionStudioOpen, setIsMotionStudioOpen] = useState(false);
 
   // Recently Viewed & Personalization
   const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>(() => {
@@ -672,6 +679,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         clearCompare,
         isCompareOpen,
         setIsCompareOpen,
+        isMotionStudioOpen,
+        setIsMotionStudioOpen,
         recentlyViewedIds,
         addRecentlyViewed,
         favoriteCategories,

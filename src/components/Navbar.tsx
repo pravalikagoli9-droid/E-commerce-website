@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
-import { Search, ShoppingBag, Heart, User as UserIcon, Shield, Menu, X, Scale, Gift, Tag, Sparkles, Truck } from 'lucide-react';
+import { Search, ShoppingBag, Heart, User as UserIcon, Shield, Menu, X, Scale, Gift, Tag, Sparkles, Truck, Film } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Navbar: React.FC = () => {
   const {
     currentPage,
     setCurrentPage,
+    selectedCategorySlug,
     setSelectedCategorySlug,
     cartItems,
     wishlistIds,
@@ -14,6 +15,7 @@ export const Navbar: React.FC = () => {
     setIsCompareOpen,
     setIsSearchOpen,
     setIsCartDrawerOpen,
+    setIsMotionStudioOpen,
     user,
     logout,
     quickLoginDemo
@@ -112,20 +114,32 @@ export const Navbar: React.FC = () => {
           </button>
           <button
             onClick={() => navigateTo('shop', 'fragrances')}
-            className="hover:text-[#5A3E36] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className={`hover:text-[#5A3E36] transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              currentPage === 'shop' && selectedCategorySlug === 'fragrances'
+                ? 'text-[#5A3E36] border-b-2 border-[#5A3E36] pb-0.5 font-semibold'
+                : ''
+            }`}
           >
             Fragrances
           </button>
           <button
             onClick={() => navigateTo('shop', 'skincare')}
-            className="hover:text-[#78866B] text-[#78866B] font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1"
+            className={`hover:text-[#78866B] text-[#78866B] font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1 ${
+              currentPage === 'shop' && selectedCategorySlug === 'skincare'
+                ? 'border-b-2 border-[#78866B] pb-0.5 font-semibold'
+                : ''
+            }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#78866B]" />
             Skincare
           </button>
           <button
             onClick={() => navigateTo('shop', 'apparel')}
-            className="hover:text-[#5A3E36] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className={`hover:text-[#5A3E36] transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              currentPage === 'shop' && selectedCategorySlug === 'apparel'
+                ? 'text-[#5A3E36] border-b-2 border-[#5A3E36] pb-0.5 font-semibold'
+                : ''
+            }`}
           >
             Lifestyle & Apparel
           </button>
@@ -154,6 +168,13 @@ export const Navbar: React.FC = () => {
             }`}
           >
             Track Order
+          </button>
+          <button
+            onClick={() => setIsMotionStudioOpen(true)}
+            className="hover:text-[#5A3E36] transition-colors whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-[#D6B77A]/15 border border-[#D6B77A]/50 text-[#5A3E36] text-[11px] font-medium shadow-xs"
+          >
+            <Film className="w-3 h-3 text-[#D6B77A]" />
+            <span>Motion Studio</span>
           </button>
         </nav>
 
@@ -397,6 +418,16 @@ export const Navbar: React.FC = () => {
               <button onClick={() => navigateTo('tracking')} className="text-left hover:text-[#5A3E36] py-1 flex items-center gap-2 cursor-pointer">
                 <Truck className="w-3.5 h-3.5" />
                 <span>Track Order</span>
+              </button>
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsMotionStudioOpen(true);
+                }} 
+                className="text-left hover:text-[#5A3E36] py-1 flex items-center gap-2 cursor-pointer text-[#5A3E36] font-medium"
+              >
+                <Film className="w-3.5 h-3.5 text-[#D6B77A]" />
+                <span>AI Motion Studio (Veo)</span>
               </button>
               <button onClick={() => navigateTo('about')} className="text-left hover:text-[#5A3E36] py-1 cursor-pointer">
                 About VELMORA

@@ -54,30 +54,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-20px' }}
-        transition={{ duration: 0.4 }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
         onClick={handleCardClick}
-        className="group relative flex flex-col bg-[#FFFDF9] border border-[#E8DED4] hover:border-[#C9878D] hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden rounded-sm"
+        className="group relative flex flex-col bg-[#FFFDF8] border border-[#B7A397]/30 hover:border-[#5A3E36] hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden rounded-sm"
       >
         {/* Product Image Frame */}
-        <div className="relative aspect-[4/5] w-full bg-[#FAF7F2] overflow-hidden">
+        <div className="relative aspect-[4/5] w-full bg-[#F8F4ED] overflow-hidden">
           <img
             src={product.images[0] || ''}
             alt={product.name}
             referrerPolicy="no-referrer"
+            loading="lazy"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = '/src/assets/images/category_apparel_1791824731775.jpg';
+            }}
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
 
           {/* Badges */}
           {product.isBestseller && (
-            <span className="absolute top-3 left-3 text-[10px] tracking-[0.18em] uppercase text-[#392C2A] bg-[#E8D8C8]/95 backdrop-blur-sm px-2.5 py-1 border border-[#E8DED4] font-medium shadow-xs">
+            <span className="absolute top-3 left-3 text-[10px] tracking-[0.18em] uppercase text-[#30231F] bg-[#F8F4ED]/95 backdrop-blur-sm px-2.5 py-1 border border-[#D6B77A] font-medium shadow-xs">
               Best Seller
             </span>
           )}
           {!product.isBestseller && product.isNewArrival && (
-            <span className="absolute top-3 left-3 text-[10px] tracking-[0.18em] uppercase text-[#C9878D] bg-[#FFFDF9]/95 backdrop-blur-sm px-2.5 py-1 border border-[#E8DED4] font-medium shadow-xs">
+            <span className="absolute top-3 left-3 text-[10px] tracking-[0.18em] uppercase text-[#5A3E36] bg-[#FFFDF8]/95 backdrop-blur-sm px-2.5 py-1 border border-[#B7A397]/40 font-medium shadow-xs">
               New Arrival
             </span>
           )}
@@ -88,11 +91,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               onClick={handleWishlistClick}
               aria-label="Save to Wishlist"
               title="Save to Wishlist"
-              className="p-2 bg-[#FFFDF9]/90 hover:bg-white text-[#392C2A] shadow-sm backdrop-blur-sm transition-all rounded-full cursor-pointer hover:scale-105"
+              className="p-2 bg-[#FFFDF8]/90 hover:bg-white text-[#30231F] shadow-sm backdrop-blur-sm transition-all rounded-full cursor-pointer hover:scale-105 border border-[#B7A397]/20"
             >
               <Heart
                 className={`w-3.5 h-3.5 transition-colors ${
-                  inWishlist ? 'fill-[#C9878D] text-[#C9878D]' : 'text-[#7D6B67]'
+                  inWishlist ? 'fill-[#5A3E36] text-[#5A3E36]' : 'text-[#B7A397]'
                 }`}
               />
             </button>
@@ -104,26 +107,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               }}
               title="Set price drop alert"
               aria-label="Set price drop alert"
-              className="p-2 bg-[#FFFDF9]/90 hover:bg-white text-[#7D6B67] hover:text-[#C9878D] shadow-sm backdrop-blur-sm transition-all rounded-full opacity-0 group-hover:opacity-100 cursor-pointer"
+              className="p-2 bg-[#FFFDF8]/90 hover:bg-white text-[#B7A397] hover:text-[#5A3E36] shadow-sm backdrop-blur-sm transition-all rounded-full opacity-0 group-hover:opacity-100 cursor-pointer border border-[#B7A397]/20"
             >
               <Bell className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Floating Actions Strip on Desktop Hover */}
-          <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-[#392C2A]/85 via-[#392C2A]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden sm:flex items-center gap-2">
+          <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-[#30231F]/90 via-[#30231F]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden sm:flex items-center gap-2">
             <button
               onClick={handleQuickAdd}
-              className="flex-1 py-2.5 bg-[#C9878D] text-white text-[11px] font-semibold tracking-[0.2em] uppercase hover:bg-[#B56F75] transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+              className="flex-1 py-2.5 bg-[#5A3E36] text-white text-[11px] font-semibold tracking-[0.2em] uppercase hover:bg-[#48322B] transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
+              <ShoppingBag className="w-3.5 h-3.5 text-[#D6B77A]" />
               <span>Add to Cart</span>
             </button>
 
             <button
               onClick={handleQuickView}
               title="Quick View"
-              className="p-2.5 bg-[#FFFDF9]/95 text-[#392C2A] hover:bg-white hover:text-[#C9878D] transition-colors cursor-pointer"
+              className="p-2.5 bg-[#FFFDF8]/95 text-[#30231F] hover:bg-white hover:text-[#5A3E36] transition-colors cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>
@@ -131,7 +134,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <button
               onClick={handleCompare}
               title="Compare Specifications"
-              className="p-2.5 bg-[#FFFDF9]/95 text-[#392C2A] hover:bg-white hover:text-[#C9878D] transition-colors cursor-pointer"
+              className="p-2.5 bg-[#FFFDF8]/95 text-[#30231F] hover:bg-white hover:text-[#5A3E36] transition-colors cursor-pointer"
             >
               <Scale className="w-3.5 h-3.5" />
             </button>
@@ -139,10 +142,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         {/* Product Metadata in Soft Cream */}
-        <div className="p-5 flex flex-col flex-1 justify-between bg-[#FFFDF9]">
+        <div className="p-5 flex flex-col flex-1 justify-between bg-[#FFFDF8]">
           <div>
-            <div className="flex items-center justify-between text-xs text-[#7D6B67] mb-1.5">
-              <span className="tracking-[0.18em] uppercase text-[11px] font-medium text-[#7D6B67]">
+            <div className="flex items-center justify-between text-xs text-[#B7A397] mb-1.5">
+              <span className="tracking-[0.18em] uppercase text-[11px] font-medium text-[#B7A397]">
                 {product.categoryName}
               </span>
               <div className="flex items-center gap-1 font-mono text-[11px] text-[#D6B77A] tabular-nums font-semibold">
@@ -151,31 +154,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               </div>
             </div>
 
-            <h3 className="font-serif text-lg text-[#392C2A] group-hover:text-[#C9878D] transition-colors line-clamp-1">
+            <h3 className="font-serif text-lg text-[#30231F] group-hover:text-[#5A3E36] transition-colors line-clamp-1">
               {product.name}
             </h3>
 
             {/* Note / Highlight kicker */}
             {product.notes && product.notes.length > 0 && (
-              <p className="text-xs text-[#7D6B67] mt-1 line-clamp-1 italic">
+              <p className="text-xs text-[#B7A397] mt-1 line-clamp-1 italic">
                 {product.notes[0]}
               </p>
             )}
             {product.fabricComposition && !product.notes && (
-              <p className="text-xs text-[#7D6B67] mt-1 line-clamp-1">
+              <p className="text-xs text-[#B7A397] mt-1 line-clamp-1">
                 {product.fabricComposition.split('&')[0]}
               </p>
             )}
           </div>
 
           {/* Price & Mobile Actions */}
-          <div className="mt-4 pt-3 border-t border-[#E8DED4] flex items-center justify-between">
+          <div className="mt-4 pt-3 border-t border-[#B7A397]/25 flex items-center justify-between">
             <div className="flex items-baseline gap-2 font-mono tabular-nums">
-              <span className="text-sm font-semibold text-[#392C2A]">
+              <span className="text-sm font-semibold text-[#30231F]">
                 ₹{product.price.toLocaleString('en-US')}
               </span>
               {product.compareAtPrice && (
-                <span className="text-xs text-[#7D6B67] line-through">
+                <span className="text-xs text-[#B7A397] line-through">
                   ₹{product.compareAtPrice.toLocaleString('en-US')}
                 </span>
               )}
@@ -184,14 +187,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="sm:hidden flex items-center gap-2">
               <button
                 onClick={handleQuickView}
-                className="text-xs text-[#7D6B67] p-1"
+                className="text-xs text-[#5A3E36] p-1"
                 aria-label="Quick View"
               >
                 <Eye className="w-4 h-4" />
               </button>
               <button
                 onClick={handleQuickAdd}
-                className="text-xs uppercase tracking-wider text-[#C9878D] font-semibold p-1 underline"
+                className="text-xs uppercase tracking-wider text-[#5A3E36] font-semibold p-1 underline"
               >
                 Add
               </button>

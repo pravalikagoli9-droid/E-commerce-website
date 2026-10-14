@@ -11,9 +11,11 @@ import {
   ShieldCheck,
   Star,
   Eye,
-  Heart
+  Heart,
+  Film
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { LuxuryBottleHero } from '../components/LuxuryBottleHero';
 
 export const HomeView: React.FC = () => {
   const {
@@ -22,9 +24,11 @@ export const HomeView: React.FC = () => {
     setSelectedCategorySlug,
     recentlyViewedIds,
     favoriteCategories,
-    toggleFavoriteCategory
+    toggleFavoriteCategory,
+    setIsMotionStudioOpen
   } = useStore();
 
+  const [heroViewMode, setHeroViewMode] = useState<'cinematic-bottle' | 'campaign-slides'>('cinematic-bottle');
   const [heroIndex, setHeroIndex] = useState(0);
 
   const heroCampaigns = [
@@ -94,109 +98,138 @@ export const HomeView: React.FC = () => {
 
   return (
     <div className="space-y-24 sm:space-y-32 pb-16">
-      {/* 1. Interactive Multi-Campaign Hero Section */}
-      <section className="relative min-h-[82vh] sm:min-h-[88vh] flex items-center justify-center overflow-hidden bg-[#392C2A]">
-        {/* Animated Background Image */}
-        <div className="absolute inset-0 z-0">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={currentCampaign.image}
-              src={currentCampaign.image}
-              alt={currentCampaign.title}
-              referrerPolicy="no-referrer"
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 0.7, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.9, ease: 'easeOut' }}
-              className="w-full h-full object-cover object-center"
-            />
-          </AnimatePresence>
-          {/* Subtle Scrim Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#392C2A] via-[#392C2A]/50 to-[#392C2A]/35" />
-        </div>
-
-        {/* Hero Content Frame */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6 pt-12 pb-16">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={heroIndex}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-6"
-            >
-              <span className="inline-block text-xs sm:text-sm tracking-[0.28em] uppercase text-[#D6B77A] font-semibold">
-                {currentCampaign.subtitle}
-              </span>
-
-              <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-[#FAF7F2] tracking-[0.04em] leading-[1.08] font-normal max-w-4xl mx-auto [text-wrap:balance]">
-                {currentCampaign.title}
-              </h1>
-
-              <p className="text-sm sm:text-base md:text-lg text-[#E8D8C8] max-w-2xl mx-auto font-light leading-relaxed tracking-wide [text-wrap:balance]">
-                {currentCampaign.desc}
-              </p>
-
-              <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button
-                  onClick={() => {
-                    setSelectedCategorySlug(currentCampaign.categorySlug);
-                    setCurrentPage('shop');
-                  }}
-                  className="w-full sm:w-auto px-8 py-3.5 bg-[#C9878D] text-white text-xs font-semibold tracking-[0.22em] uppercase hover:bg-[#B56F75] transition-colors cursor-pointer shadow-xl flex items-center justify-center gap-2"
-                >
-                  <span>{currentCampaign.ctaText}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedCategorySlug(null);
-                    setCurrentPage('shop');
-                  }}
-                  className="w-full sm:w-auto px-8 py-3.5 border border-[#E8D8C8] hover:border-white text-xs font-medium tracking-[0.22em] uppercase text-[#FAF7F2] hover:text-white transition-colors cursor-pointer"
-                >
-                  Shop All Products
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Hero Carousel Navigation Dots & Controls */}
-          <div className="pt-8 flex items-center justify-center gap-6">
+      {/* 1. Primary Hero: Luxury Perfume Bottle Opening Animation OR Multi-Campaign Showcase */}
+      {heroViewMode === 'cinematic-bottle' ? (
+        <div className="relative">
+          <LuxuryBottleHero onSwitchToSlides={() => setHeroViewMode('campaign-slides')} />
+          {/* Subtle upper switcher pill to explore alternate campaigns */}
+          <div className="absolute top-4 right-4 sm:right-8 z-30">
             <button
-              onClick={() =>
-                setHeroIndex(prev => (prev - 1 + heroCampaigns.length) % heroCampaigns.length)
-              }
-              aria-label="Previous Campaign"
-              className="p-2 rounded-full text-[#E8D8C8] hover:text-white border border-[#E8D8C8]/40 hover:border-white transition-colors cursor-pointer"
+              onClick={() => setHeroViewMode('campaign-slides')}
+              className="px-3.5 py-1.5 rounded-full bg-[#30231F]/80 hover:bg-[#30231F] border border-[#D6B77A]/50 text-[#FAF7F2] text-xs font-medium tracking-wider backdrop-blur-sm shadow-md transition-all cursor-pointer flex items-center gap-1.5"
             >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-
-            <div className="flex gap-2.5">
-              {heroCampaigns.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setHeroIndex(idx)}
-                  className={`h-2 transition-all duration-300 rounded-full cursor-pointer ${
-                    heroIndex === idx ? 'w-8 bg-[#C9878D]' : 'w-2 bg-[#E8D8C8]/40 hover:bg-[#E8D8C8]/80'
-                  }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
-            </div>
-
-            <button
-              onClick={() => setHeroIndex(prev => (prev + 1) % heroCampaigns.length)}
-              aria-label="Next Campaign"
-              className="p-2 rounded-full text-[#E8D8C8] hover:text-white border border-[#E8D8C8]/40 hover:border-white transition-colors cursor-pointer"
-            >
-              <ChevronRight className="w-4 h-4" />
+              <span>Explore Campaign Slides</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#D6B77A]" />
             </button>
           </div>
         </div>
-      </section>
+      ) : (
+        <section className="relative min-h-[82vh] sm:min-h-[88vh] flex items-center justify-center overflow-hidden bg-[#392C2A]">
+          {/* Switcher back to cinematic bottle */}
+          <div className="absolute top-4 right-4 sm:right-8 z-30">
+            <button
+              onClick={() => setHeroViewMode('cinematic-bottle')}
+              className="px-3.5 py-1.5 rounded-full bg-[#30231F]/80 hover:bg-[#30231F] border border-[#D6B77A]/50 text-[#FAF7F2] text-xs font-medium tracking-wider backdrop-blur-sm shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#D6B77A]" />
+              <span>Flacon Opening Animation</span>
+            </button>
+          </div>
+
+          {/* Animated Background Image */}
+          <div className="absolute inset-0 z-0">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentCampaign.image}
+                src={currentCampaign.image}
+                alt={currentCampaign.title}
+                referrerPolicy="no-referrer"
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 0.7, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.9, ease: 'easeOut' }}
+                className="w-full h-full object-cover object-center"
+              />
+            </AnimatePresence>
+            {/* Subtle Scrim Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#392C2A] via-[#392C2A]/50 to-[#392C2A]/35" />
+          </div>
+
+          {/* Hero Content Frame */}
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6 pt-12 pb-16">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={heroIndex}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -14 }}
+                transition={{ duration: 0.5 }}
+                className="space-y-6"
+              >
+                <span className="inline-block text-xs sm:text-sm tracking-[0.28em] uppercase text-[#D6B77A] font-semibold">
+                  {currentCampaign.subtitle}
+                </span>
+
+                <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-[#FAF7F2] tracking-[0.04em] leading-[1.08] font-normal max-w-4xl mx-auto [text-wrap:balance]">
+                  {currentCampaign.title}
+                </h1>
+
+                <p className="text-sm sm:text-base md:text-lg text-[#E8D8C8] max-w-2xl mx-auto font-light leading-relaxed tracking-wide [text-wrap:balance]">
+                  {currentCampaign.desc}
+                </p>
+
+                <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <button
+                    onClick={() => {
+                      setSelectedCategorySlug(currentCampaign.categorySlug);
+                      setCurrentPage('shop');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-[#D6B77A] text-[#30231F] text-xs font-semibold tracking-[0.22em] uppercase hover:bg-[#c4a362] transition-colors cursor-pointer shadow-xl flex items-center justify-center gap-2"
+                  >
+                    <span>{currentCampaign.ctaText}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#30231F]" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCategorySlug(null);
+                      setCurrentPage('shop');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="w-full sm:w-auto px-8 py-3.5 border border-[#D6B77A]/70 hover:border-[#D6B77A] text-xs font-medium tracking-[0.22em] uppercase text-[#F8F4ED] hover:text-white hover:bg-[#D6B77A]/15 transition-all cursor-pointer"
+                  >
+                    Shop All Products
+                  </button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Hero Carousel Navigation Dots & Controls */}
+            <div className="pt-8 flex items-center justify-center gap-6">
+              <button
+                onClick={() =>
+                  setHeroIndex(prev => (prev - 1 + heroCampaigns.length) % heroCampaigns.length)
+                }
+                aria-label="Previous Campaign"
+                className="p-2 rounded-full text-[#E8D8C8] hover:text-white border border-[#E8D8C8]/40 hover:border-white transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="flex gap-2.5">
+                {heroCampaigns.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setHeroIndex(idx)}
+                    className={`h-2 transition-all duration-300 rounded-full cursor-pointer ${
+                      heroIndex === idx ? 'w-8 bg-[#C9878D]' : 'w-2 bg-[#E8D8C8]/40 hover:bg-[#E8D8C8]/80'
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={() => setHeroIndex(prev => (prev + 1) % heroCampaigns.length)}
+                aria-label="Next Campaign"
+                className="p-2 rounded-full text-[#E8D8C8] hover:text-white border border-[#E8D8C8]/40 hover:border-white transition-colors cursor-pointer"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 2. Three Brand Quality Hallmarks */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -286,8 +319,9 @@ export const HomeView: React.FC = () => {
               onClick={() => {
                 setSelectedCategorySlug(cat.slug);
                 setCurrentPage('shop');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="group relative h-[480px] bg-[#392C2A] border border-[#E8DED4] overflow-hidden cursor-pointer shadow-md rounded-sm"
+              className="group relative h-[480px] bg-[#30231F] border border-[#B7A397]/30 overflow-hidden cursor-pointer shadow-md rounded-sm"
             >
               <img
                 src={cat.image}
@@ -295,7 +329,7 @@ export const HomeView: React.FC = () => {
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-85 group-hover:opacity-95"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#392C2A] via-[#392C2A]/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#30231F] via-[#30231F]/40 to-transparent" />
 
               <div className="absolute inset-x-0 bottom-0 p-8 space-y-2">
                 <span className="text-[11px] tracking-[0.2em] uppercase text-[#D6B77A] block font-semibold">
@@ -309,7 +343,7 @@ export const HomeView: React.FC = () => {
                 </p>
                 <div className="pt-2 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[#FAF7F2] font-medium">
                   <span>Shop Collection</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-[#C9878D]" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-[#D6B77A]" />
                 </div>
               </div>
             </motion.div>
@@ -426,6 +460,76 @@ export const HomeView: React.FC = () => {
             >
               View Special Offers
             </button>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* 8. VELMORA AI Motion Atelier — Powered by Veo */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="bg-[#241B18] text-[#FAF7F2] p-8 sm:p-12 border border-[#D6B77A]/40 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center rounded-sm shadow-2xl relative overflow-hidden"
+        >
+          {/* Subtle warm champagne background glow */}
+          <div 
+            className="absolute top-0 right-0 w-[450px] h-[350px] rounded-full opacity-20 blur-[90px] pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, #D6B77A 0%, #5A3E36 60%, transparent 80%)'
+            }}
+          />
+
+          <div className="lg:col-span-7 space-y-4 relative z-10">
+            <span className="text-xs tracking-[0.28em] uppercase text-[#D6B77A] font-semibold flex items-center gap-2">
+              <Film className="w-4 h-4 text-[#D6B77A]" />
+              <span>VELMORA AI Motion Atelier · Powered by Veo</span>
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#FAF7F2] font-normal leading-tight">
+              Animate your beauty still into a cinematic luxury commercial.
+            </h2>
+            <p className="text-xs sm:text-sm text-[#E8D8C8] leading-relaxed max-w-xl">
+              Upload any perfume flacon, skincare elixir, or beauty portrait and generate cinematic motion with realistic camera sweeps, fragrance mist vapor, and glass caustics using Google Veo (16:9 landscape or 9:16 vertical reels).
+            </p>
+            <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <button
+                onClick={() => setIsMotionStudioOpen(true)}
+                className="px-6 py-3.5 bg-[#D6B77A] hover:bg-[#c4a362] text-[#30231F] text-xs font-semibold tracking-[0.2em] uppercase transition-colors cursor-pointer inline-flex items-center gap-2 shadow-lg"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#30231F]" />
+                <span>Launch Motion Studio</span>
+              </button>
+              <span className="text-[11px] text-[#B7A397] font-mono">
+                Model: veo-3.1-fast-generate-preview · 1080p
+              </span>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 relative z-10">
+            <div 
+              onClick={() => setIsMotionStudioOpen(true)}
+              className="group relative aspect-video bg-[#30231F] border border-[#D6B77A]/50 rounded-sm overflow-hidden shadow-xl cursor-pointer"
+            >
+              <img
+                src="/src/assets/images/velmora_perfume_ambre_1791912395312.jpg"
+                alt="VELMORA perfume motion preview"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-[#D6B77A] tracking-wider uppercase font-semibold">
+                      Veo Video Synthesis
+                    </span>
+                    <h4 className="font-serif text-sm text-white">Ambre Nocturne · Fragrance Vapor Pan</h4>
+                  </div>
+                  <span className="p-2.5 rounded-full bg-[#D6B77A] text-[#30231F] shadow-lg group-hover:scale-110 transition-transform">
+                    <Film className="w-4 h-4" />
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </motion.div>
       </section>

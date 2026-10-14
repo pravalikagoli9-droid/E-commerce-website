@@ -6,6 +6,7 @@ import { CartDrawer } from './components/CartDrawer';
 import { SearchModal } from './components/SearchModal';
 import { QuickViewModal } from './components/QuickViewModal';
 import { ProductCompareModal } from './components/ProductCompareModal';
+import { MotionStudioModal } from './components/MotionStudioModal';
 import { HomeView } from './views/HomeView';
 import { ShopView } from './views/ShopView';
 import { ProductDetailView } from './views/ProductDetailView';
@@ -82,46 +83,113 @@ const CompareBottomDock: React.FC = () => {
   );
 };
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('VELMORA UI Error caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center bg-[#F8F4ED] text-[#30231F]">
+          <span className="text-xs uppercase tracking-[0.25em] text-[#D6B77A] font-semibold mb-2">
+            VELMORA Atelier
+          </span>
+          <h2 className="font-serif text-2xl sm:text-3xl text-[#5A3E36] mb-3">
+            An unexpected error occurred
+          </h2>
+          <p className="text-xs text-[#30231F]/80 max-w-md mb-6 leading-relaxed">
+            We apologize for the inconvenience. Please return to the homepage or reload the catalog.
+          </p>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false });
+              window.location.href = '/';
+            }}
+            className="px-6 py-2.5 bg-[#5A3E36] hover:bg-[#48322B] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors shadow-sm"
+          >
+            Return to Homepage
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const MainContent: React.FC = () => {
   const { currentPage } = useStore();
 
   return (
-    <main className="min-h-screen flex flex-col justify-between bg-[#FAF7F2] text-[#392C2A]">
+    <main className="min-h-screen flex flex-col justify-between bg-[#F8F4ED] text-[#30231F]">
       <div className="flex-1">
-        {currentPage === 'home' && <HomeView />}
-        {currentPage === 'shop' && <ShopView />}
-        {currentPage === 'product-detail' && <ProductDetailView />}
-        {currentPage === 'checkout' && <CheckoutView />}
-        {currentPage === 'order-confirmation' && <OrderConfirmationView />}
-        {currentPage === 'account' && <AccountView />}
-        {currentPage === 'admin' && <AdminView />}
-        {currentPage === 'about' && <AboutView />}
-        {currentPage === 'faq' && <FaqView />}
-        {currentPage === 'blog' && <BlogView />}
-        {currentPage === 'contact' && <ContactView />}
-        {currentPage === 'policies' && <PolicyView />}
-        {currentPage === 'gifting' && <GiftingView />}
-        {currentPage === 'offers' && <OffersView />}
-        {currentPage === 'tracking' && <TrackingView />}
+        <ErrorBoundary>
+          {currentPage === 'home' && <HomeView />}
+          {currentPage === 'shop' && <ShopView />}
+          {currentPage === 'product-detail' && <ProductDetailView />}
+          {currentPage === 'checkout' && <CheckoutView />}
+          {currentPage === 'order-confirmation' && <OrderConfirmationView />}
+          {currentPage === 'account' && <AccountView />}
+          {currentPage === 'admin' && <AdminView />}
+          {currentPage === 'about' && <AboutView />}
+          {currentPage === 'faq' && <FaqView />}
+          {currentPage === 'blog' && <BlogView />}
+          {currentPage === 'contact' && <ContactView />}
+          {currentPage === 'policies' && <PolicyView />}
+          {currentPage === 'gifting' && <GiftingView />}
+          {currentPage === 'offers' && <OffersView />}
+          {currentPage === 'tracking' && <TrackingView />}
+        </ErrorBoundary>
       </div>
       <Footer />
     </main>
   );
 };
 
+const AppShell: React.FC = () => {
+  const { isMotionStudioOpen, setIsMotionStudioOpen } = useStore();
+
+  return (
+    <div className="min-h-screen bg-[#F8F4ED] text-[#30231F] selection:bg-[#D6B77A]/30 selection:text-[#30231F] font-sans">
+      <Navbar />
+      <MainContent />
+      <CartDrawer />
+      <SearchModal />
+      <QuickViewModal />
+      <ProductCompareModal />
+      <CompareBottomDock />
+      <MotionStudioModal
+        isOpen={isMotionStudioOpen}
+        onClose={() => setIsMotionStudioOpen(false)}
+      />
+      <ToastContainer />
+    </div>
+  );
+};
+
 export function App() {
   return (
     <StoreProvider>
-      <div className="min-h-screen bg-[#FAF7F2] text-[#392C2A] selection:bg-[#E8D8C8] selection:text-[#392C2A] font-sans">
-        <Navbar />
-        <MainContent />
-        <CartDrawer />
-        <SearchModal />
-        <QuickViewModal />
-        <ProductCompareModal />
-        <CompareBottomDock />
-        <ToastContainer />
-      </div>
+      <AppShell />
     </StoreProvider>
   );
 }

@@ -107,6 +107,7 @@ export const Footer: React.FC = () => {
                   onClick={() => {
                     setSelectedCategorySlug('fragrances');
                     setCurrentPage('shop');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="hover:text-[#D6B77A] transition-colors text-left cursor-pointer"
                 >
@@ -118,6 +119,7 @@ export const Footer: React.FC = () => {
                   onClick={() => {
                     setSelectedCategorySlug('skincare');
                     setCurrentPage('shop');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="hover:text-[#D6B77A] transition-colors text-left cursor-pointer"
                 >
@@ -129,6 +131,7 @@ export const Footer: React.FC = () => {
                   onClick={() => {
                     setSelectedCategorySlug('apparel');
                     setCurrentPage('shop');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="hover:text-[#D6B77A] transition-colors text-left cursor-pointer"
                 >
@@ -140,6 +143,7 @@ export const Footer: React.FC = () => {
                   onClick={() => {
                     setSelectedCategorySlug(null);
                     setCurrentPage('shop');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="hover:text-[#D6B77A] transition-colors text-left cursor-pointer"
                 >
