@@ -15,6 +15,7 @@ import {
   Film
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { PerfumeBottleAnimation } from '../components/PerfumeBottleAnimation';
 import { LuxuryBottleHero } from '../components/LuxuryBottleHero';
 
 export const HomeView: React.FC = () => {
@@ -101,7 +102,7 @@ export const HomeView: React.FC = () => {
       {/* 1. Primary Hero: Luxury Perfume Bottle Opening Animation OR Multi-Campaign Showcase */}
       {heroViewMode === 'cinematic-bottle' ? (
         <div className="relative">
-          <LuxuryBottleHero onSwitchToSlides={() => setHeroViewMode('campaign-slides')} />
+          <PerfumeBottleAnimation onExploreCampaigns={() => setHeroViewMode('campaign-slides')} />
           {/* Subtle upper switcher pill to explore alternate campaigns */}
           <div className="absolute top-4 right-4 sm:right-8 z-30">
             <button
