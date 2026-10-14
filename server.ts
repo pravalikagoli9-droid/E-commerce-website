@@ -318,8 +318,8 @@ app.post('/api/coupons/validate', (req, res) => {
   return res.json({ coupon });
 });
 
-// 6. ORDERS & RAZORPAY PAYMENT SIMULATION / VERIFICATION
-app.post('/api/orders/create', (req, res) => {
+// 6. ORDERS & PAYMENT SIMULATION / VERIFICATION (Razorpay Optional / Demo Mode)
+app.post(['/api/orders', '/api/orders/create'], (req, res) => {
   const user = getAuthUser(req);
   const {
     items,
@@ -330,7 +330,11 @@ app.post('/api/orders/create', (req, res) => {
     pointsToRedeem = 0
   } = req.body;
 
-  if (!items || !Array.isArray(items) || items.length === 0) {
+  const rawItems = (items && Array.isArray(items) && items.length > 0)
+    ? items
+    : (user ? db.getCart(user.id) : []);
+
+  if (!rawItems || !Array.isArray(rawItems) || rawItems.length === 0) {
     return res.status(400).json({ error: 'Your shopping cart cannot be empty.' });
   }
 
@@ -342,7 +346,7 @@ app.post('/api/orders/create', (req, res) => {
   let subtotal = 0;
   const verifiedOrderItems = [];
 
-  for (const item of items) {
+  for (const item of rawItems) {
     const product = db.findProductById(item.productId);
     if (!product || product.status !== 'ACTIVE') {
       return res.status(400).json({ error: `Product ${item.productName || item.productId} is currently unavailable.` });
@@ -409,13 +413,17 @@ app.post('/api/orders/create', (req, res) => {
   const tax = Math.round(taxableAmount * 0.03);
   const totalAmount = taxableAmount + shippingFee + tax;
 
-  // Razorpay order simulation
-  const razorpayOrderId = `order_rzp_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
+  // Payment Gateway handling (Optional Razorpay / Built-in Demo Mode)
+  const hasRazorpayKeys = Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
+  const isDemoMode = !hasRazorpayKeys;
+  const razorpayOrderId = isDemoMode
+    ? `order_demo_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`
+    : `order_rzp_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
 
   const order = db.createOrder({
     userId: user?.id,
     customerName: shippingAddress.fullName,
-    customerEmail: user?.email || req.body.customerEmail || 'client@elixirnoir.com',
+    customerEmail: user?.email || req.body.customerEmail || 'client@velmora.com',
     items: verifiedOrderItems,
     shippingAddress,
     subtotal,
@@ -435,11 +443,13 @@ app.post('/api/orders/create', (req, res) => {
 
   return res.json({
     order,
+    isDemoMode,
     razorpay: {
       orderId: razorpayOrderId,
       amount: totalAmount * 100, // paise
       currency: 'INR',
-      key: process.env.RAZORPAY_KEY_ID || 'rzp_test_luxury_preview'
+      key: process.env.RAZORPAY_KEY_ID || 'rzp_demo_sandbox_velmora',
+      isDemoMode
     }
   });
 });
@@ -460,10 +470,13 @@ app.post('/api/orders/verify-payment', (req, res) => {
     db.decrementProductStock(item.productId, item.quantity);
   }
 
+  const isDemoMode = !process.env.RAZORPAY_KEY_ID;
+  const paymentRef = razorpayPaymentId || `pay_demo_${Date.now()}`;
+
   // Update order status to CONFIRMED / PROCESSING
   const updatedOrder = db.updateOrder(order.id, {
     paymentStatus: 'PAID',
-    paymentReference: razorpayPaymentId || `pay_rzp_${Date.now()}`,
+    paymentReference: paymentRef,
     orderStatus: 'PROCESSING',
     trackingNumber: `BD-IND-${Math.floor(10000000 + Math.random() * 90000000)}`,
     trackingCourier: 'Blue Dart Express'
@@ -474,7 +487,11 @@ app.post('/api/orders/verify-payment', (req, res) => {
     db.saveCart(order.userId, []);
   }
 
-  return res.json({ success: true, order: updatedOrder });
+  return res.json({
+    success: true,
+    isDemoMode,
+    order: updatedOrder
+  });
 });
 
 app.get('/api/orders', (req, res) => {

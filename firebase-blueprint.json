@@ -1,0 +1,189 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Registered VELMORA boutique patron profile including contact details and loyalty status.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "role": { "type": "string", "enum": ["CUSTOMER", "ADMIN"] },
+        "accountStatus": { "type": "string", "enum": ["ACTIVE", "SUSPENDED"] },
+        "loyaltyPoints": { "type": "number" },
+        "loyaltyTier": { "type": "string", "enum": ["NOIR", "OR", "IMPÉRIAL"] },
+        "favoriteCategories": { "type": "array" },
+        "addresses": { "type": "array" },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "email", "name", "role"]
+    },
+    "UserPrivate": {
+      "title": "User Private PII",
+      "description": "Sensitive customer delivery address, contact info and phone records.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "primaryAddress": { "type": "object" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["userId"]
+    },
+    "Product": {
+      "title": "Boutique Product",
+      "description": "Luxury perfume flacon, botanical skincare, or artisanal apparel item.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "slug": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "categoryId": { "type": "string", "maxLength": 64 },
+        "categoryName": { "type": "string", "maxLength": 100 },
+        "price": { "type": "number" },
+        "compareAtPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "sku": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["ACTIVE", "ARCHIVED"] },
+        "averageRating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "images": { "type": "array" },
+        "notes": { "type": "array" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "name", "price", "stock", "status"]
+    },
+    "Category": {
+      "title": "Product Category",
+      "description": "Merchandising category (e.g. Fragrances, Botanical Skincare, Haute Apparel).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 100 },
+        "slug": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 500 },
+        "image": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] }
+      },
+      "required": ["id", "name", "slug", "status"]
+    },
+    "Cart": {
+      "title": "Shopping Cart",
+      "description": "Synchronized multi-device shopping cart for authenticated patron.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "items": { "type": "array" },
+        "appliedCoupon": { "type": "object" },
+        "giftOptions": { "type": "object" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["userId", "items"]
+    },
+    "Order": {
+      "title": "Customer Order",
+      "description": "Confirmed e-commerce purchase order with line items, delivery details and payment state.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "orderNumber": { "type": "string", "maxLength": 64 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 120 },
+        "customerEmail": { "type": "string", "maxLength": 128 },
+        "items": { "type": "array" },
+        "shippingAddress": { "type": "object" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "shippingFee": { "type": "number" },
+        "tax": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentStatus": { "type": "string", "enum": ["PENDING", "PAID", "FAILED"] },
+        "orderStatus": { "type": "string", "enum": ["PLACED", "CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"] },
+        "paymentMethod": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "orderNumber", "userId", "customerEmail", "items", "totalAmount", "orderStatus", "paymentStatus"]
+    },
+    "Wishlist": {
+      "title": "Customer Wishlist",
+      "description": "Saved product items and fragrance favorites.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "productIds": { "type": "array" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["userId", "productIds"]
+    },
+    "Review": {
+      "title": "Product Review",
+      "description": "Patron feedback and verified purchase ratings.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "productId": { "type": "string", "maxLength": 128 },
+        "rating": { "type": "number" },
+        "comment": { "type": "string", "maxLength": 1500 },
+        "verifiedPurchase": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["APPROVED", "PENDING", "FLAGGED"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "userName", "productId", "rating", "comment"]
+    },
+    "Admin": {
+      "title": "Store Administrator",
+      "description": "Authorized VELMORA staff or director role definition.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["ADMIN", "SUPERADMIN"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Customer public profile document keyed by user auth UID."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": "UserPrivate",
+      "description": "Isolated customer PII and private addresses."
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Catalog of luxury goods visible to all patrons."
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Boutique merchandise categories."
+    },
+    "/carts/{userId}": {
+      "schema": "Cart",
+      "description": "Personal shopping cart accessible only by the owning patron."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Purchase records accessible by ordering customer and store administrators."
+    },
+    "/wishlists/{userId}": {
+      "schema": "Wishlist",
+      "description": "User private collection of favorite items."
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Customer product reviews."
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Trusted administrator directory for role-based authorization."
+    }
+  }
+}

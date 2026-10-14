@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Address } from '../types';
 import { useStore } from '../context/StoreContext';
+import { saveOrderToFirestore } from '../services/firebaseFirestore';
 import {
   ShieldCheck,
   CreditCard,
@@ -9,7 +10,10 @@ import {
   ArrowRight,
   Lock,
   Tag,
-  CheckCircle2
+  CheckCircle2,
+  Info,
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 
 export const CheckoutView: React.FC = () => {
@@ -40,7 +44,7 @@ export const CheckoutView: React.FC = () => {
   const [postalCode, setPostalCode] = useState(user?.addresses?.[0]?.postalCode || '400001');
 
   const [paymentMethod, setPaymentMethod] = useState<'RAZORPAY_UPI' | 'RAZORPAY_CARD' | 'COD'>('RAZORPAY_UPI');
-  const [upiId, setUpiId] = useState('client@okaxis');
+  const [upiId, setUpiId] = useState('patron.velmora@okhdfcbank');
   const [cardNumber, setCardNumber] = useState('4111 2222 3333 4444');
   const [cardExpiry, setCardExpiry] = useState('12/28');
   const [cardCvv, setCardCvv] = useState('982');
@@ -82,7 +86,7 @@ export const CheckoutView: React.FC = () => {
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName || !email || !phone || !addressLine1 || !city || !postalCode) {
-      showToast('Please complete all shipping address fields.', 'error');
+      showToast('Kindly complete all shipping address fields before proceeding.', 'error');
       return;
     }
 
@@ -102,6 +106,13 @@ export const CheckoutView: React.FC = () => {
       };
 
       const orderPayload = {
+        items: cartItems.map(item => ({
+          productId: item.productId || item.product?.id,
+          productName: item.product?.name,
+          quantity: item.quantity,
+          selectedVariant: item.selectedVariant
+        })),
+        couponCode: appliedCoupon?.code,
         shippingAddress,
         paymentMethod,
         customerEmail: email
@@ -111,7 +122,7 @@ export const CheckoutView: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(user ? { Authorization: `Bearer ${localStorage.getItem('elixir_token')}` } : {})
+          ...(user ? { Authorization: `Bearer ${localStorage.getItem('velmora_token') || localStorage.getItem('elixir_token')}` } : {})
         },
         body: JSON.stringify(orderPayload)
       });
@@ -119,22 +130,29 @@ export const CheckoutView: React.FC = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        showToast(data.error || 'Could not create order. Please try again.', 'error');
+        showToast(data.error || 'Could not place order. Kindly try again.', 'error');
         setIsProcessing(false);
         return;
+      }
+
+      // Persist order asynchronously to Cloud Firestore
+      if (data.order) {
+        saveOrderToFirestore(data.order).catch(err => {
+          console.warn('Could not record order in Cloud Firestore:', err);
+        });
       }
 
       if (paymentMethod === 'COD') {
         clearCart();
         setActiveOrder(data.order);
         setCurrentPage('order-confirmation');
-        showToast('Your order has been placed successfully!', 'success');
+        showToast('Your order has been placed successfully via Cash on Delivery! Kindly note your tracking reference.', 'success');
       } else {
         setPendingOrderId(data.order.id);
         setPaymentModalOpen(true);
       }
     } catch {
-      showToast('Error creating order. Please check your network connection.', 'error');
+      showToast('Error creating order. Kindly check your internet connection.', 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -147,42 +165,81 @@ export const CheckoutView: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(user ? { Authorization: `Bearer ${localStorage.getItem('elixir_token')}` } : {})
+          ...(user ? { Authorization: `Bearer ${localStorage.getItem('velmora_token') || localStorage.getItem('elixir_token')}` } : {})
         },
         body: JSON.stringify({
           orderId,
           razorpayPaymentId: paymentRef,
-          razorpaySignature: `sig_verified_${Date.now()}`
+          razorpaySignature: `sig_demo_verified_${Date.now()}`
         })
       });
 
       const data = await res.json();
       if (res.ok && data.order) {
+        // Update order in Firestore as PAID
+        saveOrderToFirestore(data.order).catch(console.warn);
+
         clearCart();
         setActiveOrder(data.order);
         setPaymentModalOpen(false);
         setCurrentPage('order-confirmation');
-        showToast('Payment verified! Your order has been placed.', 'success');
+        showToast('Payment verified successfully in demo mode! Your order has been placed.', 'success');
       } else {
-        showToast(data.error || 'Payment verification failed.', 'error');
+        showToast(data.error || 'Payment verification failed. Kindly try again.', 'error');
       }
     } catch {
-      showToast('Payment verification error. Please contact customer support.', 'error');
+      showToast('Payment verification error. Kindly contact customer concierge.', 'error');
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const handleSimulateFailure = () => {
+    showToast('Payment Simulation: Transaction declined for testing purposes. No charges were incurred.', 'error');
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Editorial Title */}
-      <div className="border-b border-[#E8DED4] pb-6">
-        <span className="text-xs tracking-[0.25em] uppercase text-[#C9878D] font-semibold">
-          Secure Checkout
-        </span>
-        <h1 className="font-serif text-3xl sm:text-4xl text-[#392C2A] mt-1 font-normal">
-          Complete Your Order
-        </h1>
+      <div className="border-b border-[#E8DED4] pb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <span className="text-xs tracking-[0.25em] uppercase text-[#C9878D] font-semibold">
+            Secure Checkout
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl text-[#392C2A] mt-1 font-normal">
+            Complete Your Order
+          </h1>
+        </div>
+
+        {/* Demo Payment Mode Badge in Header */}
+        <div className="flex items-center gap-2 bg-[#FAF7F2] border border-[#D6B77A]/50 px-3.5 py-2 rounded-xs shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
+          <span className="text-[11px] font-mono uppercase tracking-wider text-[#5A3E36] font-semibold">
+            Demo Payment Mode Active
+          </span>
+        </div>
+      </div>
+
+      {/* Prominent Demo Mode Information Banner */}
+      <div className="bg-[#FAF7F2] border-l-4 border-[#D6B77A] border-t border-r border-b border-[#E8DED4] p-4 sm:p-5 rounded-sm shadow-2xs">
+        <div className="flex items-start gap-3">
+          <div className="w-7 h-7 rounded-full bg-[#E8D8C8] text-[#5A3E36] flex items-center justify-center shrink-0 mt-0.5 border border-[#D6B77A]/40">
+            <Info className="w-4 h-4 text-[#5A3E36]" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-serif text-sm font-medium text-[#392C2A]">
+                Sandbox Demo Payment Mode (Razorpay Optional)
+              </span>
+              <span className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider bg-[#FFFDF9] text-[#7D6B67] border border-[#E8DED4] rounded-xs font-semibold">
+                Development & Testing
+              </span>
+            </div>
+            <p className="text-xs text-[#7D6B67] leading-relaxed">
+              Razorpay credentials (<code className="font-mono text-[11px] text-[#5A3E36] bg-[#FFFDF9] px-1 py-0.5 border border-[#E8DED4] rounded-2xs">RAZORPAY_KEY_ID</code>) are completely optional. You can safely simulate UPI and Card payments, test real order generation, verify inventory deductions, sync to Firestore, and track the Blue Dart dispatch without any monetary deduction.
+            </p>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleCreateOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -338,13 +395,18 @@ export const CheckoutView: React.FC = () => {
                   onChange={() => setPaymentMethod('RAZORPAY_UPI')}
                   className="mt-1 accent-[#C9878D]"
                 />
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
-                    <QrCode className="w-4 h-4 text-[#C9878D]" />
-                    <span>UPI (Google Pay, PhonePe, Paytm, QR Code)</span>
+                <div className="space-y-1 w-full">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
+                      <QrCode className="w-4 h-4 text-[#C9878D]" />
+                      <span>UPI (Google Pay, PhonePe, Paytm, QR Code)</span>
+                    </div>
+                    <span className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider bg-[#E8D8C8] text-[#5A3E36] border border-[#D6B77A]/40 rounded-xs font-semibold">
+                      Demo Sandbox
+                    </span>
                   </div>
                   <p className="text-xs text-[#7D6B67]">
-                    Zero fees · Instant confirmation via UPI payment methods.
+                    Simulated instant authorization · Zero fees · No real bank account debited.
                   </p>
                 </div>
               </label>
@@ -365,13 +427,18 @@ export const CheckoutView: React.FC = () => {
                   onChange={() => setPaymentMethod('RAZORPAY_CARD')}
                   className="mt-1 accent-[#C9878D]"
                 />
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
-                    <CreditCard className="w-4 h-4 text-[#C9878D]" />
-                    <span>Credit / Debit Cards & Net Banking</span>
+                <div className="space-y-1 w-full">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
+                      <CreditCard className="w-4 h-4 text-[#C9878D]" />
+                      <span>Credit / Debit Cards & Net Banking</span>
+                    </div>
+                    <span className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider bg-[#E8D8C8] text-[#5A3E36] border border-[#D6B77A]/40 rounded-xs font-semibold">
+                      Demo Sandbox
+                    </span>
                   </div>
                   <p className="text-xs text-[#7D6B67]">
-                    Visa, Mastercard, American Express, and all major banks.
+                    Visa, Mastercard, RuPay & American Express · Sandbox test gateway.
                   </p>
                 </div>
               </label>
@@ -392,13 +459,18 @@ export const CheckoutView: React.FC = () => {
                   onChange={() => setPaymentMethod('COD')}
                   className="mt-1 accent-[#C9878D]"
                 />
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
-                    <Truck className="w-4 h-4 text-[#C9878D]" />
-                    <span>Cash on Delivery</span>
+                <div className="space-y-1 w-full">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-[#392C2A]">
+                      <Truck className="w-4 h-4 text-[#C9878D]" />
+                      <span>Cash on Delivery</span>
+                    </div>
+                    <span className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider bg-[#FAF7F2] text-[#7D6B67] border border-[#E8DED4] rounded-xs font-semibold">
+                      Doorstep
+                    </span>
                   </div>
                   <p className="text-xs text-[#7D6B67]">
-                    Pay directly in cash or UPI upon delivery.
+                    Pay directly via cash or UPI upon courier handover.
                   </p>
                 </div>
               </label>
@@ -539,19 +611,29 @@ export const CheckoutView: React.FC = () => {
       {/* Payment Gateway Modal Simulation */}
       {paymentModalOpen && pendingOrderId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-[#392C2A]/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#FAF7F2] border border-[#E8DED4] shadow-2xl p-6 sm:p-8 space-y-6 text-[#392C2A] rounded-sm">
+          <div className="w-full max-w-md bg-[#FAF7F2] border border-[#E8DED4] shadow-2xl p-6 sm:p-8 space-y-5 text-[#392C2A] rounded-sm animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-[#E8DED4] pb-4">
               <div>
                 <span className="text-[10px] tracking-[0.2em] uppercase text-[#C9878D] font-mono font-semibold">
-                  Secure Payment Gateway
+                  VELMORA Atelier
                 </span>
-                <h3 className="font-serif text-xl text-[#392C2A]">ÉLIXIR & NOIR</h3>
+                <h3 className="font-serif text-xl text-[#392C2A]">Demo Payment Gateway</h3>
               </div>
-              <span className="font-mono text-xs text-[#7D6B67]">Demo Gateway</span>
+              <span className="font-mono text-[10px] bg-[#E8D8C8] text-[#5A3E36] px-2 py-1 uppercase tracking-wider font-semibold border border-[#D6B77A]/40 rounded-xs">
+                Test Sandbox
+              </span>
+            </div>
+
+            {/* Sandbox Notice */}
+            <div className="p-3.5 bg-[#FFFDF9] border border-[#D6B77A]/50 rounded-xs flex items-start gap-2.5 text-xs text-[#7D6B67]">
+              <Info className="w-4 h-4 text-[#D6B77A] shrink-0 mt-0.5" />
+              <p className="leading-relaxed text-[11px]">
+                <strong className="text-[#392C2A] font-medium">Safe Demo Mode:</strong> No actual monetary transaction will occur. Razorpay keys are optional. Click below to verify complete order placement, receipt, and Blue Dart tracking.
+              </p>
             </div>
 
             <div className="p-4 bg-[#FFFDF9] border border-[#E8DED4] space-y-1 rounded-sm">
-              <span className="text-xs text-[#7D6B67]">Amount to Authorize:</span>
+              <span className="text-xs text-[#7D6B67] uppercase tracking-wider font-semibold">Amount to Authorize:</span>
               <p className="font-mono text-2xl text-[#392C2A] tabular-nums font-bold">
                 ₹{cartTotal.toLocaleString('en-US')}
               </p>
@@ -559,32 +641,33 @@ export const CheckoutView: React.FC = () => {
 
             {paymentMethod === 'RAZORPAY_UPI' ? (
               <div className="space-y-4 text-xs">
-                <p className="text-[#7D6B67]">Scan with any UPI App or enter your UPI ID:</p>
+                <p className="text-[#7D6B67]">Test UPI QR Code or Simulated VPA Address:</p>
                 <div className="flex justify-center p-4 bg-white border border-[#E8DED4] rounded-md max-w-[180px] mx-auto shadow-xs">
                   <div className="w-36 h-36 bg-[#FAF7F2] border border-[#E8DED4] flex flex-col items-center justify-center text-[#392C2A] text-[10px] p-2 text-center rounded-sm">
                     <QrCode className="w-16 h-16 text-[#C9878D] mb-1" />
-                    <span className="font-mono text-[9px]">UPI://PAY?PA=ELIXIR@ICICI</span>
+                    <span className="font-mono text-[9px] text-[#7D6B67]">UPI://PAY?PA=VELMORA@ICICI</span>
+                    <span className="text-[8px] text-[#C9878D] font-mono mt-1 font-semibold uppercase">[Demo QR]</span>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[#7D6B67] uppercase font-semibold">UPI ID:</label>
+                  <label className="text-[#7D6B67] uppercase font-semibold">Test Virtual Payment Address (VPA):</label>
                   <input
                     type="text"
                     value={upiId}
                     onChange={e => setUpiId(e.target.value)}
-                    className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
+                    className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono text-xs rounded-sm focus:outline-none focus:border-[#C9878D]"
                   />
                 </div>
               </div>
             ) : (
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="text-[#7D6B67] uppercase font-semibold">Card Number</label>
+                  <label className="text-[#7D6B67] uppercase font-semibold">Test Card Number</label>
                   <input
                     type="text"
                     value={cardNumber}
                     onChange={e => setCardNumber(e.target.value)}
-                    className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
+                    className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono text-xs rounded-sm focus:outline-none focus:border-[#C9878D]"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -594,7 +677,7 @@ export const CheckoutView: React.FC = () => {
                       type="text"
                       value={cardExpiry}
                       onChange={e => setCardExpiry(e.target.value)}
-                      className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
+                      className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono text-xs rounded-sm focus:outline-none focus:border-[#C9878D]"
                     />
                   </div>
                   <div>
@@ -603,7 +686,7 @@ export const CheckoutView: React.FC = () => {
                       type="password"
                       value={cardCvv}
                       onChange={e => setCardCvv(e.target.value)}
-                      className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono rounded-sm"
+                      className="w-full bg-[#FFFDF9] border border-[#E8DED4] px-3 py-2 text-[#392C2A] font-mono text-xs rounded-sm focus:outline-none focus:border-[#C9878D]"
                     />
                   </div>
                 </div>
@@ -612,17 +695,28 @@ export const CheckoutView: React.FC = () => {
 
             <div className="space-y-2 pt-2">
               <button
+                type="button"
                 onClick={() =>
-                  handlePaymentSuccess(pendingOrderId, `pay_rzp_${Date.now()}`)
+                  handlePaymentSuccess(pendingOrderId, `pay_demo_${Date.now()}`)
                 }
                 disabled={isProcessing}
                 className="w-full py-3.5 bg-[#C9878D] hover:bg-[#B56F75] text-white text-xs font-semibold tracking-[0.2em] uppercase transition-colors cursor-pointer flex items-center justify-center gap-2 rounded-sm shadow-md"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Simulate Successful Payment</span>
+                <span>Simulate Successful Payment (Instant Test)</span>
               </button>
 
               <button
+                type="button"
+                onClick={handleSimulateFailure}
+                className="w-full py-2.5 border border-[#D97979]/40 bg-[#FFF5F5] hover:bg-[#FFEAEB] text-xs text-[#B91C1C] uppercase tracking-wider transition-colors cursor-pointer rounded-sm flex items-center justify-center gap-1.5"
+              >
+                <AlertCircle className="w-3.5 h-3.5 text-[#B91C1C]" />
+                <span>Test Payment Failure / Decline</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setPaymentModalOpen(false)}
                 className="w-full py-2.5 border border-[#E8DED4] text-xs text-[#7D6B67] hover:text-[#392C2A] uppercase tracking-wider transition-colors cursor-pointer rounded-sm"
               >

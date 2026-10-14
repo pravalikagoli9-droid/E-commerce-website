@@ -52,9 +52,23 @@
       "role": "CUSTOMER",
       "accountStatus": "ACTIVE",
       "emailVerifiedAt": "2026-02-15T12:00:00.000Z",
-      "loyaltyPoints": 1592,
+      "loyaltyPoints": 1934,
       "loyaltyTier": "OR",
       "loyaltyHistory": [
+        {
+          "id": "ly_1791992259892",
+          "date": "2026-10-14",
+          "description": "Acquisition EN-4461",
+          "points": 171,
+          "type": "EARNED"
+        },
+        {
+          "id": "ly_1791992234117",
+          "date": "2026-10-14",
+          "description": "Acquisition EN-4899",
+          "points": 171,
+          "type": "EARNED"
+        },
         {
           "id": "ly_1791966304008",
           "date": "2026-10-14",
@@ -698,6 +712,84 @@
     {
       "userId": "usr_client_01",
       "customerName": "Test Client",
+      "customerEmail": "test@velmora.com",
+      "items": [
+        {
+          "productId": "prod_nocturne_ambre",
+          "productName": "Nocturne Ambré Eau de Parfum",
+          "productImage": "",
+          "price": 18500,
+          "quantity": 1
+        }
+      ],
+      "shippingAddress": {
+        "id": "addr_test",
+        "fullName": "Test Client",
+        "addressLine1": "Colaba Causeway",
+        "city": "Mumbai",
+        "state": "MH",
+        "postalCode": "400005",
+        "country": "India",
+        "phone": "+91 99999 88888"
+      },
+      "subtotal": 18500,
+      "discount": 1850,
+      "shippingFee": 0,
+      "tax": 500,
+      "totalAmount": 17150,
+      "paymentStatus": "PAID",
+      "orderStatus": "PLACED",
+      "paymentMethod": "RAZORPAY_UPI",
+      "id": "ord_1791992259892",
+      "orderNumber": "EN-4461",
+      "trackingCourier": "Blue Dart Sovereign White Glove",
+      "estimatedDelivery": "Within 3-4 Business Days",
+      "createdAt": "2026-10-14T15:37:39.892Z",
+      "updatedAt": "2026-10-14T15:37:39.892Z",
+      "pointsEarned": 171
+    },
+    {
+      "userId": "usr_client_01",
+      "customerName": "Test Client",
+      "customerEmail": "test@elixirnoir.com",
+      "items": [
+        {
+          "productId": "prod_nocturne_ambre",
+          "productName": "Nocturne Ambré Eau de Parfum",
+          "productImage": "",
+          "price": 18500,
+          "quantity": 1
+        }
+      ],
+      "shippingAddress": {
+        "id": "addr_test",
+        "fullName": "Test Client",
+        "addressLine1": "Colaba Causeway",
+        "city": "Mumbai",
+        "state": "MH",
+        "postalCode": "400005",
+        "country": "India",
+        "phone": "+91 99999 88888"
+      },
+      "subtotal": 18500,
+      "discount": 1850,
+      "shippingFee": 0,
+      "tax": 500,
+      "totalAmount": 17150,
+      "paymentStatus": "PAID",
+      "orderStatus": "PLACED",
+      "paymentMethod": "RAZORPAY_UPI",
+      "id": "ord_1791992234116",
+      "orderNumber": "EN-4899",
+      "trackingCourier": "Blue Dart Sovereign White Glove",
+      "estimatedDelivery": "Within 3-4 Business Days",
+      "createdAt": "2026-10-14T15:37:14.117Z",
+      "updatedAt": "2026-10-14T15:37:14.117Z",
+      "pointsEarned": 171
+    },
+    {
+      "userId": "usr_client_01",
+      "customerName": "Test Client",
       "customerEmail": "test@elixirnoir.com",
       "items": [
         {
@@ -923,7 +1015,7 @@
   "carts": {
     "gst_1791826023152_xu6g": {
       "items": [],
-      "updatedAt": "2026-10-14T08:18:23.671Z"
+      "updatedAt": "2026-10-14T15:19:33.632Z"
     },
     "usr_test_user": {
       "items": [
@@ -987,10 +1079,77 @@
             ],
             "createdAt": "2026-01-10T10:00:00.000Z"
           },
-          "quantity": 4
+          "quantity": 6
         }
       ],
-      "updatedAt": "2026-10-14T08:25:04.007Z"
+      "updatedAt": "2026-10-14T15:37:14.115Z"
+    },
+    "usr_test_1791992259891": {
+      "items": [
+        {
+          "productId": "prod_nocturne_ambre",
+          "product": {
+            "id": "prod_nocturne_ambre",
+            "name": "Nocturne Ambré Eau de Parfum",
+            "slug": "nocturne-ambre-eau-de-parfum",
+            "description": "An intoxicating, contemplative nocturnal olfactory portrait. Opens with spicy cardamom and smoked plum, deepening into ancient amber resin, roasted tonka bean, and Atlas cedarwood.",
+            "categoryId": "cat_fragrances",
+            "categoryName": "Luxury Fragrances",
+            "price": 18500,
+            "compareAtPrice": 21000,
+            "images": [
+              "/src/assets/images/velmora_perfume_ambre_1791912395312.jpg"
+            ],
+            "stock": 23,
+            "sku": "VEL-FRG-001",
+            "status": "ACTIVE",
+            "averageRating": 4.9,
+            "reviewCount": 18,
+            "isFeatured": true,
+            "isBestseller": true,
+            "isGiftPick": true,
+            "fragranceFamily": "Smoky Amber & Oriental Woods",
+            "sillage": "Enveloping",
+            "longevity": "14-16 hours",
+            "occasions": [
+              "Evening Events",
+              "Intimate Dinners",
+              "Formal Gatherings"
+            ],
+            "notes": [
+              "Top: Cardamom, Smoked Plum, Bergamot",
+              "Heart: Moroccan Amber, Orris Root, Cistus",
+              "Base: Bourbon Vanilla, Atlas Cedar, Dark Musk"
+            ],
+            "details": {
+              "Concentration": "Eau de Parfum (24% maceration)",
+              "Volume": "100ml / 3.4 FL. OZ.",
+              "Origin": "Grasse & Paris, France",
+              "Packaging": "Smoked glass bottle with brushed brass cap"
+            },
+            "ingredients": "Alcohol Denat., Parfum (Fragrance), Aqua (Water), Limonene, Linalool, Coumarin, Benzyl Benzoate, Eugenol.",
+            "variants": [
+              {
+                "id": "v_50ml",
+                "name": "50ml Flacon",
+                "type": "volume",
+                "priceDiff": -5000,
+                "stock": 12
+              },
+              {
+                "id": "v_100ml",
+                "name": "100ml Grand Flacon",
+                "type": "volume",
+                "priceDiff": 0,
+                "stock": 12
+              }
+            ],
+            "createdAt": "2026-01-10T10:00:00.000Z"
+          },
+          "quantity": 2
+        }
+      ],
+      "updatedAt": "2026-10-14T15:37:39.891Z"
     }
   },
   "wishlists": {

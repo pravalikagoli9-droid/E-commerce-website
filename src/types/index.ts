@@ -21,6 +21,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: Role;
   addresses: Address[];
   emailVerifiedAt?: string;
@@ -31,6 +32,7 @@ export interface User {
   favoriteCategories: string[];
   notificationPreferences: NotificationPreferences;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Address {

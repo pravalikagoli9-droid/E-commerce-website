@@ -1,0 +1,197 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. GLOBAL SAFETY NET: Default-Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ----------------------------------------------------
+    // GLOBAL PRIMITIVES & HELPERS
+    // ----------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == 'pravalikagoli9@gmail.com' && request.auth.token.email_verified == true)
+      );
+    }
+
+    // ----------------------------------------------------
+    // ENTITY VALIDATION BLUEPRINTS
+    // ----------------------------------------------------
+
+    // User Profile Validation
+    function isValidUser(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 128 &&
+             (data.role == 'CUSTOMER' || (data.role == 'ADMIN' && isAdmin()));
+    }
+
+    // Cart Validation
+    function isValidCart(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.items is list && data.items.size() <= 100;
+    }
+
+    // Wishlist Validation
+    function isValidWishlist(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.productIds is list && data.productIds.size() <= 200;
+    }
+
+    // Order Validation
+    function isValidOrder(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.orderNumber is string && data.orderNumber.size() <= 64 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.customerEmail is string && data.customerEmail.size() <= 128 &&
+             data.items is list && data.items.size() > 0 && data.items.size() <= 100 &&
+             data.totalAmount is number && data.totalAmount >= 0 &&
+             data.orderStatus in ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'] &&
+             data.paymentStatus in ['PENDING', 'PAID', 'FAILED'];
+    }
+
+    // Review Validation
+    function isValidReview(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.userName is string && data.userName.size() <= 100 &&
+             data.productId is string && data.productId.size() <= 128 &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.comment is string && data.comment.size() <= 1500;
+    }
+
+    // Product Validation
+    function isValidProduct(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 150 &&
+             data.price is number && data.price >= 0 &&
+             data.stock is number && data.stock >= 0 &&
+             data.status in ['ACTIVE', 'ARCHIVED'];
+    }
+
+    // Category Validation
+    function isValidCategory(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.slug is string && data.slug.size() <= 100 &&
+             data.status in ['ACTIVE', 'INACTIVE'];
+    }
+
+    // ----------------------------------------------------
+    // COLLECTION RULES
+    // ----------------------------------------------------
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming());
+      allow update: if (isOwner(userId) || isAdmin()) && isValidUser(incoming()) && (
+        isAdmin() ||
+        // Customer profile edit: cannot elevate role or change ID
+        (incoming().id == existing().id && incoming().role == existing().role)
+      );
+      allow delete: if isAdmin();
+
+      // Private PII Subcollection (addresses, sensitive details)
+      match /private/{docId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // 2. Shopping Carts Collection
+    match /carts/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if isOwner(userId) && isValidCart(incoming());
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // 3. Wishlists Collection
+    match /wishlists/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if isOwner(userId) && isValidWishlist(incoming());
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // 4. Orders Collection
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (
+        isAdmin() || (resource.data.userId == request.auth.uid)
+      );
+      allow create: if isSignedIn() && isValidOrder(incoming()) && (
+        // Initial creation state check
+        incoming().orderStatus == 'PLACED'
+      );
+      allow update: if isAdmin() && (
+        // Only admins can alter order fulfillment status or tracking
+        incoming().diff(existing()).affectedKeys().hasOnly(['orderStatus', 'paymentStatus', 'trackingNumber', 'trackingCourier', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 5. Products Collection (Public Read, Admin Write)
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidProduct(incoming());
+      allow update: if isAdmin() && isValidProduct(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 6. Categories Collection (Public Read, Admin Write)
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidCategory(incoming());
+      allow update: if isAdmin() && isValidCategory(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 7. Reviews Collection (Public Read, Patron Create, Admin Moderate)
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidReview(incoming());
+      allow update: if isAdmin() || (
+        isOwner(existing().userId) && isValidReview(incoming()) &&
+        incoming().userId == existing().userId &&
+        incoming().productId == existing().productId
+      );
+      allow delete: if isAdmin() || isOwner(existing().userId);
+    }
+
+    // 8. Admins Collection (Strictly Internal RBAC Directory)
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 9. Test Connection Collection (Used during initial connection verification)
+    match /test/{docId} {
+      allow read: if true;
+    }
+  }
+}

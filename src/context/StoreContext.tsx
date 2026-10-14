@@ -1,5 +1,25 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import type { User, Product, CartItem, Order, Coupon, Address, GiftOptions, ProductAlert, Review } from '../types';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../lib/firebase';
+import {
+  signUpWithEmail,
+  signInWithEmail,
+  signInWithGoogle,
+  sendPasswordReset,
+  signOutUser,
+  getUserProfile,
+  syncUserProfileDoc,
+  updateUserProfile
+} from '../services/firebaseAuth';
+import {
+  saveCartToFirestore,
+  mergeGuestCartWithCloud,
+  saveWishlistToFirestore,
+  fetchWishlistFromFirestore,
+  fetchProductsFromFirestore,
+  seedInitialFirestoreCatalog
+} from '../services/firebaseFirestore';
 
 export type ActivePage =
   | 'home'
@@ -68,15 +88,19 @@ interface StoreContextType {
   favoriteCategories: string[];
   toggleFavoriteCategory: (slug: string) => void;
 
-  // Auth
+  // Auth (Firebase Powered with Local Fallback)
   user: User | null;
   token: string | null;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, pass: string, phone?: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   addAddress: (addr: Omit<Address, 'id'>) => Promise<boolean>;
+  updateProfileDetails: (name: string, phone: string, address?: Address) => Promise<{ success: boolean; error?: string }>;
   updatePreferences: (favCats: string[], notifs: any) => Promise<void>;
   quickLoginDemo: (role: 'CUSTOMER' | 'ADMIN') => Promise<void>;
+  isFirebaseConnected: boolean;
 
   // Products
   products: Product[];
@@ -166,6 +190,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // User Auth
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('velmora_token') || localStorage.getItem('elixir_token'));
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(true);
+
   const [guestId] = useState<string>(() => {
     let id = localStorage.getItem('velmora_guest_id') || localStorage.getItem('elixir_guest_id');
     if (!id) {
@@ -206,7 +232,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Wishlist
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('elixir_wishlist');
+      const saved = localStorage.getItem('elixir_wishlist') || localStorage.getItem('velmora_wishlist');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -223,14 +249,80 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }, 4000);
   };
 
-  // Sync products from server
+  // Flag to prevent overwriting cloud cart during initial load
+  const isInitialCartSyncDone = useRef<boolean>(false);
+
+  // ==========================================
+  // FIREBASE AUTH STATE LISTENER
+  // ==========================================
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        try {
+          const userToken = await fbUser.getIdToken();
+          setToken(userToken);
+          localStorage.setItem('velmora_token', userToken);
+
+          // Retrieve or sync user profile in Firestore
+          let profile = await getUserProfile(fbUser.uid);
+          if (!profile) {
+            profile = await syncUserProfileDoc(fbUser);
+          }
+          setUser(profile);
+          if (profile?.favoriteCategories?.length) {
+            setFavoriteCategories(profile.favoriteCategories);
+          }
+
+          // Merge guest cart with user's Firestore cloud cart
+          const mergedCart = await mergeGuestCartWithCloud(fbUser.uid, cartItems);
+          if (mergedCart && mergedCart.length > 0) {
+            setCartItems(mergedCart);
+          }
+
+          // Fetch cloud wishlist
+          const cloudWishlist = await fetchWishlistFromFirestore(fbUser.uid);
+          if (cloudWishlist && cloudWishlist.length > 0) {
+            setWishlistIds(prev => Array.from(new Set([...prev, ...cloudWishlist])));
+          }
+
+          isInitialCartSyncDone.current = true;
+        } catch (err) {
+          console.error('Firebase Auth sync error:', err);
+        }
+      } else {
+        // If no Firebase user, check if we have an active legacy session token
+        isInitialCartSyncDone.current = true;
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Sync products from Cloud Firestore (with API fallback & seeding)
   const refreshProducts = async () => {
     setIsLoadingProducts(true);
     try {
+      // 1. Try reading from Cloud Firestore first
+      const firestoreProducts = await fetchProductsFromFirestore();
+      if (firestoreProducts && firestoreProducts.length > 0) {
+        setProducts(firestoreProducts);
+        setIsLoadingProducts(false);
+        return;
+      }
+
+      // 2. Fetch from backend API
       const res = await fetch('/api/products');
       if (res.ok) {
         const data = await res.json();
-        setProducts(data.products || []);
+        const apiProds = data.products || [];
+        setProducts(apiProds);
+
+        // 3. Proactively seed to Firestore so future operations use Firestore directly
+        if (apiProds.length > 0) {
+          const catRes = await fetch('/api/categories');
+          const catData = catRes.ok ? await catRes.json() : { categories: [] };
+          seedInitialFirestoreCatalog(apiProds, catData.categories || []);
+        }
       }
     } catch (err) {
       console.error('Failed to load products:', err);
@@ -243,36 +335,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     refreshProducts();
   }, []);
 
-  // Sync auth state
+  // Persist cart to localStorage & Cloud Firestore (for logged in patrons)
   useEffect(() => {
-    if (token) {
-      fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => (res.ok ? res.json() : null))
-        .then(data => {
-          if (data?.user) {
-            setUser(data.user);
-            if (data.user.favoriteCategories) {
-              setFavoriteCategories(data.user.favoriteCategories);
-            }
-          } else {
-            setUser(null);
-            setToken(null);
-            localStorage.removeItem('elixir_token');
-          }
-        })
-        .catch(() => {
-          setUser(null);
-          setToken(null);
-          localStorage.removeItem('elixir_token');
-        });
-    }
-  }, [token]);
+    localStorage.setItem('velmora_cart', JSON.stringify(cartItems));
 
-  // Persist cart to localStorage & server
-  useEffect(() => {
-    localStorage.setItem('elixir_cart', JSON.stringify(cartItems));
+    // Also persist to server endpoint for guest sessions
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -284,21 +351,31 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       headers,
       body: JSON.stringify({ items: cartItems })
     }).catch(console.error);
-  }, [cartItems, token, guestId]);
+
+    // Save to Firestore if user is authenticated and initial sync has completed
+    if (auth.currentUser && isInitialCartSyncDone.current) {
+      saveCartToFirestore(auth.currentUser.uid, cartItems, appliedCoupon, giftOptions).catch(err => {
+        console.warn('Could not sync cart to Cloud Firestore:', err);
+      });
+    }
+  }, [cartItems, appliedCoupon, giftOptions, token, guestId]);
 
   // Persist wishlist
   useEffect(() => {
-    localStorage.setItem('elixir_wishlist', JSON.stringify(wishlistIds));
+    localStorage.setItem('velmora_wishlist', JSON.stringify(wishlistIds));
+    if (auth.currentUser) {
+      saveWishlistToFirestore(auth.currentUser.uid, wishlistIds).catch(console.warn);
+    }
   }, [wishlistIds]);
 
   // Persist recently viewed
   useEffect(() => {
-    localStorage.setItem('elixir_recent', JSON.stringify(recentlyViewedIds));
+    localStorage.setItem('velmora_recent', JSON.stringify(recentlyViewedIds));
   }, [recentlyViewedIds]);
 
   // Persist favorite categories
   useEffect(() => {
-    localStorage.setItem('elixir_fav_cats', JSON.stringify(favoriteCategories));
+    localStorage.setItem('velmora_fav_cats', JSON.stringify(favoriteCategories));
   }, [favoriteCategories]);
 
   const addRecentlyViewed = (productId: string) => {
@@ -354,8 +431,23 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setCompareList([]);
   };
 
+  // 1. Email/Password Sign-In
   const login = async (email: string, pass: string) => {
     try {
+      // First attempt Firebase Authentication
+      const fbRes = await signInWithEmail(email, pass);
+      if (fbRes.user) {
+        setUser(fbRes.user);
+        const fbToken = await auth.currentUser?.getIdToken();
+        if (fbToken) {
+          setToken(fbToken);
+          localStorage.setItem('velmora_token', fbToken);
+        }
+        showToast(`Welcome back, ${fbRes.user.name}!`, 'success');
+        return { success: true };
+      }
+
+      // If Firebase auth failed, attempt legacy server auth (e.g. for preloaded demo users)
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -363,46 +455,41 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
       const data = await res.json();
       if (!res.ok) {
-        return { success: false, error: data.error || 'Login failed' };
+        return { success: false, error: fbRes.error || data.error || 'Invalid credentials provided. Kindly try again.' };
       }
 
       setToken(data.token);
       setUser(data.user);
-      localStorage.setItem('elixir_token', data.token);
+      localStorage.setItem('velmora_token', data.token);
 
       if (data.user.favoriteCategories) {
         setFavoriteCategories(data.user.favoriteCategories);
       }
 
-      // Merge guest cart with user cart
-      if (cartItems.length > 0) {
-        try {
-          const syncRes = await fetch('/api/cart/sync', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${data.token}`
-            },
-            body: JSON.stringify({ guestItems: cartItems })
-          });
-          if (syncRes.ok) {
-            const syncData = await syncRes.json();
-            if (syncData.items) setCartItems(syncData.items);
-          }
-        } catch (e) {
-          console.warn('Cart sync warning:', e);
-        }
-      }
-
       showToast(`Welcome back, ${data.user.name}!`, 'success');
       return { success: true };
     } catch {
-      return { success: false, error: 'Connection error' };
+      return { success: false, error: 'Network communication error. Kindly check your internet connection.' };
     }
   };
 
-  const register = async (name: string, email: string, pass: string) => {
+  // 2. Email/Password Registration
+  const register = async (name: string, email: string, pass: string, phone?: string) => {
     try {
+      // Register patron via Firebase Auth and create Firestore profile document
+      const fbRes = await signUpWithEmail(name, email, pass, phone);
+      if (fbRes.user) {
+        setUser(fbRes.user);
+        const fbToken = await auth.currentUser?.getIdToken();
+        if (fbToken) {
+          setToken(fbToken);
+          localStorage.setItem('velmora_token', fbToken);
+        }
+        showToast(`Welcome! 500 bonus loyalty points have been credited to your account, ${fbRes.user.name}.`, 'success');
+        return { success: true };
+      }
+
+      // Fallback to server registration
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -410,74 +497,121 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
       const data = await res.json();
       if (!res.ok) {
-        return { success: false, error: data.error || 'Registration failed' };
+        return { success: false, error: fbRes.error || data.error || 'Registration failed. Kindly verify your inputs.' };
       }
 
       setToken(data.token);
       setUser(data.user);
       localStorage.setItem('velmora_token', data.token);
-      showToast(`Welcome! 500 bonus reward points have been added to your account, ${data.user.name}.`, 'success');
+      showToast(`Welcome! 500 bonus reward points have been credited, ${data.user.name}.`, 'success');
       return { success: true };
     } catch {
-      return { success: false, error: 'Connection error' };
+      return { success: false, error: 'Network connection issue encountered. Kindly try again.' };
     }
   };
 
-  const logout = () => {
+  // 3. Google Sign-In
+  const loginWithGoogle = async () => {
+    try {
+      const fbRes = await signInWithGoogle();
+      if (fbRes.user) {
+        setUser(fbRes.user);
+        const fbToken = await auth.currentUser?.getIdToken();
+        if (fbToken) {
+          setToken(fbToken);
+          localStorage.setItem('velmora_token', fbToken);
+        }
+        showToast(`Welcome, ${fbRes.user.name}! Successfully signed in via Google.`, 'success');
+        return { success: true };
+      }
+      return { success: false, error: fbRes.error || 'Google sign-in could not be completed.' };
+    } catch (e: any) {
+      return { success: false, error: e?.message || 'Google sign-in encountered an issue.' };
+    }
+  };
+
+  // 4. Password Reset
+  const resetPassword = async (email: string) => {
+    return await sendPasswordReset(email);
+  };
+
+  // 5. Sign Out
+  const logout = async () => {
+    await signOutUser();
     setUser(null);
     setToken(null);
     localStorage.removeItem('velmora_token');
     localStorage.removeItem('elixir_token');
-    showToast('You have successfully signed out.', 'info');
+    showToast('You have successfully signed out of your account.', 'info');
     if (currentPage === 'account' || currentPage === 'admin') {
       setCurrentPage('home');
     }
   };
 
-  const addAddress = async (addr: Omit<Address, 'id'>) => {
-    if (!token) return false;
+  // 6. Update Profile Details
+  const updateProfileDetails = async (name: string, phone: string, address?: Address) => {
+    if (!user) return { success: false, error: 'Kindly sign in to update your profile.' };
     try {
-      const res = await fetch('/api/auth/add-address', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(addr)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (user) {
-          setUser({ ...user, addresses: data.addresses });
-        }
-        showToast('Shipping address saved.', 'success');
-        return true;
+      const updates: any = { name, phone };
+      if (address) {
+        const currentAddrs = user.addresses || [];
+        const filtered = currentAddrs.filter(a => a.id !== address.id);
+        updates.addresses = [address, ...filtered];
       }
-    } catch (e) {
-      console.error(e);
+
+      await updateUserProfile(user.id, updates);
+      setUser(prev => prev ? { ...prev, ...updates } : null);
+      showToast('Your profile information has been successfully updated in Firestore.', 'success');
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Unable to update profile.' };
+    }
+  };
+
+  const addAddress = async (addr: Omit<Address, 'id'>) => {
+    const newAddr: Address = {
+      ...addr,
+      id: `addr_${Date.now()}`
+    };
+
+    if (user) {
+      const updatedAddrs = [newAddr, ...(user.addresses || [])];
+      await updateUserProfile(user.id, { addresses: updatedAddrs });
+      setUser({ ...user, addresses: updatedAddrs });
+      showToast('Delivery address saved to your cloud profile.', 'success');
+      return true;
+    }
+
+    if (token) {
+      try {
+        const res = await fetch('/api/auth/add-address', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(addr)
+        });
+        if (res.ok) {
+          showToast('Delivery address saved.', 'success');
+          return true;
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
     return false;
   };
 
   const updatePreferences = async (favCats: string[], notifs: any) => {
-    if (!token || !user) return;
+    if (!user) return;
     try {
-      const res = await fetch('/api/user/preferences', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          favoriteCategories: favCats,
-          notificationPreferences: notifs
-        })
+      await updateUserProfile(user.id, {
+        favoriteCategories: favCats,
+        notificationPreferences: notifs
       });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-        showToast('Account preferences updated.', 'success');
-      }
+      setUser({ ...user, favoriteCategories: favCats, notificationPreferences: notifs });
+      showToast('Account preferences updated successfully.', 'success');
     } catch (e) {
       console.error(e);
     }
@@ -570,17 +704,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       );
       return next;
     });
-
-    if (token) {
-      fetch('/api/wishlist/toggle', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ productId })
-      }).catch(console.error);
-    }
   };
 
   const isInWishlist = (productId: string) => wishlistIds.includes(productId);
@@ -607,14 +730,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (res.ok) {
         showToast(
           type === 'PRICE_DROP'
-            ? `Price drop alert set for ${productName}.`
-            : `Back in stock notification set for ${productName}.`,
+            ? `Price drop alert registered for ${productName}.`
+            : `Back in stock notification registered for ${productName}.`,
           'success'
         );
         return true;
       }
     } catch {
-      showToast('Failed to set notification.', 'error');
+      showToast('Failed to register notification.', 'error');
     }
     return false;
   };
@@ -689,10 +812,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         token,
         login,
         register,
+        loginWithGoogle,
+        resetPassword,
         logout,
         addAddress,
+        updateProfileDetails,
         updatePreferences,
         quickLoginDemo,
+        isFirebaseConnected,
         products,
         isLoadingProducts,
         refreshProducts,
