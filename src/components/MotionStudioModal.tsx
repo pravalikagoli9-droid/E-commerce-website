@@ -13,6 +13,7 @@ import {
   Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 interface MotionStudioModalProps {
   isOpen: boolean;
@@ -22,22 +23,22 @@ interface MotionStudioModalProps {
 const PRESET_IMAGES = [
   {
     name: 'Ambre Nocturne Flacon',
-    src: '/src/assets/images/velmora_perfume_ambre_1791912395312.jpg',
+    src: '/images/velmora_perfume_ambre_1791912395312.jpg',
     defaultPrompt: 'Cinematic slow camera pan around a luxury perfume bottle on reflective smoked glass, delicate fragrance mist rising, warm golden studio lighting'
   },
   {
     name: 'Rose Absolue Extrait',
-    src: '/src/assets/images/velmora_perfume_rose_1791912395755.jpg',
+    src: '/images/velmora_perfume_rose_1791912395755.jpg',
     defaultPrompt: 'High-end commercial video of a crystal perfume bottle with champagne gold highlights, soft focus floral background, cinematic slow motion'
   },
   {
     name: 'Botanical Cellular Serum',
-    src: '/src/assets/images/velmora_botanical_serum_1791912396485.jpg',
+    src: '/images/velmora_botanical_serum_1791912396485.jpg',
     defaultPrompt: 'Sculptural luxury skincare bottle with gentle water caustics, soft studio light beam passing through glass, serene commercial aesthetic'
   },
   {
     name: 'Silk & Tailored Robe',
-    src: '/src/assets/images/category_apparel_1791824731775.jpg',
+    src: '/images/category_apparel_1791824731775.jpg',
     defaultPrompt: 'Luxury Como silk fabric floating weightlessly in slow motion, golden hour sunlight highlighting textured weave, editorial fashion aesthetic'
   }
 ];
@@ -266,8 +267,9 @@ export const MotionStudioModal: React.FC<MotionStudioModalProps> = ({ isOpen, on
                 <div className="relative group border-2 border-dashed border-[#B7A397]/50 rounded-sm overflow-hidden bg-[#F8F4ED] aspect-square flex items-center justify-center">
                   {selectedImage ? (
                     <img
-                      src={selectedImage}
+                      src={getProductImageUrl(selectedImage)}
                       alt="Source for Veo generation"
+                      onError={handleImageError}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -316,7 +318,12 @@ export const MotionStudioModal: React.FC<MotionStudioModalProps> = ({ isOpen, on
                       }`}
                       title={preset.name}
                     >
-                      <img src={preset.src} alt={preset.name} className="w-full h-full object-cover" />
+                      <img
+                        src={getProductImageUrl(preset.src)}
+                        alt={preset.name}
+                        onError={handleImageError}
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>

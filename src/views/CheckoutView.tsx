@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Sparkles
 } from 'lucide-react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const CheckoutView: React.FC = () => {
   const {
@@ -491,9 +492,10 @@ export const CheckoutView: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-14 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
                     <img
-                      src={item.product.images[0] || ''}
-                      alt=""
+                      src={getProductImageUrl(item.product.images?.[0])}
+                      alt={item.product.name}
                       referrerPolicy="no-referrer"
+                      onError={handleImageError}
                       className="w-full h-full object-cover"
                     />
                   </div>

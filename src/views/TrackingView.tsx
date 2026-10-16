@@ -7,6 +7,7 @@ import {
   Calendar,
   AlertCircle
 } from 'lucide-react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const TrackingView: React.FC = () => {
   const { user } = useStore();
@@ -175,7 +176,12 @@ export const TrackingView: React.FC = () => {
                 {trackedOrder.items.map((it, i) => (
                   <div key={i} className="pt-2 first:pt-0 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img src={it.productImage || ''} alt="" className="w-10 h-12 object-cover border border-[#E8DED4] rounded-xs" />
+                      <img
+                        src={getProductImageUrl(it.productImage)}
+                        alt={it.productName}
+                        onError={handleImageError}
+                        className="w-10 h-12 object-cover border border-[#E8DED4] rounded-xs"
+                      />
                       <div>
                         <p className="font-serif text-sm text-[#392C2A] font-medium">{it.productName}</p>
                         <p className="text-[#7D6B67]">Qty: {it.quantity} {it.selectedVariant ? `· ${it.selectedVariant}` : ''}</p>

@@ -150,7 +150,7 @@ const initialSeedData: DatabaseSchema = {
       name: 'Luxury Fragrances',
       slug: 'fragrances',
       description: 'Artisanal niche fragrances crafted with fine natural resins, floral absolutes, and rare aged woods.',
-      image: '/src/assets/images/velmora_perfume_ambre_1791912395312.jpg',
+      image: '/images/velmora_perfume_ambre_1791912395312.jpg',
       status: 'ACTIVE'
     },
     {
@@ -158,7 +158,7 @@ const initialSeedData: DatabaseSchema = {
       name: 'Lifestyle & Apparel',
       slug: 'apparel',
       description: 'Timeless wardrobe staples and loungewear in pure double-face wool, Mongolian cashmere, and mulberry silk.',
-      image: '/src/assets/images/category_apparel_1791824731775.jpg',
+      image: '/images/category_apparel_1791824731775.jpg',
       status: 'ACTIVE'
     },
     {
@@ -166,7 +166,7 @@ const initialSeedData: DatabaseSchema = {
       name: 'Botanical Skincare',
       slug: 'skincare',
       description: 'Restorative serums, barrier creams, and facial sculpting tools crafted with clean botanical ingredients.',
-      image: '/src/assets/images/velmora_botanical_serum_1791912396485.jpg',
+      image: '/images/velmora_botanical_serum_1791912396485.jpg',
       status: 'ACTIVE'
     }
   ],
@@ -181,7 +181,7 @@ const initialSeedData: DatabaseSchema = {
       price: 18500,
       compareAtPrice: 21000,
       images: [
-        '/src/assets/images/velmora_perfume_ambre_1791912395312.jpg'
+        '/images/velmora_perfume_ambre_1791912395312.jpg'
       ],
       stock: 24,
       sku: 'VEL-FRG-001',
@@ -222,7 +222,7 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Luxury Fragrances',
       price: 16200,
       images: [
-        '/src/assets/images/category_fragrances_1791824720667.jpg'
+        '/images/category_fragrances_1791824720667.jpg'
       ],
       stock: 19,
       sku: 'VEL-FRG-002',
@@ -259,7 +259,7 @@ const initialSeedData: DatabaseSchema = {
       price: 19000,
       compareAtPrice: 22000,
       images: [
-        '/src/assets/images/hero_luxury_boutique_1791824705943.jpg'
+        '/images/hero_luxury_boutique_1791824705943.jpg'
       ],
       stock: 14,
       sku: 'VEL-FRG-003',
@@ -294,7 +294,7 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Luxury Fragrances',
       price: 24500,
       images: [
-        '/src/assets/images/velmora_perfume_rose_1791912395755.jpg'
+        '/images/velmora_perfume_rose_1791912395755.jpg'
       ],
       stock: 8,
       sku: 'VEL-FRG-004',
@@ -329,7 +329,7 @@ const initialSeedData: DatabaseSchema = {
       price: 64000,
       compareAtPrice: 72000,
       images: [
-        '/src/assets/images/category_apparel_1791824731775.jpg'
+        '/images/category_apparel_1791824731775.jpg'
       ],
       stock: 6,
       sku: 'VEL-APP-001',
@@ -368,7 +368,7 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Lifestyle & Apparel',
       price: 38000,
       images: [
-        '/src/assets/images/velmora_luxury_apparel_1791912397560.jpg'
+        '/images/velmora_luxury_apparel_1791912397560.jpg'
       ],
       stock: 15,
       sku: 'VEL-APP-002',
@@ -404,7 +404,7 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Lifestyle & Apparel',
       price: 28500,
       images: [
-        '/src/assets/images/velmora_cashmere_knit_1791912551404.jpg'
+        '/images/velmora_cashmere_knit_1791912551404.jpg'
       ],
       stock: 12,
       sku: 'VEL-APP-003',
@@ -441,7 +441,7 @@ const initialSeedData: DatabaseSchema = {
       price: 32000,
       compareAtPrice: 36000,
       images: [
-        '/src/assets/images/velmora_tailored_trousers_1791912550672.jpg'
+        '/images/velmora_tailored_trousers_1791912550672.jpg'
       ],
       stock: 10,
       sku: 'VEL-APP-004',
@@ -472,7 +472,7 @@ const initialSeedData: DatabaseSchema = {
       price: 9800,
       compareAtPrice: 11500,
       images: [
-        '/src/assets/images/velmora_botanical_serum_1791912396485.jpg'
+        '/images/velmora_botanical_serum_1791912396485.jpg'
       ],
       stock: 35,
       sku: 'VEL-SKN-001',
@@ -507,7 +507,7 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Botanical Skincare',
       price: 12400,
       images: [
-        '/src/assets/images/velmora_face_cream_1791912396507.jpg'
+        '/images/velmora_face_cream_1791912396507.jpg'
       ],
       stock: 22,
       sku: 'VEL-SKN-002',
@@ -536,7 +536,7 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Botanical Skincare',
       price: 4200,
       images: [
-        '/src/assets/images/velmora_obsidian_guasha_1791912397941.jpg'
+        '/images/velmora_obsidian_guasha_1791912397941.jpg'
       ],
       stock: 40,
       sku: 'VEL-SKN-003',
@@ -564,7 +564,7 @@ const initialSeedData: DatabaseSchema = {
       categoryName: 'Botanical Skincare',
       price: 7600,
       images: [
-        '/src/assets/images/category_skincare_1791824742582.jpg'
+        '/images/category_skincare_1791824742582.jpg'
       ],
       stock: 28,
       sku: 'VEL-SKN-004',
@@ -595,7 +595,7 @@ const initialSeedData: DatabaseSchema = {
         {
           productId: 'prod_nocturne_ambre',
           productName: 'Nocturne Ambré Eau de Parfum',
-          productImage: '/src/assets/images/velmora_perfume_ambre_1791912395312.jpg',
+          productImage: '/images/velmora_perfume_ambre_1791912395312.jpg',
           price: 18500,
           quantity: 1,
           selectedVariant: '100ml Grand Flacon'
@@ -603,7 +603,7 @@ const initialSeedData: DatabaseSchema = {
         {
           productId: 'prod_aeterna_serum',
           productName: 'Aeterna Botanical Restorative Serum',
-          productImage: '/src/assets/images/velmora_botanical_serum_1791912396485.jpg',
+          productImage: '/images/velmora_botanical_serum_1791912396485.jpg',
           price: 9800,
           quantity: 1,
           selectedVariant: '30ml Dropper'

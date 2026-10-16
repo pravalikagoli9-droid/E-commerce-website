@@ -20,6 +20,7 @@ import {
   fetchProductsFromFirestore,
   seedInitialFirestoreCatalog
 } from '../services/firebaseFirestore';
+import { FALLBACK_PRODUCTS } from '../data/fallbackProducts';
 
 export type ActivePage =
   | 'home'
@@ -201,8 +202,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return id;
   });
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   // Cart
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
@@ -315,17 +316,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (res.ok) {
         const data = await res.json();
         const apiProds = data.products || [];
-        setProducts(apiProds);
-
-        // 3. Proactively seed to Firestore so future operations use Firestore directly
         if (apiProds.length > 0) {
+          setProducts(apiProds);
+
+          // 3. Proactively seed to Firestore so future operations use Firestore directly
           const catRes = await fetch('/api/categories');
           const catData = catRes.ok ? await catRes.json() : { categories: [] };
           seedInitialFirestoreCatalog(apiProds, catData.categories || []);
         }
+      } else {
+        setProducts(prev => (prev && prev.length > 0 ? prev : FALLBACK_PRODUCTS));
       }
     } catch (err) {
-      console.error('Failed to load products:', err);
+      console.warn('Backend/Firestore catalog unreachable, using bundled luxury catalog:', err);
+      setProducts(prev => (prev && prev.length > 0 ? prev : FALLBACK_PRODUCTS));
     } finally {
       setIsLoadingProducts(false);
     }

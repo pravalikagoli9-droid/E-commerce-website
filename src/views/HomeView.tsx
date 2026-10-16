@@ -17,6 +17,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { PerfumeBottleAnimation } from '../components/PerfumeBottleAnimation';
 import { LuxuryBottleHero } from '../components/LuxuryBottleHero';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const HomeView: React.FC = () => {
   const {
@@ -39,7 +40,7 @@ export const HomeView: React.FC = () => {
       desc: "Cold-macerated wild amber, Somalian frankincense tears, and four-year-aged Florentine orris butter cured in smoked glass flacons.",
       ctaText: "Shop Fragrances",
       categorySlug: "fragrances",
-      image: "/src/assets/images/hero_luxury_boutique_1791824705943.jpg"
+      image: "/images/hero_luxury_boutique_1791824705943.jpg"
     },
     {
       title: "Architectural Drape & Pure Wool",
@@ -47,7 +48,7 @@ export const HomeView: React.FC = () => {
       desc: "Hand-tailored double-faced 750gsm virgin wool overcoats and pure Como silk charmeuse robes crafted with floating canvas authority.",
       ctaText: "Shop Apparel",
       categorySlug: "apparel",
-      image: "/src/assets/images/category_apparel_1791824731775.jpg"
+      image: "/images/category_apparel_1791824731775.jpg"
     },
     {
       title: "Cellular Botanical Restoration",
@@ -55,7 +56,7 @@ export const HomeView: React.FC = () => {
       desc: "Nutrient-dense prickly pear seed elixirs and hand-carved volcanic obsidian sculpting stones to nourish your evening skincare routine.",
       ctaText: "Shop Skincare",
       categorySlug: "skincare",
-      image: "/src/assets/images/category_skincare_1791824742582.jpg"
+      image: "/images/category_skincare_1791824742582.jpg"
     }
   ];
 
@@ -81,19 +82,19 @@ export const HomeView: React.FC = () => {
       title: 'Luxury Fragrances',
       subtitle: 'Rare wild resins, amber extracts, and Grasse floral absolutes',
       slug: 'fragrances',
-      image: '/src/assets/images/category_fragrances_1791824720667.jpg'
+      image: '/images/category_fragrances_1791824720667.jpg'
     },
     {
       title: 'Lifestyle & Apparel',
       subtitle: 'Architectural silhouettes in pure double-face wool and Como silk',
       slug: 'apparel',
-      image: '/src/assets/images/category_apparel_1791824731775.jpg'
+      image: '/images/category_apparel_1791824731775.jpg'
     },
     {
       title: 'Botanical Skincare',
       subtitle: 'Bio-compatible cellular facial oils with obsidian sculpting rituals',
       slug: 'skincare',
-      image: '/src/assets/images/category_skincare_1791824742582.jpg'
+      image: '/images/category_skincare_1791824742582.jpg'
     }
   ];
 
@@ -325,9 +326,10 @@ export const HomeView: React.FC = () => {
               className="group relative h-[480px] bg-[#30231F] border border-[#B7A397]/30 overflow-hidden cursor-pointer shadow-md rounded-sm"
             >
               <img
-                src={cat.image}
+                src={getProductImageUrl(cat.image)}
                 alt={cat.title}
                 referrerPolicy="no-referrer"
+                onError={handleImageError}
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-85 group-hover:opacity-95"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#30231F] via-[#30231F]/40 to-transparent" />
@@ -415,7 +417,12 @@ export const HomeView: React.FC = () => {
             {giftPicks.slice(0, 2).map(p => (
               <div key={p.id} className="bg-[#FFFDF9] border border-[#E8DED4] p-3 space-y-2 rounded-sm shadow-xs">
                 <div className="aspect-[4/5] overflow-hidden bg-[#FAF7F2]">
-                  <img src={p.images[0] || ''} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={getProductImageUrl(p.images?.[0])}
+                    alt={p.name}
+                    onError={handleImageError}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <h4 className="font-serif text-xs text-[#392C2A] font-medium line-clamp-1">{p.name}</h4>
@@ -513,8 +520,9 @@ export const HomeView: React.FC = () => {
               className="group relative aspect-video bg-[#30231F] border border-[#D6B77A]/50 rounded-sm overflow-hidden shadow-xl cursor-pointer"
             >
               <img
-                src="/src/assets/images/velmora_perfume_ambre_1791912395312.jpg"
+                src="/images/velmora_perfume_ambre_1791912395312.jpg"
                 alt="VELMORA perfume motion preview"
+                onError={handleImageError}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4">

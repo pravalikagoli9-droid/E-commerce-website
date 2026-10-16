@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Printer
 } from 'lucide-react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const OrderConfirmationView: React.FC = () => {
   const { activeOrder, setCurrentPage } = useStore();
@@ -124,9 +125,10 @@ export const OrderConfirmationView: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-16 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
                     <img
-                      src={it.productImage || ''}
-                      alt=""
+                      src={getProductImageUrl(it.productImage)}
+                      alt={it.productName}
                       referrerPolicy="no-referrer"
+                      onError={handleImageError}
                       className="w-full h-full object-cover"
                     />
                   </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { X, Scale, ShoppingBag, Trash2, Star } from 'lucide-react';
 import { motion } from 'motion/react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const ProductCompareModal: React.FC = () => {
   const {
@@ -92,9 +93,10 @@ export const ProductCompareModal: React.FC = () => {
                           className="aspect-[4/5] bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden cursor-pointer rounded-xs"
                         >
                           <img
-                            src={prod.images[0] || ''}
+                            src={getProductImageUrl(prod.images?.[0])}
                             alt={prod.name}
                             referrerPolicy="no-referrer"
+                            onError={handleImageError}
                             className="w-full h-full object-cover hover:scale-105 transition-transform"
                           />
                         </div>

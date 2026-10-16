@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { ArrowRight } from 'lucide-react';
+import { handleImageError } from '../utils/imageUrl';
 
 export const AboutView: React.FC = () => {
   const { setCurrentPage } = useStore();
@@ -34,9 +35,10 @@ export const AboutView: React.FC = () => {
 
         <div className="aspect-[4/5] bg-[#FFFDF9] border border-[#E8DED4] overflow-hidden rounded-sm shadow-xs">
           <img
-            src="/src/assets/images/hero_luxury_boutique_1791824705943.jpg"
+            src="/images/hero_luxury_boutique_1791824705943.jpg"
             alt="Atelier Heritage"
             referrerPolicy="no-referrer"
+            onError={handleImageError}
             className="w-full h-full object-cover"
           />
         </div>

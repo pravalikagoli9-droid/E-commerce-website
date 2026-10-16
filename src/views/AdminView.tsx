@@ -7,6 +7,7 @@ import {
   Trash2,
   Tag
 } from 'lucide-react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const AdminView: React.FC = () => {
   const { user, token, quickLoginDemo, showToast, refreshProducts, products } = useStore();
@@ -139,7 +140,7 @@ export const AdminView: React.FC = () => {
           stock: newProdStock,
           description: newProdDesc || 'Artisanal luxury formulation.',
           notes: newProdNotes ? newProdNotes.split(',').map(s => s.trim()) : [],
-          images: ['/src/assets/images/hero_luxury_boutique_1791824705943.jpg']
+          images: ['/images/hero_luxury_boutique_1791824705943.jpg']
         })
       });
       if (res.ok) {
@@ -547,9 +548,10 @@ export const AdminView: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-14 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
                     <img
-                      src={prod.images[0] || ''}
-                      alt=""
+                      src={getProductImageUrl(prod.images?.[0])}
+                      alt={prod.name}
                       referrerPolicy="no-referrer"
+                      onError={handleImageError}
                       className="w-full h-full object-cover"
                     />
                   </div>

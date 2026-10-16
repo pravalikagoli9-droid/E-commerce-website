@@ -12,6 +12,7 @@ import {
   Coins
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -161,9 +162,10 @@ export const CartDrawer: React.FC = () => {
                       className="w-20 h-24 bg-[#FFFDF9] border border-[#E8DED4] overflow-hidden shrink-0 cursor-pointer rounded-sm"
                     >
                       <img
-                        src={item.product.images[0] || ''}
+                        src={getProductImageUrl(item.product.images?.[0])}
                         alt={item.product.name}
                         referrerPolicy="no-referrer"
+                        onError={handleImageError}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
                     </div>
@@ -362,7 +364,12 @@ export const CartDrawer: React.FC = () => {
                       {complementaryProducts.map(p => (
                         <div key={p.id} className="p-2.5 bg-[#FFFDF9] border border-[#E8DED4] flex items-center justify-between text-xs rounded-sm">
                           <div className="flex items-center gap-2.5">
-                            <img src={p.images[0] || ''} alt="" className="w-10 h-12 object-cover border border-[#E8DED4] rounded-xs" />
+                            <img
+                              src={getProductImageUrl(p.images?.[0])}
+                              alt={p.name}
+                              onError={handleImageError}
+                              className="w-10 h-12 object-cover border border-[#E8DED4] rounded-xs"
+                            />
                             <div>
                               <p className="font-serif text-sm text-[#392C2A] line-clamp-1">{p.name}</p>
                               <p className="font-mono text-[#7D6B67]">₹{p.price.toLocaleString('en-US')}</p>

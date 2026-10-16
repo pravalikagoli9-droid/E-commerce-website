@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { Search, X, ArrowUpRight, History, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const SearchModal: React.FC = () => {
   const {
@@ -187,9 +188,10 @@ export const SearchModal: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-14 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
                         <img
-                          src={product.images[0] || ''}
+                          src={getProductImageUrl(product.images?.[0])}
                           alt={product.name}
                           referrerPolicy="no-referrer"
+                          onError={handleImageError}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
                       </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 interface Article {
   id: string;
@@ -25,7 +26,7 @@ export const BlogView: React.FC = () => {
       date: 'October 2026',
       readTime: '6 min read',
       author: 'Adrien de Noir, Master Perfumer',
-      image: '/src/assets/images/category_fragrances_1791824720667.jpg',
+      image: '/images/category_fragrances_1791824720667.jpg',
       content: [
         'In an era dominated by instantaneous synthetic formulations, true artisan perfumery remains an act of agricultural patience. When raw labdanum resin is harvested from the sun-drenched cistus shrubs of the Mediterranean, its volatile molecules are sharp and multifaceted.',
         'It is only through extended cold maceration in dark glass vessels that the harsh terpenic edges subside, allowing the deep balsamic sweetness to harmonize with aged orris butter and natural vanilla bourbon.',
@@ -40,7 +41,7 @@ export const BlogView: React.FC = () => {
       date: 'September 2026',
       readTime: '5 min read',
       author: 'Matteo Bellini, Master Tailor',
-      image: '/src/assets/images/category_apparel_1791824731775.jpg',
+      image: '/images/category_apparel_1791824731775.jpg',
       content: [
         'Mass-market tailoring relies almost universally on fusible glue interfacings—chemical adhesives that bond wool fabric to rigid mesh under extreme heat. The result is a garment that feels stiff upon purchase and blisters irrevocably after repeated dry cleanings.',
         'In contrast, our garments are crafted with horsehair floating canvas. The canvas is stitched with thousands of micro-stitches that suspend the chest piece freely between the outer wool and the inner silk faille lining.',
@@ -55,7 +56,7 @@ export const BlogView: React.FC = () => {
       date: 'August 2026',
       readTime: '4 min read',
       author: 'Dr. Eleanor Sorel, Phytochemist',
-      image: '/src/assets/images/category_skincare_1791824742582.jpg',
+      image: '/images/category_skincare_1791824742582.jpg',
       content: [
         'Between the hours of 11:00 PM and 4:00 AM, cutaneous blood flow increases and cellular mitotic regeneration reaches its peak. During this nocturnal window, the skin barrier is uniquely receptive to biocompatible lipids.',
         'Prickly pear seed oil boasts the highest naturally occurring concentration of Vitamin E (over 1000 mg/kg) and essential linoleic acid of any botanical oil known to cosmetic science.',
@@ -94,9 +95,10 @@ export const BlogView: React.FC = () => {
 
         <div className="aspect-[16/9] bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden rounded-sm">
           <img
-            src={selectedArticle.image}
-            alt=""
+            src={getProductImageUrl(selectedArticle.image)}
+            alt={selectedArticle.title}
             referrerPolicy="no-referrer"
+            onError={handleImageError}
             className="w-full h-full object-cover"
           />
         </div>
@@ -133,9 +135,10 @@ export const BlogView: React.FC = () => {
           >
             <div className="aspect-[4/3] bg-[#FAF7F2] overflow-hidden">
               <img
-                src={art.image}
+                src={getProductImageUrl(art.image)}
                 alt={art.title}
                 referrerPolicy="no-referrer"
+                onError={handleImageError}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>

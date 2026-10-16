@@ -4,6 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { Heart, ShoppingBag, Star, Eye, Scale, Bell } from 'lucide-react';
 import { PriceAlertModal } from './PriceAlertModal';
 import { motion } from 'motion/react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 interface ProductCardProps {
   product: Product;
@@ -63,13 +64,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Product Image Frame */}
         <div className="relative aspect-[4/5] w-full bg-[#F8F4ED] overflow-hidden">
           <img
-            src={product.images[0] || ''}
+            src={getProductImageUrl(product.images?.[0])}
             alt={product.name}
             referrerPolicy="no-referrer"
             loading="lazy"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = '/src/assets/images/category_apparel_1791824731775.jpg';
-            }}
+            onError={handleImageError}
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
 

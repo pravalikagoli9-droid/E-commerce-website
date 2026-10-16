@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Product } from '../types';
 import { useStore } from '../context/StoreContext';
 import { X, TrendingDown, PackageCheck, CheckCircle2 } from 'lucide-react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 interface PriceAlertModalProps {
   product: Product;
@@ -68,7 +69,12 @@ export const PriceAlertModal: React.FC<PriceAlertModalProps> = ({ product, type,
 
         <div className="p-3 bg-[#FFFDF9] border border-[#E8DED4] flex items-center gap-3 text-xs rounded-sm">
           <div className="w-12 h-14 bg-[#FAF7F2] border border-[#E8DED4] overflow-hidden shrink-0 rounded-xs">
-            <img src={product.images[0] || ''} alt="" className="w-full h-full object-cover" />
+            <img
+              src={getProductImageUrl(product.images?.[0])}
+              alt={product.name}
+              onError={handleImageError}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <p className="font-serif text-sm text-[#392C2A] font-medium line-clamp-1">{product.name}</p>

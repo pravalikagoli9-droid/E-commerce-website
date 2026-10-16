@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { X, Star, ShoppingBag, ArrowRight, Minus, Plus, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const QuickViewModal: React.FC = () => {
   const {
@@ -84,9 +85,10 @@ export const QuickViewModal: React.FC = () => {
           <div className="p-6 sm:p-8 bg-[#FAF7F2] border-b md:border-b-0 md:border-r border-[#E8DED4] flex flex-col justify-between">
             <div className="relative aspect-[4/5] bg-[#FFFDF9] border border-[#E8DED4] overflow-hidden rounded-sm">
               <img
-                src={quickViewProduct.images[activeImgIdx] || quickViewProduct.images[0]}
+                src={getProductImageUrl(quickViewProduct.images?.[activeImgIdx] || quickViewProduct.images?.[0])}
                 alt={quickViewProduct.name}
                 referrerPolicy="no-referrer"
+                onError={handleImageError}
                 className="w-full h-full object-cover"
               />
               {quickViewProduct.isBestseller && (
@@ -96,7 +98,7 @@ export const QuickViewModal: React.FC = () => {
               )}
             </div>
 
-            {quickViewProduct.images.length > 1 && (
+            {quickViewProduct.images && quickViewProduct.images.length > 1 && (
               <div className="flex gap-2.5 pt-4">
                 {quickViewProduct.images.map((img, i) => (
                   <button
@@ -106,7 +108,12 @@ export const QuickViewModal: React.FC = () => {
                       activeImgIdx === i ? 'border-[#C9878D] ring-1 ring-[#C9878D]' : 'border-[#E8DED4] opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={getProductImageUrl(img)}
+                      alt=""
+                      onError={handleImageError}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>

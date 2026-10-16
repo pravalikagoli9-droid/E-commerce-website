@@ -17,6 +17,7 @@ import {
   Flag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const ProductDetailView: React.FC = () => {
   const {
@@ -217,9 +218,10 @@ export const ProductDetailView: React.FC = () => {
             <AnimatePresence mode="wait">
               <motion.img
                 key={activeImageIdx}
-                src={selectedProduct.images[activeImageIdx] || selectedProduct.images[0]}
+                src={getProductImageUrl(selectedProduct.images?.[activeImageIdx] || selectedProduct.images?.[0])}
                 alt={selectedProduct.name}
                 referrerPolicy="no-referrer"
+                onError={handleImageError}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -233,7 +235,7 @@ export const ProductDetailView: React.FC = () => {
               className="absolute inset-0 pointer-events-none transition-opacity duration-150"
               style={{
                 display: zoomStyle.display,
-                backgroundImage: `url(${selectedProduct.images[activeImageIdx] || selectedProduct.images[0]})`,
+                backgroundImage: `url(${getProductImageUrl(selectedProduct.images?.[activeImageIdx] || selectedProduct.images?.[0])})`,
                 backgroundSize: '200%',
                 backgroundPosition: zoomStyle.backgroundPosition
               }}
@@ -253,7 +255,7 @@ export const ProductDetailView: React.FC = () => {
           </div>
 
           {/* Thumbnails */}
-          {selectedProduct.images.length > 1 && (
+          {selectedProduct.images && selectedProduct.images.length > 1 && (
             <div className="flex gap-3">
               {selectedProduct.images.map((img, idx) => (
                 <button
@@ -263,7 +265,12 @@ export const ProductDetailView: React.FC = () => {
                     activeImageIdx === idx ? 'border-[#C9878D] ring-1 ring-[#C9878D]' : 'border-[#E8DED4] opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={getProductImageUrl(img)}
+                    alt=""
+                    onError={handleImageError}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>

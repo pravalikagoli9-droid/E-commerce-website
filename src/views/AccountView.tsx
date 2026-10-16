@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
+import { getProductImageUrl, handleImageError } from '../utils/imageUrl';
 
 export const AccountView: React.FC = () => {
   const {
@@ -787,8 +788,9 @@ export const AccountView: React.FC = () => {
                       <div key={idx} className="py-3 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-3">
                           <img
-                            src={item.productImage || ''}
-                            alt=""
+                            src={getProductImageUrl(item.productImage)}
+                            alt={item.productName}
+                            onError={handleImageError}
                             className="w-12 h-14 object-cover bg-[#FAF7F2] rounded-xs border border-[#E8DED4]"
                           />
                           <div>
@@ -885,7 +887,12 @@ export const AccountView: React.FC = () => {
                     className="cursor-pointer space-y-3"
                   >
                     <div className="aspect-[4/5] bg-[#FAF7F2] overflow-hidden rounded-xs">
-                      <img src={prod.images[0] || ''} alt={prod.name} className="w-full h-full object-cover" />
+                      <img
+                        src={getProductImageUrl(prod.images?.[0])}
+                        alt={prod.name}
+                        onError={handleImageError}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div>
                       <span className="text-[10px] uppercase tracking-wider text-[#7D6B67]">{prod.categoryName}</span>
@@ -1170,7 +1177,12 @@ export const AccountView: React.FC = () => {
                   className="bg-[#FFFDF9] border border-[#E8DED4] p-3 space-y-2 cursor-pointer hover:border-[#D6B77A] transition-colors rounded-sm shadow-xs"
                 >
                   <div className="aspect-[4/5] bg-[#FAF7F2] overflow-hidden rounded-xs">
-                    <img src={p.images[0] || ''} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={getProductImageUrl(p.images?.[0])}
+                      alt={p.name}
+                      onError={handleImageError}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
                     <h4 className="font-serif text-sm text-[#30231F] font-medium line-clamp-1">{p.name}</h4>

@@ -27,6 +27,11 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static product images for local dev and production
+app.use('/images', express.static(path.resolve(__dirname, 'public/images')));
+app.use('/src/assets/images', express.static(path.resolve(__dirname, 'public/src/assets/images')));
+app.use('/assets/images', express.static(path.resolve(__dirname, 'public/assets/images')));
+
 // Simple Bearer token / Session token verification
 function getAuthUser(req: express.Request) {
   const authHeader = req.headers.authorization;
